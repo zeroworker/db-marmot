@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017-2018 shaokang All Rights Reserved
+  -->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.shaokang.com/core/schema/statistical"
+        xmlns:lns="http://www.shaokang.com/core/schema/statistical"
+        elementFormDefault="qualified">
+
+    <element name="statistical">
+        <annotation>
+            <documentation><![CDATA[统计模型配置]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element name="description" minOccurs="0" maxOccurs="1">
+                    <annotation>
+                        <documentation><![CDATA[统计模型配置说明]]]></documentation>
+                    </annotation>
+                </element>
+                <element ref="lns:model" maxOccurs="unbounded" minOccurs="1"/>
+            </sequence>
+        </complexType>
+        <unique name="modelUnique">
+            <selector xpath="lns:model"/>
+            <field xpath="@modelName"/>
+        </unique>
+    </element>
+
+    <element name="model">
+        <annotation>
+            <documentation><![CDATA[统计模型定义]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element ref="lns:aggregateColumns" minOccurs="1" maxOccurs="1"/>
+                <element ref="lns:conditionColumns" minOccurs="0" maxOccurs="1"/>
+                <element ref="lns:groupColumns" minOccurs="0" maxOccurs="1"/>
+                <element ref="lns:directionColumns" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+            <attribute name="modelName" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[模型名称 该模型名称唯一]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="dbName" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[数据源名称]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="fetchSql" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[抓取数据sql]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="fetchStep" type="int" use="required">
+                <annotation>
+                    <documentation><![CDATA[抓取数据步长]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="offsetExpr" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[偏移量,多偏移量,隔开]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="timeColumn" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[时间字段]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="windowLength" type="int" use="required">
+                <annotation>
+                    <documentation><![CDATA[统计窗口长度]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="windowType" use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[统计窗口类型]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="slidingTime">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[滑动时间窗口 如最近20天]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="simpleTime">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[固定时间窗口 如每20天]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="windowUnit" use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[窗口粒度]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="second">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[秒]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="minute">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[分]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="hour">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[小时]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="day">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[天]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="non">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[无时间粒度 实时统计]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="memo" type="string">
+                <annotation>
+                    <documentation><![CDATA[模型说明]]></documentation>
+                </annotation>
+            </attribute>
+        </complexType>
+    </element>
+    <element name="aggregateColumns">
+        <annotation>
+            <documentation><![CDATA[统计聚合字段]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element ref="lns:aggregateColumn" maxOccurs="unbounded" minOccurs="1"/>
+            </sequence>
+        </complexType>
+        <unique name="aggregateColumnUnique">
+            <selector xpath="lns:aggregateColumn"/>
+            <field xpath="@columnCode"/>
+        </unique>
+    </element>
+    <element name="aggregateColumn">
+        <annotation>
+            <documentation><![CDATA[定义统计聚合纬度]]></documentation>
+        </annotation>
+        <complexType>
+            <attribute name="columnCode" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[字段编码]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnType"  use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[条件字段类型]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="string">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[文本]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="number">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[数字]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="date">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[时间]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="aggregates" use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[聚合字段函数]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="max">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[最大值]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="min">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[最小值]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="sum">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[求和]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="count">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[次数]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="avg">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[平均值]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="count_distinct">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[去重次数]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+        </complexType>
+    </element>
+    <element name="conditionColumns">
+        <annotation>
+            <documentation><![CDATA[统计条件]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element ref="lns:conditionColumn" maxOccurs="unbounded" minOccurs="1"></element>
+            </sequence>
+        </complexType>
+        <unique name="conditionColumnUnique">
+            <selector xpath="lns:condition"/>
+            <field xpath="@columnCode"/>
+            <field xpath="@operators"/>
+        </unique>
+    </element>
+    <element name="conditionColumn">
+        <annotation>
+            <documentation><![CDATA[定义统计过滤条件纬度]]></documentation>
+        </annotation>
+        <complexType>
+            <attribute name="columnCode" type="string" use="required">
+                <annotation>
+                    <documentation>
+                        <![CDATA[字段编码]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnType"  use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[条件字段类型]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="string">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[文本]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="number">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[数字]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="date">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[时间]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="operators" use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation>
+                            <![CDATA[运算符]]>
+                        </documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="equals">
+                            <annotation>
+                                <documentation><![CDATA[等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="not_equals">
+                            <annotation>
+                                <documentation><![CDATA[不等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="greater_than">
+                            <annotation>
+                                <documentation><![CDATA[大于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="less_than">
+                            <annotation>
+                                <documentation><![CDATA[小于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="greater_equal">
+                            <annotation>
+                                <documentation><![CDATA[大于等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="less_equal">
+                            <annotation>
+                                <documentation><![CDATA[小于等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="in">
+                            <annotation>
+                                <documentation><![CDATA[不包含]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="not_in">
+                            <annotation>
+                                <documentation><![CDATA[包含]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="inter_section">
+                            <annotation>
+                                <documentation><![CDATA[交集]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="like">
+                            <annotation>
+                                <documentation><![CDATA[模糊匹配]]></documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="rightValue" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[右值 如果 比较符为 in/not_in 条件值用","隔开]]></documentation>
+                </annotation>
+            </attribute>
+        </complexType>
+    </element>
+    <element name="groupColumns">
+        <annotation>
+            <documentation><![CDATA[定义统计分组]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element ref="lns:groupColumn" maxOccurs="unbounded" minOccurs="1"></element>
+            </sequence>
+        </complexType>
+        <unique name="groupColumnsUnique">
+            <selector xpath="lns:groupColumn"/>
+            <field xpath="@columnCode"/>
+        </unique>
+    </element>
+    <element name="groupColumn">
+        <annotation>
+            <documentation><![CDATA[定义分组纬度]]></documentation>
+        </annotation>
+        <complexType>
+            <attribute name="columnCode" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[字段编码]]></documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnType"  use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[条件字段类型]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="string">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[文本]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="number">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[数字]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="date">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[时间]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+        </complexType>
+    </element>
+    <element name="directionColumns">
+        <annotation>
+            <documentation><![CDATA[统计方向]]></documentation>
+        </annotation>
+        <complexType>
+            <sequence>
+                <element ref="lns:directionColumn" maxOccurs="unbounded" minOccurs="1"></element>
+            </sequence>
+        </complexType>
+        <unique name="directionColumnsUnique">
+            <selector xpath="lns:directionColumn"/>
+            <field xpath="@columnCode"/>
+            <field xpath="@operators"/>
+        </unique>
+    </element>
+    <element name="directionColumn">
+        <annotation>
+            <documentation><![CDATA[定义去重纬度]]></documentation>
+        </annotation>
+        <complexType>
+            <attribute name="columnCode" type="string" use="required">
+                <annotation>
+                    <documentation>
+                        <![CDATA[字段编码]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnType"  use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation><![CDATA[条件字段类型]]></documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="string">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[文本]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="number">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[数字]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="date">
+                            <annotation>
+                                <documentation>
+                                    <![CDATA[时间]]>
+                                </documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="operators" use="required">
+                <simpleType>
+                    <annotation>
+                        <documentation>
+                            <![CDATA[运算符]]>
+                        </documentation>
+                    </annotation>
+                    <restriction base="string">
+                        <enumeration value="equals">
+                            <annotation>
+                                <documentation><![CDATA[等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="not_equals">
+                            <annotation>
+                                <documentation><![CDATA[不等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="greater_than">
+                            <annotation>
+                                <documentation><![CDATA[大于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="less_than">
+                            <annotation>
+                                <documentation><![CDATA[小于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="greater_equal">
+                            <annotation>
+                                <documentation><![CDATA[大于等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="less_equal">
+                            <annotation>
+                                <documentation><![CDATA[小于等于]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="in">
+                            <annotation>
+                                <documentation><![CDATA[不包含]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="not_in">
+                            <annotation>
+                                <documentation><![CDATA[包含]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="inter_section">
+                            <annotation>
+                                <documentation><![CDATA[交集]]></documentation>
+                            </annotation>
+                        </enumeration>
+                        <enumeration value="like">
+                            <annotation>
+                                <documentation><![CDATA[模糊匹配]]></documentation>
+                            </annotation>
+                        </enumeration>
+                    </restriction>
+                </simpleType>
+            </attribute>
+            <attribute name="rightValue" type="string" use="required">
+                <annotation>
+                    <documentation><![CDATA[右值 如果 比较符为 in/not_in 条件值用","隔开]]></documentation>
+                </annotation>
+            </attribute>
+        </complexType>
+    </element>
+</schema>
