@@ -35,10 +35,10 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	private int maxPoolSize;
 	private RepositoryAdapter repositoryAdapter;
 	private ApplicationContext applicationContext;
-	private ReentrantLock lock = new ReentrantLock();
 	private StatisticalRepository statisticalRepository;
 	private StatisticalGenerator statisticalGenerator;
 	private ThreadPoolTaskExecutor statisticalThreadPool;
+	private final ReentrantLock lock = new ReentrantLock();
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 	
 	@Override
