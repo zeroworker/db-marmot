@@ -524,7 +524,7 @@ public class ConverterAdapter {
 
 		protected static char[] repeatAsterisk(int len) {
 			char[] chars = new char[len];
-			Arrays.fill(chars, db.marmot.util.Mask.SEPARATOR_CHAR_ASTERISK);
+			Arrays.fill(chars, Mask.SEPARATOR_CHAR_ASTERISK);
 			return chars;
 		}
 	}
