@@ -1,10 +1,12 @@
 package db.marmot.statistical.generator;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
-
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.RepositoryType;
+import db.marmot.enums.WindowUnit;
+import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.validate.Validators;
+import db.marmot.statistical.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.InitializingBean;
@@ -18,14 +20,10 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import db.marmot.converter.ConverterAdapter;
-import db.marmot.enums.RepositoryType;
-import db.marmot.enums.WindowUnit;
-import db.marmot.repository.RepositoryAdapter;
-import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.*;
-
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author shaokang
@@ -54,22 +52,24 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public void generateStatisticalData() {
-		try {
-			List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
-			if (statisticalModels != null && !statisticalModels.isEmpty()) {
-				Iterator<StatisticalModel> iterator = statisticalModels.iterator();
-				List<Integer> threadsModelNum = calculateThreadModelNum(statisticalModels.size());
-				for (Integer modelNum : threadsModelNum) {
-					try {
-						List<StatisticalModel> threadModels = createThreadModels(modelNum, iterator);
-						statisticalThreadPool.execute(() -> statisticalGenerator.execute(threadModels));
-					} catch (TaskRejectedException taskRejectedException) {
-						log.warn("异步执行模型统计数据生成任务提交拒绝 当前无可用线程");
+		synchronized (this) {
+			try {
+				List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
+				if (statisticalModels != null && !statisticalModels.isEmpty()) {
+					Iterator<StatisticalModel> iterator = statisticalModels.iterator();
+					List<Integer> threadsModelNum = calculateThreadModelNum(statisticalModels.size());
+					for (Integer modelNum : threadsModelNum) {
+						try {
+							List<StatisticalModel> threadModels = createThreadModels(modelNum, iterator);
+							statisticalThreadPool.execute(() -> statisticalGenerator.execute(threadModels));
+						} catch (TaskRejectedException taskRejectedException) {
+							log.warn("异步执行模型统计数据生成任务提交拒绝 当前无可用线程");
+						}
 					}
 				}
+			} catch (Exception e) {
+				log.error("统计数据生成异常", e);
 			}
-		} catch (Exception e) {
-			log.error("统计数据生成异常", e);
 		}
 	}
 	

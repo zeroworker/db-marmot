@@ -1,17 +1,15 @@
 package db.marmot.graphic.download;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.google.common.collect.Maps;
+import db.marmot.enums.GraphicType;
+import db.marmot.enums.RepositoryType;
+import db.marmot.graphic.*;
+import db.marmot.graphic.generator.GraphicGeneratorAdapter;
+import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
+import db.marmot.volume.VolumeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -25,17 +23,17 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.google.common.collect.Maps;
-import db.marmot.enums.GraphicType;
-import db.marmot.enums.RepositoryType;
-import db.marmot.graphic.*;
-import db.marmot.graphic.generator.GraphicGeneratorAdapter;
-import db.marmot.repository.RepositoryAdapter;
-import db.marmot.repository.validate.Validators;
-import db.marmot.volume.DataVolume;
-import db.marmot.volume.VolumeRepository;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author shaokang
@@ -119,8 +117,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicId);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
 		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeId());
-		GraphicDownload graphicDownload = buildGraphicDownload(graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(),
-			graphicDesign.getGraphic());
+		GraphicDownload graphicDownload = buildGraphicDownload(graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
 	
@@ -131,8 +128,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicId);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
 		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeId());
-		GraphicDownload graphicDownload = buildGraphicDownload(founderId, graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(),
-			graphicDesign.getGraphic());
+		GraphicDownload graphicDownload = buildGraphicDownload(founderId, graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
 	
