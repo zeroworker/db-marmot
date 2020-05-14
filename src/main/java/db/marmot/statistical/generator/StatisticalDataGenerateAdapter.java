@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author shaokang
@@ -34,6 +35,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	private int maxPoolSize;
 	private RepositoryAdapter repositoryAdapter;
 	private ApplicationContext applicationContext;
+	private ReentrantLock lock = new ReentrantLock();
 	private StatisticalRepository statisticalRepository;
 	private StatisticalGenerator statisticalGenerator;
 	private ThreadPoolTaskExecutor statisticalThreadPool;
@@ -52,24 +54,26 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public void generateStatisticalData() {
-		synchronized (this) {
-			try {
-				List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
-				if (statisticalModels != null && !statisticalModels.isEmpty()) {
-					Iterator<StatisticalModel> iterator = statisticalModels.iterator();
-					List<Integer> threadsModelNum = calculateThreadModelNum(statisticalModels.size());
-					for (Integer modelNum : threadsModelNum) {
-						try {
-							List<StatisticalModel> threadModels = createThreadModels(modelNum, iterator);
-							statisticalThreadPool.execute(() -> statisticalGenerator.execute(threadModels));
-						} catch (TaskRejectedException taskRejectedException) {
-							log.warn("异步执行模型统计数据生成任务提交拒绝 当前无可用线程");
-						}
+		lock.lock();
+		try {
+			List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
+			if (statisticalModels != null && !statisticalModels.isEmpty()) {
+				Iterator<StatisticalModel> iterator = statisticalModels.iterator();
+				List<Integer> threadsModelNum = calculateThreadModelNum(statisticalModels.size());
+				for (Integer modelNum : threadsModelNum) {
+					try {
+						List<StatisticalModel> threadModels = createThreadModels(modelNum, iterator);
+						statisticalThreadPool.execute(() -> statisticalGenerator.execute(threadModels));
+					} catch (TaskRejectedException taskRejectedException) {
+						log.warn("异步执行模型统计数据生成任务提交拒绝 当前无可用线程");
 					}
 				}
-			} catch (Exception e) {
-				log.error("统计数据生成异常", e);
 			}
+		} catch (Exception e) {
+			log.error("统计数据生成异常", e);
+		}
+		if (lock.isLocked()) {
+			lock.unlock();
 		}
 	}
 	

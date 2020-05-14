@@ -1,11 +1,14 @@
 package db.marmot.statistical;
 
-import java.sql.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.converter.SelectSqlBuilderConverter;
+import db.marmot.enums.ColumnType;
+import db.marmot.enums.Operators;
+import db.marmot.enums.WindowType;
+import db.marmot.enums.WindowUnit;
+import db.marmot.repository.DataSourceTemplate;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -15,12 +18,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import db.marmot.converter.ConverterAdapter;
-import db.marmot.converter.SelectSqlBuilderConverter;
-import db.marmot.enums.*;
-import db.marmot.repository.DataSourceTemplate;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author shaokang
@@ -108,7 +110,23 @@ public class StatisticalTemplate implements DataSourceTemplate {
 			}
 		}));
 	}
-	
+
+	private static final String STATISTICAL_MODEL_LOAD_CALCULATE_SQL = "select model_id, volume_id, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? and calculated=? for update ";
+
+	/**
+	 * 根据模型名称加载统计模型
+	 * @param modelId
+	 * @return
+	 */
+	public StatisticalModel loadStatisticalModel(long modelId,boolean calculated) {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_CALCULATE_SQL, new Object[] { modelId,calculated }, new RowMapper<StatisticalModel>() {
+			@Override
+			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return buildStatisticalModel(rs);
+			}
+		}));
+	}
+
 	private static final String STATISTICAL_MODEL_FIND_SQL = "select model_id, volume_id, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_name=?";
 	
 	/**

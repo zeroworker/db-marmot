@@ -1,10 +1,5 @@
 package db.marmot.statistical;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.dao.DuplicateKeyException;
-
 import com.alibaba.druid.sql.builder.SQLBuilderFactory;
 import com.alibaba.druid.sql.builder.SQLSelectBuilder;
 import db.marmot.enums.TemplateType;
@@ -14,6 +9,10 @@ import db.marmot.repository.RepositoryException;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.volume.Database;
 import db.marmot.volume.DatabaseTemplate;
+import org.springframework.dao.DuplicateKeyException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -82,13 +81,9 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @param statisticalModel
 	 */
 	public void updateStatisticalModelCalculateIng(StatisticalModel statisticalModel) {
-		
-		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId());
+		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId(), true);
 		if (originalStatisticalModel == null) {
-			throw new RepositoryException(String.format("统计模型%s不存在", statisticalModel.getModelName()));
-		}
-		if (!originalStatisticalModel.isCalculated()) {
-			throw new RepositoryException(String.format("统计模型%s未计算完成", statisticalModel.getModelName()));
+			throw new RepositoryException(String.format("统计模型%s不存在或者未计算完成", statisticalModel.getModelName()));
 		}
 		statisticalModel.setCalculated(false);
 		statisticalTemplate.updateStatisticalModel(statisticalModel);
@@ -99,17 +94,16 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @param statisticalModel
 	 */
 	public void updateStatisticalModelCalculated(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
-		
-		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId());
+		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
 		if (originalStatisticalModel == null) {
-			throw new RepositoryException(String.format("统计模型%s不存在", statisticalModel.getModelName()));
+			throw new RepositoryException(String.format("未获取到计算中模型%s", statisticalModel.getModelName()));
 		}
 		
 		if (!originalStatisticalModel.isCalculated()) {
 			statisticalModel.setCalculated(true);
 			statisticalTemplate.updateStatisticalModel(statisticalModel);
+			
 		}
-		
 		if (temporaryMemory.hashMemoryStatistics()) {
 			temporaryMemory.getMemoryStatistics().values().forEach(data -> {
 				if (statisticalTemplate.findStatisticalData(data.getModelName(), data.getRowKey()) == null) {

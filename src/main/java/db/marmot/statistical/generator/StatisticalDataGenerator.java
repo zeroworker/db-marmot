@@ -1,12 +1,5 @@
 package db.marmot.statistical.generator;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
-import org.springframework.core.Ordered;
-
 import db.marmot.enums.RepositoryType;
 import db.marmot.repository.RepositoryAdapter;
 import db.marmot.statistical.StatisticalModel;
@@ -17,8 +10,14 @@ import db.marmot.statistical.generator.procedure.StatisticalDataCalculateProcedu
 import db.marmot.statistical.generator.procedure.StatisticalDataFetchProcedure;
 import db.marmot.statistical.generator.procedure.StatisticalDataMergeProcedure;
 import db.marmot.statistical.generator.procedure.StatisticalProcedure;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author shaokang
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StatisticalDataGenerator implements StatisticalGenerator {
 	
+	private final ReentrantLock lock = new ReentrantLock();
 	private StatisticalRepository statisticalRepository;
 	private List<StatisticalProcedure> statisticalProcedures = new ArrayList<>();
 	
@@ -44,7 +44,9 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				Iterator<StatisticalProcedure> procedures = statisticalProcedures.iterator();
 				TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
 				try {
-					statisticalRepository.updateStatisticalModelCalculateIng(statisticalModel);
+					synchronized (statisticalModel) {
+						statisticalRepository.updateStatisticalModelCalculateIng(statisticalModel);
+					}
 					processedProcedure(procedures, statisticalModel, temporaryMemory);
 				} catch (Exception e) {
 					log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
