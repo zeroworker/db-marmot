@@ -1,8 +1,8 @@
 package db.marmot.contorller.response;
 
-import com.xyb.adk.common.util.ToString;
-
 import lombok.Getter;
+
+import java.util.StringJoiner;
 
 /**
  * @author shaokang
@@ -42,6 +42,6 @@ public class WebResponse<D> {
 	
 	@Override
 	public String toString() {
-		return ToString.toString(this);
+		return new StringJoiner(", ", WebResponse.class.getSimpleName() + "[", "]").add("status=" + status).add("message='" + message + "'").toString();
 	}
 }

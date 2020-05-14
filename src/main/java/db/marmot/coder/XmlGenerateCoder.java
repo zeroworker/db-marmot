@@ -1,12 +1,13 @@
 package db.marmot.coder;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-
+import com.google.common.base.Splitter;
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.*;
+import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.validate.Validators;
+import db.marmot.statistical.*;
+import db.marmot.volume.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -15,16 +16,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.google.common.base.Splitter;
-import db.marmot.converter.ConverterAdapter;
-import db.marmot.enums.*;
-import db.marmot.repository.RepositoryAdapter;
-import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.*;
-import db.marmot.volume.*;
-import com.xyb.gas.silverbolt.statistics.exception.StatisticsAnalysisException;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 /**
  * spring 运行环境
@@ -48,7 +45,7 @@ public class XmlGenerateCoder {
 			this.domBuilder = builderFactory.newDocumentBuilder();
 			this.schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 		} catch (ParserConfigurationException e) {
-			throw new StatisticsAnalysisException("构建XML解析coder过程中出现错误", e);
+			throw new CoderException("构建XML解析coder过程中出现错误", e);
 		}
 	}
 	
@@ -135,12 +132,13 @@ public class XmlGenerateCoder {
 							conditionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							conditionColumn
+								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getConditionColumns().add(conditionColumn);
 						}
 					}
 				},
-
+				
 				group_columns("groupColumns") {
 					@Override
 					void setAttribute(StatisticalModel statisticalModel, Element element) {
@@ -154,7 +152,7 @@ public class XmlGenerateCoder {
 						}
 					}
 				},
-
+				
 				direction_columnss("directionColumns") {
 					@Override
 					void setAttribute(StatisticalModel statisticalModel, Element element) {
@@ -165,7 +163,8 @@ public class XmlGenerateCoder {
 							directionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							directionColumn
+								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getDirectionColumns().add(directionColumn);
 						}
 					}
@@ -335,6 +334,12 @@ public class XmlGenerateCoder {
 				nextElement();
 			}
 			return null;
+		}
+	}
+	
+	class CoderException extends RuntimeException {
+		public CoderException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 }

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
-import java.util.StringJoiner;
 
 /**
  * @author shaokang
@@ -23,12 +22,5 @@ public class TabGraphicDataRequest extends GraphicDataRequest<TabGraphic> {
 	@Override
 	public TabGraphic getGraphic() {
 		return this.graphic;
-	}
-
-	@Override
-	public String toString() {
-		return new StringJoiner(", ", TabGraphicDataRequest.class.getSimpleName() + "[", "]")
-				.add("graphic=" + graphic)
-				.toString();
 	}
 }

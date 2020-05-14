@@ -1,17 +1,7 @@
 package db.marmot.graphic.generator.procedure;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.xyb.adk.common.util.ToString;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.DataColor;
@@ -23,6 +13,14 @@ import db.marmot.graphic.generator.TabGraphicDataColumn;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 表格数据结构处理-创建表格字段以及样式、数据结构调整(字段横向)、以及字段对应值处理
@@ -67,7 +65,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 						rowData.put(dimenColumn.getColumnCode(), escapeValue);
 					}
 					if (dimenColumn.isColumnMask() && dimenColumn.getColumnType() == ColumnType.string) {
-						rowData.put(dimenColumn.getColumnCode(), ToString.mask((String) value));
+						rowData.put(dimenColumn.getColumnCode(), ConverterAdapter.Mask.mask((String) value));
 					}
 				});
 			}
