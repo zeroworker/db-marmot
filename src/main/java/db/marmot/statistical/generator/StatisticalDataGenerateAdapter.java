@@ -54,6 +54,9 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public void generateStatisticalData() {
+		if (lock.isLocked()){
+			return;
+		}
 		lock.lock();
 		try {
 			List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
