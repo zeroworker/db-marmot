@@ -4,18 +4,17 @@
 
 package db.marmot.graphic;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotBlank;
-
 import db.marmot.enums.DownloadStatus;
 import db.marmot.enums.GraphicType;
 import db.marmot.repository.validate.Validators;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -145,5 +144,18 @@ public class GraphicDownload {
 			Validators.notNull(this.graphicType, "graphicType不能为空");
 			Validators.notNull(this.graphic, "graphic不能为空");
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		GraphicDownload that = (GraphicDownload) o;
+		return downloadId == that.downloadId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(downloadId);
 	}
 }

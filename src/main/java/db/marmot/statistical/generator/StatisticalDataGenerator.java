@@ -17,15 +17,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author shaokang
  */
 @Slf4j
 public class StatisticalDataGenerator implements StatisticalGenerator {
-	
-	private final ReentrantLock lock = new ReentrantLock();
+
 	private StatisticalRepository statisticalRepository;
 	private List<StatisticalProcedure> statisticalProcedures = new ArrayList<>();
 	
@@ -44,9 +42,7 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				Iterator<StatisticalProcedure> procedures = statisticalProcedures.iterator();
 				TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
 				try {
-					synchronized (statisticalModel) {
-						statisticalRepository.updateStatisticalModelCalculateIng(statisticalModel);
-					}
+					statisticalRepository.updateStatisticalModelCalculateIng(statisticalModel);
 					processedProcedure(procedures, statisticalModel, temporaryMemory);
 				} catch (Exception e) {
 					log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
