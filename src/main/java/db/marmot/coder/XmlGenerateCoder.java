@@ -92,7 +92,7 @@ public class XmlGenerateCoder {
 			while ((nodeElement = iterator.nextElement()) != null) {
 				for (StatisticalCreator statisticalCreator : values()) {
 					if (statisticalCreator.nodeName.equals(nodeElement.getLocalName())) {
-						statisticalCreator.builder.store(statisticalCreator.builder.build(element));
+						statisticalCreator.builder.store(statisticalCreator.builder.build(nodeElement));
 					}
 				}
 			}
@@ -132,8 +132,7 @@ public class XmlGenerateCoder {
 							conditionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							conditionColumn
-								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getConditionColumns().add(conditionColumn);
 						}
 					}
@@ -163,8 +162,7 @@ public class XmlGenerateCoder {
 							directionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							directionColumn
-								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getDirectionColumns().add(directionColumn);
 						}
 					}
@@ -198,12 +196,12 @@ public class XmlGenerateCoder {
 			}
 			
 			public static void setByChildNodes(StatisticalModel statisticalModel, NodeList nodeList) {
-				Element element;
+				Element nodeElement;
 				Iterator iterator = new Iterator(nodeList);
-				while ((element = iterator.nextElement()) != null) {
+				while ((nodeElement = iterator.nextElement()) != null) {
 					for (ModelCreator modelCreator : values()) {
-						if (modelCreator.nodeName.equals(element.getLocalName())) {
-							modelCreator.setAttribute(statisticalModel, element);
+						if (modelCreator.nodeName.equals(nodeElement.getLocalName())) {
+							modelCreator.setAttribute(statisticalModel, nodeElement);
 						}
 					}
 				}
@@ -308,7 +306,7 @@ public class XmlGenerateCoder {
 			while ((nodeElement = iterator.nextElement()) != null) {
 				for (VolumeCreator volumeCreator : values()) {
 					if (volumeCreator.nodeName.equals(nodeElement.getLocalName())) {
-						volumeCreator.builder.store(volumeCreator.builder.build(element));
+						volumeCreator.builder.store(volumeCreator.builder.build(nodeElement));
 					}
 				}
 			}
@@ -317,7 +315,7 @@ public class XmlGenerateCoder {
 	
 	public static class Iterator {
 		
-		private int index;
+		private int index = -1;
 		private NodeList nodeList;
 		
 		public Iterator(NodeList nodeList) {
@@ -326,12 +324,12 @@ public class XmlGenerateCoder {
 		
 		public Element nextElement() {
 			if (index < nodeList.getLength()) {
+				index = index + 1;
 				Node node = nodeList.item(index);
 				if (node.getNodeType() == Element.ELEMENT_NODE) {
 					return (Element) node;
 				}
-				index++;
-				nextElement();
+				return nextElement();
 			}
 			return null;
 		}

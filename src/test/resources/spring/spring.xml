@@ -48,7 +48,7 @@
     </bean>
 
     <bean id="marmotConfigurator" class="db.marmot.MarmotConfigurator">
-        <property name="fileUrl" value="#{user.dir}/marmot"/>
+        <property name="fileUrl" value="~/project/git/github/db-marmot/marmot"/>
         <property name="downloadUrl" value="http://www.xxx.com"/>
     </bean>
 

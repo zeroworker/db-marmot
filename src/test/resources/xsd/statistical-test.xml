@@ -7,19 +7,18 @@
     <description>模型测试</description>
 
     <model modelName="model1" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
-           windowType="slidingTime" windowUnit="hour">
+           windowType="slidingTime" windowUnit="hour" memo="">
         <aggregateColumns>
             <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
         </aggregateColumns>
     </model>
 
     <model modelName="model2" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
-           windowType="slidingTime" windowUnit="hour">
+           windowType="slidingTime" windowUnit="hour" memo="">
         <aggregateColumns>
             <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
         </aggregateColumns>
         <conditionColumns>
-            <conditionColumn columnCode="xx" columnType="string" operators="equals" rightValue=""/>
             <conditionColumn columnCode="xx" columnType="string" operators="equals" rightValue=""/>
         </conditionColumns>
         <groupColumns>

@@ -20,7 +20,7 @@
                     </annotation>
                 </element>
                 <element ref="lns:dataBase" maxOccurs="unbounded" minOccurs="0"/>
-                <element ref="lns:dataVolume" maxOccurs="unbounded" minOccurs="1"/>
+                <element ref="lns:dataVolume" maxOccurs="unbounded" minOccurs="0"/>
                 <element ref="lns:columnVolume" maxOccurs="unbounded" minOccurs="0"/>
             </sequence>
         </complexType>
@@ -120,7 +120,7 @@
                     </restriction>
                 </simpleType>
             </attribute>
-            <attribute name="dbName" type="string" use="required" default="master">
+            <attribute name="dbName" type="string" use="required">
                 <annotation>
                     <documentation>
                         <![CDATA[数据源名称]]>
@@ -186,7 +186,7 @@
                     </documentation>
                 </annotation>
             </attribute>
-            <attribute name="dbName" type="string" use="required" default="master">
+            <attribute name="dbName" type="string" use="required">
                 <annotation>
                     <documentation>
                         <![CDATA[数据源名称]]>

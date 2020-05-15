@@ -5,9 +5,5 @@
         http://www.shaokang.com/core/schema/volume.xsd">
 
     <description>数据集测试</description>
-
-    <dataBase name="xx" url="" userName="" password=""/>
-
-    <dataVolume volumeName="xx" volumeCode="" volumeType="sql" dbName="" sqlScript="" volumeLimit="100"/>
-
+    <dataBase name="pay" url="jdbc:mysql://192.168.2.241:3306/gas_silverbolt_test" userName="xxx" password="xxx"/>
 </volume>
