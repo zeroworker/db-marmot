@@ -47,4 +47,9 @@
         <property name="connectionProperties" value="druid.stat.slowSqlMillis=100"/>
     </bean>
 
+    <bean id="marmotConfigurator" class="db.marmot.MarmotConfigurator">
+        <property name="fileUrl" value="#{user.dir}/marmot"/>
+        <property name="downloadUrl" value="http://www.xxx.com"/>
+    </bean>
+
 </beans>

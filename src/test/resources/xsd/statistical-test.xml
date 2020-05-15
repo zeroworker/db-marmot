@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<statistical xmlns="http://www.shaokang.com/core/schema/statistical"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.shaokang.com/core/schema/statistical
+        http://www.shaokang.com/core/schema/statistical.xsd">
+
+    <description>模型测试</description>
+
+    <model modelName="model1" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
+           windowType="slidingTime" windowUnit="hour">
+        <aggregateColumns>
+            <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
+        </aggregateColumns>
+    </model>
+
+    <model modelName="model2" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
+           windowType="slidingTime" windowUnit="hour">
+        <aggregateColumns>
+            <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
+        </aggregateColumns>
+        <conditionColumns>
+            <conditionColumn columnCode="xx" columnType="string" operators="equals" rightValue=""/>
+            <conditionColumn columnCode="xx" columnType="string" operators="equals" rightValue=""/>
+        </conditionColumns>
+        <groupColumns>
+            <groupColumn columnCode="" columnType="string"/>
+        </groupColumns>
+        <directionColumns>
+            <directionColumn columnCode="" columnType="string" operators="equals" rightValue=""/>
+        </directionColumns>
+    </model>
+
+</statistical>

@@ -19,11 +19,27 @@
                         <documentation><![CDATA[说明]]]></documentation>
                     </annotation>
                 </element>
-                <element ref="lns:dataBase" maxOccurs="unbounded" minOccurs="1"/>
+                <element ref="lns:dataBase" maxOccurs="unbounded" minOccurs="0"/>
                 <element ref="lns:dataVolume" maxOccurs="unbounded" minOccurs="1"/>
                 <element ref="lns:columnVolume" maxOccurs="unbounded" minOccurs="0"/>
             </sequence>
         </complexType>
+        <unique name="dataBaseUnique">
+            <selector xpath="lns:dataBase"/>
+            <field xpath="@name"/>
+        </unique>
+        <unique name="dataVolumeNameUnique">
+            <selector xpath="lns:dataVolume"/>
+            <field xpath="@volumeName"/>
+        </unique>
+        <unique name="dataVolumeCodeUnique">
+            <selector xpath="lns:dataVolume"/>
+            <field xpath="@volumeCode"/>
+        </unique>
+        <unique name="columnVolumeUnique">
+            <selector xpath="lns:columnVolume"/>
+            <field xpath="@columnCode"/>
+        </unique>
     </element>
 
     <element name="dataBase">

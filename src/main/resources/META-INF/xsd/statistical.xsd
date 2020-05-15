@@ -265,7 +265,7 @@
             </sequence>
         </complexType>
         <unique name="conditionColumnUnique">
-            <selector xpath="lns:condition"/>
+            <selector xpath="lns:conditionColumn"/>
             <field xpath="@columnCode"/>
             <field xpath="@operators"/>
         </unique>
