@@ -33,8 +33,8 @@ public class GraphicRepository extends DataSourceRepository {
 		super(templates);
 		this.volumeTemplate = getTemplate(TemplateType.volume);
 		this.graphicTemplate = getTemplate(TemplateType.graphic);
-		this.statisticalTemplate = getTemplate(TemplateType.statistical);
 		this.databaseTemplate = getTemplate(TemplateType.database);
+		this.statisticalTemplate = getTemplate(TemplateType.statistical);
 	}
 	
 	/**
@@ -42,7 +42,6 @@ public class GraphicRepository extends DataSourceRepository {
 	 * @param dashboard 仪表盘
 	 */
 	public void storeDashboard(Dashboard dashboard) {
-		//-保存仪表盘-仪表盘包含多图表设计,顾将新增和更新仪表盘统一处理,提交时提交多图表设计以及仪表盘信息
 		if (dashboard == null) {
 			throw new RepositoryException("仪表盘不能为空");
 		}
@@ -60,13 +59,10 @@ public class GraphicRepository extends DataSourceRepository {
 			graphicTemplate.storeDashboard(dashboard);
 		} catch (DuplicateKeyException keyException) {
 			Dashboard originalDashboard = graphicTemplate.findDashboard(dashboard.getBoardId());
-			//-1.出现幂等异常 根据仪表盘ID获取仪表盘,存在视为更新,不存在视为重复保存
 			if (originalDashboard == null) {
 				throw new RepositoryException(String.format("仪表盘%s不存在", dashboard.getBoardName()));
 			}
-			//- 2.数据源存在变更处理
 			if (originalDashboard.getVolumeCode() != dashboard.getVolumeCode()) {
-				//-2.1 数据源存在变更 原始图表设计已经无用,删除
 				DataVolume originalDataVolume = volumeTemplate.findDataVolume(dashboard.getVolumeCode());
 				if (originalDataVolume == null) {
 					throw new RepositoryException(String.format("数据集%s不存在", dashboard.getVolumeCode()));
@@ -82,7 +78,6 @@ public class GraphicRepository extends DataSourceRepository {
 				}
 				graphicTemplate.deleteGraphicDesignByBoardId(dashboard.getBoardId());
 			}
-			//-3.仪表盘更新修改信息
 			graphicTemplate.updateDashboard(dashboard);
 		}
 		if (dashboard.getGraphicDesigns() != null && !dashboard.getGraphicDesigns().isEmpty()) {
@@ -137,11 +132,11 @@ public class GraphicRepository extends DataSourceRepository {
 	public void deleteDashboard(long boardId) {
 		Dashboard dashboard = graphicTemplate.findDashboard(boardId);
 		if (graphicTemplate.findDashboard(boardId) == null) {
-			throw new RepositoryException(String.format("仪表盘不存在"));
+			throw new RepositoryException("仪表盘不存在");
 		}
 		DataVolume dataVolume = volumeTemplate.findDataVolume(dashboard.getVolumeCode());
 		if (dataVolume == null) {
-			throw new RepositoryException(String.format("数据集不存在"));
+			throw new RepositoryException("数据集不存在");
 		}
 		if (dataVolume.getVolumeType() == VolumeType.model) {
 			List<GraphicDesign> graphicDesigns = graphicTemplate.queryGraphicDesign(dashboard.getBoardId());
@@ -176,7 +171,7 @@ public class GraphicRepository extends DataSourceRepository {
 	public Dashboard findDashboard(long boardId) {
 		Dashboard dashboard = graphicTemplate.findDashboard(boardId);
 		if (dashboard == null) {
-			throw new RepositoryException(String.format("仪表盘不存在"));
+			throw new RepositoryException("仪表盘不存在");
 		}
 		dashboard.setGraphicDesigns(graphicTemplate.queryGraphicDesign(boardId));
 		return dashboard;
@@ -201,7 +196,7 @@ public class GraphicRepository extends DataSourceRepository {
 	 */
 	public void storeGraphicDownload(GraphicDownload graphicDownload) {
 		if (graphicDownload == null) {
-			throw new RepositoryException(String.format("图表下载任务不能为空"));
+			throw new RepositoryException("图表下载任务不能为空");
 		}
 		graphicDownload.validateGraphicDownload();
 		DataVolume dataVolume = volumeTemplate.findDataVolume(graphicDownload.getVolumeCode());
@@ -218,7 +213,7 @@ public class GraphicRepository extends DataSourceRepository {
 	public void updateGraphicDownloadIng(GraphicDownload graphicDownload) {
 		GraphicDownload originalGraphicDownload = graphicTemplate.loadGraphicDownload(graphicDownload.getDownloadId());
 		if (originalGraphicDownload == null) {
-			throw new RepositoryException(String.format("图表下载任务不能为空"));
+			throw new RepositoryException("图表下载任务不能为空");
 		}
 		if (originalGraphicDownload.getStatus() != DownloadStatus.download_wait) {
 			throw new RepositoryException(String.format("图表下载任务非下载等待状态[%s]", originalGraphicDownload.getStatus().getMessage()));
@@ -233,7 +228,7 @@ public class GraphicRepository extends DataSourceRepository {
 	public void updateGraphicDownload(GraphicDownload graphicDownload) {
 		GraphicDownload originalGraphicDownload = graphicTemplate.loadGraphicDownload(graphicDownload.getDownloadId());
 		if (originalGraphicDownload == null) {
-			throw new RepositoryException(String.format("图表下载任务不能为空"));
+			throw new RepositoryException("图表下载任务不能为空");
 		}
 		graphicDownload.validateGraphicDownload();
 		graphicTemplate.updateGraphicDownload(graphicDownload);
@@ -246,7 +241,7 @@ public class GraphicRepository extends DataSourceRepository {
 	public void deleteGraphicDownload(long downloadId) {
 		GraphicDownload graphicDownload = graphicTemplate.findGraphicDownload(downloadId);
 		if (graphicDownload == null) {
-			throw new RepositoryException(String.format("图表下载任务不存在"));
+			throw new RepositoryException("图表下载任务不能为空");
 		}
 		
 		File file = new File(graphicDownload.getFileUrl());
@@ -269,7 +264,7 @@ public class GraphicRepository extends DataSourceRepository {
 	public GraphicDownload findGraphicDownload(long downloadId) {
 		GraphicDownload graphicDownload = graphicTemplate.findGraphicDownload(downloadId);
 		if (graphicDownload == null) {
-			throw new RepositoryException(String.format("图表下载任务不存在"));
+			throw new RepositoryException("图表下载任务不存在");
 		}
 		return graphicDownload;
 	}

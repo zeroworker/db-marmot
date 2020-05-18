@@ -4,8 +4,8 @@
   -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://www.shaokang.com/core/schema/volume"
-        xmlns:lns="http://www.shaokang.com/core/schema/volume"
+        targetNamespace="http://www.marmot.com/core/schema/volume"
+        xmlns:lns="http://www.marmot.com/core/schema/volume"
         elementFormDefault="qualified">
 
     <element name="volume">

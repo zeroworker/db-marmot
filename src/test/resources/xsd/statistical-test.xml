@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<statistical xmlns="http://www.shaokang.com/core/schema/statistical"
+<statistical xmlns="http://www.marmot.com/core/schema/statistical"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://www.shaokang.com/core/schema/statistical
-        http://www.shaokang.com/core/schema/statistical.xsd">
+             xsi:schemaLocation="http://www.marmot.com/core/schema/statistical
+        http://www.marmot.com/core/schema/statistical.xsd">
 
     <description>模型测试</description>
 

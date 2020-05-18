@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<volume xmlns="http://www.shaokang.com/core/schema/volume"
+<volume xmlns="http://www.marmot.com/core/schema/volume"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.shaokang.com/core/schema/volume
-        http://www.shaokang.com/core/schema/volume.xsd">
+        xsi:schemaLocation="http://www.marmot.com/core/schema/volume
+        http://www.marmot.com/core/schema/volume.xsd">
 
     <description>数据集测试</description>
     <dataBase name="pay" url="jdbc:mysql://192.168.2.241:3306/gas_silverbolt_test"

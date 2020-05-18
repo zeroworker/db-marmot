@@ -4,8 +4,8 @@
   -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://www.shaokang.com/core/schema/statistical"
-        xmlns:lns="http://www.shaokang.com/core/schema/statistical"
+        targetNamespace="http://www.marmot.com/core/schema/statistical"
+        xmlns:lns="http://www.marmot.com/core/schema/statistical"
         elementFormDefault="qualified">
 
     <element name="statistical">
