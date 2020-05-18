@@ -134,7 +134,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		return dashboard;
 	}
 	
-	private static final String GRAPHIC_DESIGN_STORE_SQL = "INSERT INTO marmot_graphic_design (graphic_name, board_id, graphic_type, graphic) VALUES(?,?,?,?)";
+	private static final String GRAPHIC_DESIGN_STORE_SQL = "INSERT INTO marmot_graphic_design (graphic_name,graphic_code, board_id, graphic_type, graphic) VALUES(?,?,?,?,?)";
 	
 	/**
 	 * 保存图表设计
@@ -147,9 +147,10 @@ public class GraphicTemplate implements DataSourceTemplate {
 			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
 				PreparedStatement ps = con.prepareStatement(GRAPHIC_DESIGN_STORE_SQL, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, graphicDesign.getGraphicName());
-				ps.setLong(2, graphicDesign.getBoardId());
-				ps.setString(3, graphicDesign.getGraphicType().getCode());
-				ps.setString(4, graphicDesign.getGraphic().toJSONGraphic());
+				ps.setString(2, graphicDesign.getGraphicCode());
+				ps.setLong(3, graphicDesign.getBoardId());
+				ps.setString(4, graphicDesign.getGraphicType().getCode());
+				ps.setString(5, graphicDesign.getGraphic().toJSONGraphic());
 				return ps;
 			}
 		}, keyHolder);
@@ -195,15 +196,15 @@ public class GraphicTemplate implements DataSourceTemplate {
 		jdbcTemplate.update(GRAPHIC_DESIGN_GRAPHIC_ID_DELETE_SQL, new Object[] { graphicId });
 	}
 	
-	private static final String GRAPHIC_DESIGN_FIND_NAME_SQL = "select graphic_id, graphic_name,board_id, graphic_type, graphic from marmot_graphic_design where graphic_name =?";
+	private static final String GRAPHIC_DESIGN_FIND_NAME_SQL = "select graphic_id, graphic_name,graphic_code,board_id, graphic_type, graphic from marmot_graphic_design where graphic_code =?";
 	
 	/**
 	 * 查询图表设计
-	 * @param graphicName 图表名称
+	 * @param graphicCode 图表编码
 	 * @return
 	 */
-	public GraphicDesign findGraphicDesign(String graphicName) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_NAME_SQL, new Object[] { graphicName }, new RowMapper<GraphicDesign>() {
+	public GraphicDesign findGraphicDesign(String graphicCode) {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_NAME_SQL, new Object[] { graphicCode }, new RowMapper<GraphicDesign>() {
 			
 			public GraphicDesign mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildGraphicDesign(rs);
@@ -247,15 +248,16 @@ public class GraphicTemplate implements DataSourceTemplate {
 		GraphicDesign graphicDesign = new GraphicDesign();
 		graphicDesign.setGraphicId(rs.getLong(1));
 		graphicDesign.setGraphicName(rs.getString(2));
-		graphicDesign.setBoardId(rs.getLong(3));
-		GraphicType graphicType = GraphicType.getByCode(rs.getString(4));
+		graphicDesign.setGraphicCode(rs.getString(3));
+		graphicDesign.setBoardId(rs.getLong(4));
+		GraphicType graphicType = GraphicType.getByCode(rs.getString(5));
 		graphicDesign.setGraphicType(graphicType);
 		GraphicConverter graphicConverter = ConverterAdapter.getInstance().getGraphicConverter(graphicType);
-		graphicDesign.setGraphic(graphicConverter.parseGraphic(rs.getString(5)));
+		graphicDesign.setGraphic(graphicConverter.parseGraphic(rs.getString(6)));
 		return graphicDesign;
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_STORE_SQL = "INSERT INTO marmot_graphic_download(founder_id, file_name,volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo) values (?,?,?,?,?,?,?,?,?,?)";
+	private static final String GRAPHIC_DOWNLOAD_STORE_SQL = "INSERT INTO marmot_graphic_download(founder_id, file_name,volume_code, graphic_code,graphic_type, graphic, file_url, download_url, status, memo) values (?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保持图表导出任务
@@ -270,7 +272,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 				ps.setString(1, graphicDownload.getFounderId());
 				ps.setString(2, graphicDownload.getFileName());
 				ps.setString(3, graphicDownload.getVolumeCode());
-				ps.setString(4, graphicDownload.getGraphicName());
+				ps.setString(4, graphicDownload.getGraphicCode());
 				ps.setString(5, graphicDownload.getGraphicType().getCode());
 				ps.setString(6, graphicDownload.getGraphic().toJSONGraphic());
 				ps.setString(7, graphicDownload.getFileUrl());
@@ -310,7 +312,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		jdbcTemplate.update(GRAPHIC_DOWNLOAD_DELETE_SQL, new Object[] { downloadId });
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_FIND_SQL = "select download_id, founder_id, file_name,volume_code,graphic_name, graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ?";
+	private static final String GRAPHIC_DOWNLOAD_FIND_SQL = "select download_id, founder_id, file_name,volume_code,graphic_code, graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ?";
 	
 	/**
 	 * 根据下载ID获取图表下载任务
@@ -326,7 +328,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_LOAD_SQL = "select download_id, founder_id, file_name,volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ? for update ";
+	private static final String GRAPHIC_DOWNLOAD_LOAD_SQL = "select download_id, founder_id, file_name,volume_code, graphic_code,graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ? for update ";
 	
 	/**
 	 * 根据下载ID获取图表下载任务
@@ -354,7 +356,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 	 */
 	public List<GraphicDownload> queryPageGraphicDownloads(String founderId, String fileName, GraphicType graphicType, DownloadStatus status, OrderType orderType, int pageNum, int pageSize) {
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"SELECT download_id,founder_id, file_name, volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo FROM marmot_graphic_download");
+			"SELECT download_id,founder_id, file_name, volume_code, graphic_code,graphic_type, graphic, file_url, download_url, status, memo FROM marmot_graphic_download");
 		sqlBuilder.addCondition(Operators.equals, ColumnType.number, "founder_id", founderId).addCondition(Operators.like, ColumnType.string, "file_name", fileName)
 			.addCondition(Operators.equals, ColumnType.string, "graphic_type", graphicType == null ? null : graphicType.getCode())
 			.addCondition(Operators.equals, ColumnType.string, "status", status == null ? null : status.getCode()).addOrderBy("download_id", orderType).addLimit(pageNum, pageSize);
@@ -372,7 +374,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		graphicDownload.setFounderId(rs.getString(2));
 		graphicDownload.setFileName(rs.getString(3));
 		graphicDownload.setVolumeCode(rs.getString(4));
-		graphicDownload.setGraphicName(rs.getString(5));
+		graphicDownload.setGraphicCode(rs.getString(5));
 		GraphicType graphicType = GraphicType.getByCode(rs.getString(6));
 		graphicDownload.setGraphicType(graphicType);
 		GraphicConverter graphicConverter = ConverterAdapter.getInstance().getGraphicConverter(graphicType);

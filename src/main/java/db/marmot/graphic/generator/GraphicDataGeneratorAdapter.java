@@ -49,8 +49,8 @@ public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, Ini
 	}
 	
 	@Override
-	public GraphicData generateGraphicData(String graphicName, boolean graphicFormat) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
+	public GraphicData generateGraphicData(String graphicCode, boolean graphicFormat) {
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
 		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
 		

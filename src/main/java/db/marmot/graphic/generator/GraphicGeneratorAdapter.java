@@ -20,11 +20,11 @@ public interface GraphicGeneratorAdapter {
 	
 	/**
 	 * 生成图表数据
-	 * @param graphicName 图表名称
+	 * @param graphicCode 图表编码
 	 * @param graphicFormat 格式化图表数据
 	 * @return
 	 */
-	<D extends GraphicData> D generateGraphicData(String graphicName, boolean graphicFormat);
+	<D extends GraphicData> D generateGraphicData(String graphicCode, boolean graphicFormat);
 	
 	/**
 	 * 生成图表数据 图表格式化以及实时图表设置可以直接设置graphic

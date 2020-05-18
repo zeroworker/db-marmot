@@ -96,11 +96,13 @@ create table marmot_graphic_design
 (
     graphic_id   bigint(20) auto_increment comment 'id',
     graphic_name varchar(128) not null comment '图表名称',
+    graphic_code varchar(128) not null comment '图表编码',
     board_id     bigint(20)   not null comment '仪表盘id',
     graphic_type varchar(16)  not null comment '图表类型',
     graphic      text         not null comment '图表',
-    constraint uq_graphic_design_id unique key (graphic_id),
-    constraint uq_graphic_design_name unique key (board_id, graphic_name)
+    constraint `primary` primary key (graphic_id),
+    constraint uq_graphic_design_name unique key (graphic_code),
+    key `no_graphic_design_board` (board_id)
 ) comment ='图表设计表';
 
 drop table if exists `marmot_graphic_download`;
@@ -110,7 +112,7 @@ create table marmot_graphic_download
     founder_id   varchar(64)               not null comment '创建人id',
     file_name    varchar(512)              not null comment '文件名',
     volume_code  varchar(512) default null comment '数据集编码',
-    graphic_name varchar(128) default null comment '图表名称',
+    graphic_code varchar(128) default null comment '图表编码',
     graphic_type varchar(16)  default null comment '图表类型',
     graphic      text         default null comment '图表',
     file_url     varchar(1024)             not null comment '文件地址',

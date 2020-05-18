@@ -47,8 +47,8 @@ public abstract class GraphicDataDownloader<G extends GraphicData> implements Gr
 	 * @return
 	 */
 	private G generateGraphicData(GraphicDownload graphicDownload) {
-		if (StringUtils.isNotBlank(graphicDownload.getGraphicName())) {
-			return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getGraphicName(), Boolean.FALSE.booleanValue());
+		if (StringUtils.isNotBlank(graphicDownload.getGraphicCode())) {
+			return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getGraphicCode(), Boolean.FALSE.booleanValue());
 		}
 		Graphic graphic = graphicDownload.getGraphic();
 		graphic.setGraphicFormat(Boolean.FALSE.booleanValue());

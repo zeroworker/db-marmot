@@ -54,17 +54,17 @@ public interface GraphicDownloadAdapter {
 	
 	/**
 	 * 未指定图表创建人,直接下载图表数据
-	 * @param graphicName
+	 * @param graphicCode
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(String graphicName);
+	GraphicDownload downloadGraphicData(String graphicCode);
 	
 	/**
 	 * 指定图表创建人,异步下载
-	 * @param graphicName
+	 * @param graphicCode
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(String founderId, String graphicName);
+	GraphicDownload downloadGraphicData(String founderId, String graphicCode);
 	
 	/**
 	 * 未指定图表创建人,直接下载图表数据

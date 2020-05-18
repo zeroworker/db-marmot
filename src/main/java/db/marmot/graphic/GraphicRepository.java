@@ -189,13 +189,13 @@ public class GraphicRepository extends DataSourceRepository {
 	
 	/**
 	 * 查询图表设计
-	 * @param graphicName 图表名称
+	 * @param graphicCode 图表编码
 	 * @return
 	 */
-	public GraphicDesign findGraphicDesign(String graphicName) {
-		GraphicDesign graphicDesign = graphicTemplate.findGraphicDesign(graphicName);
+	public GraphicDesign findGraphicDesign(String graphicCode) {
+		GraphicDesign graphicDesign = graphicTemplate.findGraphicDesign(graphicCode);
 		if (graphicDesign == null) {
-			throw new RepositoryException(String.format("图表%s不存在", graphicName));
+			throw new RepositoryException(String.format("图表%s不存在", graphicCode));
 		}
 		return graphicDesign;
 	}

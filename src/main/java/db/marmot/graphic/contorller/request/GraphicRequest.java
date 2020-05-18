@@ -20,13 +20,13 @@ public class GraphicRequest {
 	/**
 	 * 图表ID
 	 */
-	private String graphicName;
+	private String graphicCode;
 
 	@Override
 	public String toString() {
 		return new StringJoiner(", ", GraphicRequest.class.getSimpleName() + "[", "]")
 				.add("founderId='" + founderId + "'")
-				.add("graphicName='" + graphicName + "'")
+				.add("graphicCode='" + graphicCode + "'")
 				.toString();
 	}
 }

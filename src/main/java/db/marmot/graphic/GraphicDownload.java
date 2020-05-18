@@ -46,9 +46,9 @@ public class GraphicDownload {
 	private String volumeCode;
 	
 	/**
-	 * 图表名称
+	 * 图表编码
 	 */
-	private String graphicName;
+	private String graphicCode;
 	
 	/**
 	 * 图表类型
@@ -140,7 +140,7 @@ public class GraphicDownload {
 	
 	public void validateGraphicDownload() {
 		Validators.assertJSR303(this);
-		if (StringUtils.isNotBlank(graphicName)) {
+		if (StringUtils.isNotBlank(graphicCode)) {
 			Validators.notNull(this.graphicType, "graphicType不能为空");
 			Validators.notNull(this.graphic, "graphic不能为空");
 		}

@@ -113,8 +113,8 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(String graphicName) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
+	public GraphicDownload downloadGraphicData(String graphicCode) {
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
 		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
 		GraphicDownload graphicDownload = buildGraphicDownload(dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
@@ -122,10 +122,10 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(String founderId, String graphicName) {
+	public GraphicDownload downloadGraphicData(String founderId, String graphicCode) {
 		Validators.notNull(founderId, "founderId 不能为空");
 		
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
 		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
 		GraphicDownload graphicDownload = buildGraphicDownload(founderId, dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
@@ -266,9 +266,19 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	 * @return
 	 */
 	private GraphicDownload buildGraphicDownload(String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
-		return buildGraphicDownload(null, volumeCode, graphicName, graphicType, graphic);
+		return buildGraphicDownload(null, volumeCode, null, graphicName, graphicType, graphic);
 	}
-	
+	/**
+	 * 创建图表下载任务
+	 * @param volumeCode
+	 * @param graphicType
+	 * @param graphic
+	 * @return
+	 */
+	private GraphicDownload buildGraphicDownload(String volumeCode,String graphicCode, String graphicName, GraphicType graphicType, Graphic graphic) {
+		return buildGraphicDownload(null, volumeCode, graphicCode, graphicName, graphicType, graphic);
+	}
+
 	/**
 	 * 创建图表下载任务
 	 * @param founderId
@@ -277,12 +287,12 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	 * @param graphic
 	 * @return
 	 */
-	private GraphicDownload buildGraphicDownload(String founderId, String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
+	private GraphicDownload buildGraphicDownload(String founderId, String volumeCode, String graphicCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		GraphicDownload graphicDownload = new GraphicDownload();
 		graphicDownload.setGraphic(graphic);
 		graphicDownload.setVolumeCode(volumeCode);
 		graphicDownload.setFounderId(founderId);
-		graphicDownload.setGraphicName(graphicName);
+		graphicDownload.setGraphicCode(graphicCode);
 		graphicDownload.setGraphicType(graphicType);
 		graphicDownload.setFileName(StringUtils.join(graphicName, "(", fileSeqGen.incrementAndGet(), ")", ".", "xlsx"));
 		graphicDownload.setFileUrl(StringUtils.join(fileUrl, graphicDownload.getFileName()));

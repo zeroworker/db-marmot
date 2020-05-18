@@ -73,7 +73,7 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected GraphicData postHandleResult(GraphicRequest request) {
-			return graphicGeneratorAdapter.generateGraphicData(request.getGraphicName(), true);
+			return graphicGeneratorAdapter.generateGraphicData(request.getGraphicCode(), true);
 		}
 	}
 	
@@ -85,9 +85,9 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		@Override
 		protected GraphicDownload postHandleResult(GraphicRequest request) {
 			if (StringUtils.isNotBlank(request.getFounderId())) {
-				return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getGraphicName());
+				return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getGraphicCode());
 			}
-			return graphicDownloadAdapter.downloadGraphicData(request.getGraphicName());
+			return graphicDownloadAdapter.downloadGraphicData(request.getGraphicCode());
 		}
 	}
 	
