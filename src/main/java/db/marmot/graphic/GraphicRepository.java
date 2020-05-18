@@ -62,17 +62,16 @@ public class GraphicRepository extends DataSourceRepository {
 			Dashboard originalDashboard = graphicTemplate.findDashboard(dashboard.getBoardId());
 			//-1.出现幂等异常 根据仪表盘ID获取仪表盘,存在视为更新,不存在视为重复保存
 			if (originalDashboard == null) {
-				throw new RepositoryException(String.format("重复仪表盘 %s", dashboard.getBoardName()));
+				throw new RepositoryException(String.format("仪表盘%s不存在", dashboard.getBoardName()));
 			}
 			//- 2.数据源存在变更处理
 			if (originalDashboard.getVolumeCode() != dashboard.getVolumeCode()) {
 				//-2.1 数据源存在变更 原始图表设计已经无用,删除
 				DataVolume originalDataVolume = volumeTemplate.findDataVolume(dashboard.getVolumeCode());
 				if (originalDataVolume == null) {
-					throw new RepositoryException(String.format("数据集不存在"));
+					throw new RepositoryException(String.format("数据集%s不存在", dashboard.getVolumeCode()));
 				}
 				if (originalDataVolume.getVolumeType() == VolumeType.model) {
-					//-正在运行的统计模型已经无用,可以删除了,删除成本高,同步禁用 异步删除
 					List<GraphicDesign> graphicDesigns = graphicTemplate.queryGraphicDesign(dashboard.getBoardId());
 					if (graphicDesigns != null && graphicDesigns.size() > 0) {
 						graphicDesigns.forEach(graphicDesign -> {
@@ -86,7 +85,6 @@ public class GraphicRepository extends DataSourceRepository {
 			//-3.仪表盘更新修改信息
 			graphicTemplate.updateDashboard(dashboard);
 		}
-		//-保存图表-因为支持新增以及更新以及需要支持模型统计,顾不能全部删除图表在信息
 		if (dashboard.getGraphicDesigns() != null && !dashboard.getGraphicDesigns().isEmpty()) {
 			for (GraphicDesign graphicDesign : dashboard.getGraphicDesigns()) {
 				try {
@@ -94,8 +92,7 @@ public class GraphicRepository extends DataSourceRepository {
 					graphicDesign.setGraphicCode(StringUtils.join(dashboard.getBoardId() + "_" + seqGen.incrementAndGet()));
 					graphicTemplate.storeGraphicDesign(graphicDesign);
 					if (dataVolume.getVolumeType() == VolumeType.model) {
-						String graphicName = StringUtils.join(dashboard.getBoardId(), "-", graphicDesign.getGraphicName());
-						List<StatisticalModel> statisticalModels = graphicDesign.getGraphic().createStatisticalModels(dataVolume, database.getDbType(), graphicName);
+						List<StatisticalModel> statisticalModels = graphicDesign.getGraphic().createStatisticalModels(dataVolume, database.getDbType(), graphicDesign.getGraphicCode());
 						if (statisticalModels != null && statisticalModels.size() > 0) {
 							statisticalModels.forEach(statisticalModel -> statisticalTemplate.storeStatisticalModel(statisticalModel));
 						}
@@ -114,7 +111,6 @@ public class GraphicRepository extends DataSourceRepository {
 				}
 			}
 		}
-		//- 因为当图表为模型统计时,不能直接删除,只能做更新处理,更新后,图表数量和保存时不一致,可能减少,将多余的图表删除
 		List<GraphicDesign> graphicDesigns = graphicTemplate.queryGraphicDesign(dashboard.getBoardId());
 		for (GraphicDesign graphicDesign : graphicDesigns) {
 			boolean deleteGraphicDesign = Boolean.TRUE.booleanValue();
@@ -127,7 +123,6 @@ public class GraphicRepository extends DataSourceRepository {
 			if (deleteGraphicDesign) {
 				graphicTemplate.deleteGraphicDesignByGraphicId(graphicDesign.getGraphicId());
 				if (dataVolume.getVolumeType() == VolumeType.model) {
-					//-正在运行的统计模型已经无用,可以删除了,删除成本高,同步禁用 异步删除
 					List<String> modelNames = graphicDesign.getGraphic().getModelNames();
 					modelNames.forEach(modelName -> statisticalTemplate.deleteStatisticalModel(modelName));
 				}
@@ -149,7 +144,6 @@ public class GraphicRepository extends DataSourceRepository {
 			throw new RepositoryException(String.format("数据集不存在"));
 		}
 		if (dataVolume.getVolumeType() == VolumeType.model) {
-			//-正在运行的统计模型已经无用,可以删除了,删除成本高,同步禁用 异步删除
 			List<GraphicDesign> graphicDesigns = graphicTemplate.queryGraphicDesign(dashboard.getBoardId());
 			if (graphicDesigns != null && graphicDesigns.size() > 0) {
 				for (GraphicDesign graphicDesign : graphicDesigns) {
