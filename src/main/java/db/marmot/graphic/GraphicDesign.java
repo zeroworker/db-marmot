@@ -5,16 +5,12 @@ import db.marmot.repository.validate.Validators;
 import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 /**
  * 图表设计
@@ -59,11 +55,6 @@ public class GraphicDesign {
 	@NotNull
 	@Valid
 	private Graphic graphic;
-	
-	public GraphicDesign createGraphicCode() {
-		this.graphicCode = DigestUtils.md5Hex(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + RandomStringUtils.randomAscii(5));
-		return this;
-	}
 	
 	public void validateGraphicDesign(DataVolume dataVolume) {
 		Validators.assertJSR303(this);

@@ -16,6 +16,7 @@ import org.springframework.dao.DuplicateKeyException;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author shaokang
@@ -24,8 +25,9 @@ public class GraphicRepository extends DataSourceRepository {
 	
 	private VolumeTemplate volumeTemplate;
 	private GraphicTemplate graphicTemplate;
-	private StatisticalTemplate statisticalTemplate;
 	private DatabaseTemplate databaseTemplate;
+	private StatisticalTemplate statisticalTemplate;
+	private static final AtomicLong seqGen = new AtomicLong(System.currentTimeMillis());
 	
 	public GraphicRepository(Map<TemplateType, DataSourceTemplate> templates) {
 		super(templates);
@@ -88,7 +90,8 @@ public class GraphicRepository extends DataSourceRepository {
 		if (dashboard.getGraphicDesigns() != null && !dashboard.getGraphicDesigns().isEmpty()) {
 			for (GraphicDesign graphicDesign : dashboard.getGraphicDesigns()) {
 				try {
-					graphicDesign.createGraphicCode().setBoardId(dashboard.getBoardId());
+					graphicDesign.setBoardId(dashboard.getBoardId());
+					graphicDesign.setGraphicCode(StringUtils.join(dashboard.getBoardId() + "_" + seqGen.incrementAndGet()));
 					graphicTemplate.storeGraphicDesign(graphicDesign);
 					if (dataVolume.getVolumeType() == VolumeType.model) {
 						String graphicName = StringUtils.join(dashboard.getBoardId(), "-", graphicDesign.getGraphicName());
