@@ -1,15 +1,14 @@
 package db.marmot.volume;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.dao.DuplicateKeyException;
-
 import db.marmot.enums.TemplateType;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
+import org.springframework.dao.DuplicateKeyException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -34,18 +33,18 @@ public class VolumeRepository extends DataSourceRepository {
 			throw new RepositoryException(String.format("数据集不能为空"));
 		}
 		
+		try {
+			volumeTemplate.storeDataVolume(dataVolume);
+		} catch (DuplicateKeyException keyException) {
+			throw new RepositoryException("数据集重复");
+		}
+		
 		setDataColumns(dataVolume);
 		Database database = databaseTemplate.findDatabase(dataVolume.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%s不存在", dataVolume.getDbName()));
 		}
 		dataVolume.validateDataVolume(database);
-		
-		try {
-			volumeTemplate.storeDataVolume(dataVolume);
-		} catch (DuplicateKeyException keyException) {
-			throw new RepositoryException("数据集重复");
-		}
 		
 		try {
 			volumeTemplate.storeDataColumn(dataVolume.getDataColumns());
@@ -154,6 +153,12 @@ public class VolumeRepository extends DataSourceRepository {
 			throw new RepositoryException(String.format("字段数据集不能为空"));
 		}
 		
+		try {
+			volumeTemplate.storeColumnVolume(columnVolume);
+		} catch (DuplicateKeyException keyException) {
+			throw new RepositoryException(String.format("重复字段数据集"));
+		}
+		
 		Database database = databaseTemplate.findDatabase(columnVolume.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%s不存在", columnVolume.getDbName()));
@@ -161,12 +166,6 @@ public class VolumeRepository extends DataSourceRepository {
 		
 		setDataColumns(columnVolume);
 		columnVolume.validateColumnVolume(database);
-		
-		try {
-			volumeTemplate.storeColumnVolume(columnVolume);
-		} catch (DuplicateKeyException keyException) {
-			throw new RepositoryException(String.format("重复字段数据集"));
-		}
 		
 		if (columnVolume.getDataColumns() != null && !columnVolume.getDataColumns().isEmpty()) {
 			try {

@@ -1,16 +1,5 @@
 package db.marmot.volume;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
@@ -18,9 +7,17 @@ import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalModel;
 import db.marmot.volume.parser.SelectColumn;
 import db.marmot.volume.parser.SqlSelectQueryParser;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 数据集
@@ -62,12 +59,6 @@ public class DataVolume {
 	@NotBlank
 	private String dbName;
 
-	/**
-	 * 数据源类型
-	 */
-	@NotBlank
-	private String dbType;
-	
 	/**
 	 * sql脚本 若相同字段不同用途 可以 amount as amount_1 amount as amount_2, amount as amount_3
 	 */

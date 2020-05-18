@@ -5,5 +5,14 @@
         http://www.shaokang.com/core/schema/volume.xsd">
 
     <description>数据集测试</description>
-    <dataBase name="pay" url="jdbc:mysql://192.168.2.241:3306/gas_silverbolt_test" userName="xxx" password="xxx"/>
+    <dataBase name="pay" url="jdbc:mysql://192.168.2.241:3306/gas_silverbolt_test"
+              userName="gas-test" password="gas123456"/>
+    <dataVolume volumeName="消费订单" volumeCode="payment_order"
+                volumeType="sql" dbName="master" volumeLimit="50000" content="消费订单数据"
+                sqlScript="select  x.station_name as stationName,x.amount,x.finish_time from gas_trade_order x"
+    />
+    <columnVolume volumeType="sql" columnCode="stationName" dbName="master"
+                  columnValueCode="stationId" columnShowCode="stationName" content="油站数据"
+                  script="select x.station_name as stationName,x.station_id as stationId from gas_merchant_station x"
+    />
 </volume>
