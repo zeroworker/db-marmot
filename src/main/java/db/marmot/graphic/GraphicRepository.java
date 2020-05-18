@@ -88,9 +88,8 @@ public class GraphicRepository extends DataSourceRepository {
 		if (dashboard.getGraphicDesigns() != null && !dashboard.getGraphicDesigns().isEmpty()) {
 			for (GraphicDesign graphicDesign : dashboard.getGraphicDesigns()) {
 				try {
-					graphicDesign.setBoardId(dashboard.getBoardId());
+					graphicDesign.createGraphicCode().setBoardId(dashboard.getBoardId());
 					graphicTemplate.storeGraphicDesign(graphicDesign);
-					
 					if (dataVolume.getVolumeType() == VolumeType.model) {
 						String graphicName = StringUtils.join(dashboard.getBoardId(), "-", graphicDesign.getGraphicName());
 						List<StatisticalModel> statisticalModels = graphicDesign.getGraphic().createStatisticalModels(dataVolume, database.getDbType(), graphicName);
@@ -98,7 +97,6 @@ public class GraphicRepository extends DataSourceRepository {
 							statisticalModels.forEach(statisticalModel -> statisticalTemplate.storeStatisticalModel(statisticalModel));
 						}
 					}
-					
 				} catch (DuplicateKeyException keyException) {
 					GraphicDesign originalGraphicDesign = graphicTemplate.findGraphicDesign(graphicDesign.getGraphicId());
 					if (originalGraphicDesign == null) {
