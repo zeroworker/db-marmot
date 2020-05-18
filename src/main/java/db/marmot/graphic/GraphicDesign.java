@@ -40,8 +40,6 @@ public class GraphicDesign {
 	/**
 	 * 图表编码
 	 */
-	@NotBlank
-	@Size(max = 128)
 	private String graphicCode;
 	
 	/**
