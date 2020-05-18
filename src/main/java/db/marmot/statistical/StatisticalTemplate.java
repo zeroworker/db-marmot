@@ -28,18 +28,18 @@ import java.util.Set;
  * @author shaokang
  */
 public class StatisticalTemplate implements DataSourceTemplate {
-
+	
 	private String dbType;
 	private JdbcTemplate jdbcTemplate;
 	private ConverterAdapter converterAdapter;
-
+	
 	public StatisticalTemplate(String dbType, JdbcTemplate jdbcTemplate) {
 		this.dbType = dbType;
 		this.jdbcTemplate = jdbcTemplate;
 		this.converterAdapter = ConverterAdapter.getInstance();
 	}
 	
-	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保存统计模型
@@ -58,7 +58,7 @@ public class StatisticalTemplate implements DataSourceTemplate {
 		statisticalModel.setModelId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,db_name=?,fetch_step=?,fetch_step=?,running=?,calculated=?,offsetExpr=?,time_column=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
+	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,db_name=?,fetch_step=?,fetch_step=?,running=?,calculated=?,offset_expr=?,time_column=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
 	
 	/**
 	 * 更新统计模型
@@ -95,7 +95,7 @@ public class StatisticalTemplate implements DataSourceTemplate {
 		ps.setDate(18, new Date(new java.util.Date().getTime()));
 	}
 	
-	private static final String STATISTICAL_MODEL_LOAD_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? for update ";
+	private static final String STATISTICAL_MODEL_LOAD_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? for update ";
 	
 	/**
 	 * 根据模型名称加载统计模型
@@ -110,24 +110,24 @@ public class StatisticalTemplate implements DataSourceTemplate {
 			}
 		}));
 	}
-
-	private static final String STATISTICAL_MODEL_LOAD_CALCULATE_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? and calculated=? for update ";
-
+	
+	private static final String STATISTICAL_MODEL_LOAD_CALCULATE_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? and calculated=? for update ";
+	
 	/**
 	 * 根据模型名称加载统计模型
 	 * @param modelId
 	 * @return
 	 */
-	public StatisticalModel loadStatisticalModel(long modelId,boolean calculated) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_CALCULATE_SQL, new Object[] { modelId,calculated }, new RowMapper<StatisticalModel>() {
+	public StatisticalModel loadStatisticalModel(long modelId, boolean calculated) {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_CALCULATE_SQL, new Object[] { modelId, calculated }, new RowMapper<StatisticalModel>() {
 			@Override
 			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalModel(rs);
 			}
 		}));
 	}
-
-	private static final String STATISTICAL_MODEL_FIND_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_name=?";
+	
+	private static final String STATISTICAL_MODEL_FIND_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_name=?";
 	
 	/**
 	 * 根据模型名称加载统计模型
@@ -143,7 +143,7 @@ public class StatisticalTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,db_name, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
+	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,db_name, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
 	
 	/**
 	 * 获取统计模型
@@ -170,7 +170,7 @@ public class StatisticalTemplate implements DataSourceTemplate {
 	 */
 	public List<StatisticalModel> queryPageStatisticalModel(long volumeId, String modelName, int pageNum, int pageSize) {
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"select model_id, volume_code, model_name,db_name, running, calculated, offsetExpr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model");
+			"select model_id, volume_code, model_name,db_name, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model");
 		if (volumeId > 0) {
 			sqlBuilder.addCondition(Operators.equals, ColumnType.number, "volume_id", volumeId);
 		}
