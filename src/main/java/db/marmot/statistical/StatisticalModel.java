@@ -1,13 +1,5 @@
 package db.marmot.statistical;
 
-import java.util.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
@@ -17,9 +9,14 @@ import db.marmot.statistical.generator.convert.WindowUnitConverter;
 import db.marmot.volume.Database;
 import db.marmot.volume.parser.SelectTable;
 import db.marmot.volume.parser.SqlSelectQueryParser;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.*;
 
 /**
  * @author shaokang
@@ -34,9 +31,9 @@ public class StatisticalModel {
 	private long modelId;
 	
 	/**
-	 * 数据集
+	 * 数据编码
 	 */
-	private long volumeId;
+	private String volumeCode;
 	
 	/**
 	 * 统计模型名

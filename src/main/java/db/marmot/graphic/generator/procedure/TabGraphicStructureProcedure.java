@@ -61,7 +61,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 						return;
 					}
 					if (dimenColumn.isColumnEscape()) {
-						Object escapeValue = getEscapeValue(dataVolume.getVolumeId(), dimenColumn.getColumnCode(),dimenColumn.getColumnType(), value);
+						Object escapeValue = getEscapeValue(dataVolume.getVolumeCode(), dimenColumn.getColumnCode(), dimenColumn.getColumnType(), value);
 						rowData.put(dimenColumn.getColumnCode(), escapeValue);
 					}
 					if (dimenColumn.isColumnMask() && dimenColumn.getColumnType() == ColumnType.string) {

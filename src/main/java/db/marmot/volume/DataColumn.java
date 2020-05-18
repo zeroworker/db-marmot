@@ -1,18 +1,15 @@
 package db.marmot.volume;
 
-import java.util.Objects;
+import db.marmot.enums.ColumnType;
+import db.marmot.repository.validate.Validators;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.enums.ColumnType;
-import db.marmot.repository.validate.Validators;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
 /**
  * 数据字段
@@ -30,7 +27,7 @@ public class DataColumn {
 	/**
 	 * 数据集ID
 	 */
-	private long volumeId;
+	private String volumeCode;
 	
 	/**
 	 * 字段顺序
@@ -115,28 +112,18 @@ public class DataColumn {
 	@Size(max = 512)
 	private String content;
 	
-	public DataColumn() {
-	}
-	
-	public DataColumn(long volumeId) {
-		this.volumeId = volumeId;
-		this.columnMask = false;
-		this.columnFilter = true;
-		this.columnHidden = false;
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
 		DataColumn that = (DataColumn) o;
-		return volumeId == that.volumeId && Objects.equals(columnCode, that.columnCode);
+		return volumeCode == that.volumeCode && Objects.equals(columnCode, that.columnCode);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(volumeId, columnCode);
+		return Objects.hash(volumeCode, columnCode);
 	}
 	
 	public void validateDataColumn() {

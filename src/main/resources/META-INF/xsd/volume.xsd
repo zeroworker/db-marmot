@@ -24,10 +24,12 @@
                 <element ref="lns:columnVolume" maxOccurs="unbounded" minOccurs="0"/>
             </sequence>
         </complexType>
+
         <unique name="dataBaseUnique">
             <selector xpath="lns:dataBase"/>
             <field xpath="@name"/>
         </unique>
+
         <unique name="dataVolumeNameUnique">
             <selector xpath="lns:dataVolume"/>
             <field xpath="@volumeName"/>
@@ -36,7 +38,16 @@
             <selector xpath="lns:dataVolume"/>
             <field xpath="@volumeCode"/>
         </unique>
-        <unique name="columnVolumeUnique">
+
+        <unique name="columnVolumeNameUnique">
+            <selector xpath="lns:columnVolume"/>
+            <field xpath="@volumeName"/>
+        </unique>
+        <unique name="columnVolumeCodeUnique">
+            <selector xpath="lns:columnVolume"/>
+            <field xpath="@volumeCode"/>
+        </unique>
+        <unique name="columnVolumeColumnCodeUnique">
             <selector xpath="lns:columnVolume"/>
             <field xpath="@columnCode"/>
         </unique>
@@ -163,6 +174,20 @@
             <documentation><![CDATA[字段数据集 配置字段数据集 用于做字段的数据查询以及筛选]]></documentation>
         </annotation>
         <complexType>
+            <attribute name="volumeName" type="string" use="required">
+                <annotation>
+                    <documentation>
+                        <![CDATA[数据集名称]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="volumeCode" type="string" use="required">
+                <annotation>
+                    <documentation>
+                        <![CDATA[数据集编码]]>
+                    </documentation>
+                </annotation>
+            </attribute>
             <attribute name="volumeType" use="required">
                 <simpleType>
                     <annotation>

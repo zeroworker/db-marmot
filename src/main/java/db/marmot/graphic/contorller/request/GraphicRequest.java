@@ -3,6 +3,8 @@ package db.marmot.graphic.contorller.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.StringJoiner;
+
 /**
  * @author shaokang
  */
@@ -18,5 +20,13 @@ public class GraphicRequest {
 	/**
 	 * 图表ID
 	 */
-	private long graphicId;
+	private String graphicName;
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", GraphicRequest.class.getSimpleName() + "[", "]")
+				.add("founderId='" + founderId + "'")
+				.add("graphicName='" + graphicName + "'")
+				.toString();
+	}
 }

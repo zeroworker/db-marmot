@@ -35,6 +35,7 @@ public class StatisticalRepository extends DataSourceRepository {
 		if (statisticalModel == null) {
 			throw new RepositoryException("统计模型不能为空");
 		}
+		
 		Database database = databaseTemplate.findDatabase(statisticalModel.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%不存在", statisticalModel.getModelName()));

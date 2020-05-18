@@ -11,7 +11,7 @@ import db.marmot.volume.generator.ColumnGeneratorAdapter;
  * @author shaokang
  */
 public interface GraphicGeneratorAdapter {
-
+	
 	void setRepositoryAdapter(RepositoryAdapter repositoryAdapter);
 	
 	void setColumnGeneratorAdapter(ColumnGeneratorAdapter columnGeneratorAdapter);
@@ -20,18 +20,18 @@ public interface GraphicGeneratorAdapter {
 	
 	/**
 	 * 生成图表数据
-	 * @param graphicId 图表ID
-	 * @param graphicFormat 是否格式化图表数据
+	 * @param graphicName 图表名称
+	 * @param graphicFormat 格式化图表数据
 	 * @return
 	 */
-	<D extends GraphicData> D generateGraphicData(long graphicId, boolean graphicFormat);
+	<D extends GraphicData> D generateGraphicData(String graphicName, boolean graphicFormat);
 	
 	/**
 	 * 生成图表数据 图表格式化以及实时图表设置可以直接设置graphic
-	 * @param volumeId 数据集ID
+	 * @param volumeCode 数据集编码
 	 * @param graphicType 图表类型
 	 * @param graphic 图表
 	 * @return
 	 */
-	<D extends GraphicData> D generateGraphicData(long volumeId, GraphicType graphicType, Graphic graphic);
+	<D extends GraphicData> D generateGraphicData(String volumeCode, GraphicType graphicType, Graphic graphic);
 }

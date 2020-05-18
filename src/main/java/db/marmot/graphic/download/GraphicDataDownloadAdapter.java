@@ -113,42 +113,42 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(long graphicId) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicId);
+	public GraphicDownload downloadGraphicData(String graphicName) {
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeId());
-		GraphicDownload graphicDownload = buildGraphicDownload(graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
+		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
+		GraphicDownload graphicDownload = buildGraphicDownload(dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(String founderId, long graphicId) {
+	public GraphicDownload downloadGraphicData(String founderId, String graphicName) {
 		Validators.notNull(founderId, "founderId 不能为空");
 		
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicId);
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeId());
-		GraphicDownload graphicDownload = buildGraphicDownload(founderId, graphicDesign.getGraphicId(), dataVolume.getVolumeId(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
+		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
+		GraphicDownload graphicDownload = buildGraphicDownload(founderId, dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
+	public GraphicDownload downloadGraphicData(String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		Validators.notNull(graphic, "graphic 不能为空");
 		Validators.notNull(graphicName, "graphicName 不能为空");
 		Validators.notNull(graphicType, "graphicType 不能为空");
 		
-		return downloadGraphicData(buildGraphicDownload(volumeId, graphicName, graphicType, graphic).downloadIng());
+		return downloadGraphicData(buildGraphicDownload(volumeCode, graphicName, graphicType, graphic).downloadIng());
 	}
 	
 	@Override
-	public GraphicDownload downloadGraphicData(String founderId, long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
+	public GraphicDownload downloadGraphicData(String founderId, String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		Validators.notNull(graphic, "graphic 不能为空");
 		Validators.notNull(graphicName, "graphicName 不能为空");
 		Validators.notNull(founderId, "founderId 不能为空");
 		Validators.notNull(graphicType, "graphicType 不能为空");
 		
-		GraphicDownload graphicDownload = buildGraphicDownload(founderId, volumeId, graphicName, graphicType, graphic);
+		GraphicDownload graphicDownload = buildGraphicDownload(founderId, volumeCode, graphicName, graphicType, graphic);
 		graphicRepository.storeGraphicDownload(graphicDownload);
 		
 		submitGraphicDownload(graphicDownload);
@@ -260,51 +260,29 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	
 	/**
 	 * 创建图表下载任务
-	 * @param volumeId
+	 * @param volumeCode
 	 * @param graphicType
 	 * @param graphic
 	 * @return
 	 */
-	private GraphicDownload buildGraphicDownload(String founderId, long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
-		return buildGraphicDownload(founderId, 0, volumeId, graphicName, graphicType, graphic);
-	}
-	
-	/**
-	 * 创建图表下载任务
-	 * @param volumeId
-	 * @param graphicType
-	 * @param graphic
-	 * @return
-	 */
-	private GraphicDownload buildGraphicDownload(long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
-		return buildGraphicDownload(null, 0, volumeId, graphicName, graphicType, graphic);
-	}
-	
-	/**
-	 * 创建图表下载任务
-	 * @param volumeId
-	 * @param graphicType
-	 * @param graphic
-	 * @return
-	 */
-	private GraphicDownload buildGraphicDownload(long graphicId, long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
-		return buildGraphicDownload(null, graphicId, volumeId, graphicName, graphicType, graphic);
+	private GraphicDownload buildGraphicDownload(String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
+		return buildGraphicDownload(null, volumeCode, graphicName, graphicType, graphic);
 	}
 	
 	/**
 	 * 创建图表下载任务
 	 * @param founderId
-	 * @param volumeId
+	 * @param volumeCode
 	 * @param graphicType
 	 * @param graphic
 	 * @return
 	 */
-	private GraphicDownload buildGraphicDownload(String founderId, long graphicId, long volumeId, String graphicName, GraphicType graphicType, Graphic graphic) {
+	private GraphicDownload buildGraphicDownload(String founderId, String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		GraphicDownload graphicDownload = new GraphicDownload();
 		graphicDownload.setGraphic(graphic);
-		graphicDownload.setVolumeId(volumeId);
+		graphicDownload.setVolumeCode(volumeCode);
 		graphicDownload.setFounderId(founderId);
-		graphicDownload.setGraphicId(graphicId);
+		graphicDownload.setGraphicName(graphicName);
 		graphicDownload.setGraphicType(graphicType);
 		graphicDownload.setFileName(StringUtils.join(graphicName, "(", fileSeqGen.incrementAndGet(), ")", ".", "xlsx"));
 		graphicDownload.setFileUrl(StringUtils.join(fileUrl, graphicDownload.getFileName()));

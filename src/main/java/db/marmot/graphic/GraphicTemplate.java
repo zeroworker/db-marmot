@@ -1,8 +1,10 @@
 package db.marmot.graphic;
 
-import java.sql.*;
-import java.util.List;
-
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.converter.SelectSqlBuilderConverter;
+import db.marmot.enums.*;
+import db.marmot.graphic.converter.GraphicConverter;
+import db.marmot.repository.DataSourceTemplate;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -11,28 +13,25 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import db.marmot.converter.ConverterAdapter;
-import db.marmot.converter.SelectSqlBuilderConverter;
-import db.marmot.enums.*;
-import db.marmot.graphic.converter.GraphicConverter;
-import db.marmot.repository.DataSourceTemplate;
+import java.sql.*;
+import java.util.List;
 
 /**
  * @author shaokang
  */
 public class GraphicTemplate implements DataSourceTemplate {
-
+	
 	private String dbType;
 	private JdbcTemplate jdbcTemplate;
 	private ConverterAdapter converterAdapter;
-
+	
 	public GraphicTemplate(String dbType, JdbcTemplate jdbcTemplate) {
 		this.dbType = dbType;
 		this.jdbcTemplate = jdbcTemplate;
 		this.converterAdapter = ConverterAdapter.getInstance();
 	}
-
-	private static final String DASH_BOARD_STORE_SQL = "INSERT INTO marmot_dash_board (volume_id, board_name, board_type,founder_id, founder_name, content) VALUES(?,?,?,?,?,?)";
+	
+	private static final String DASH_BOARD_STORE_SQL = "INSERT INTO marmot_dash_board (volume_code, board_name, board_type,founder_id, founder_name, content) VALUES(?,?,?,?,?,?)";
 	
 	/**
 	 * 保存仪表盘
@@ -51,7 +50,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		dashboard.setBoardId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String DASH_BOARD_UPDATE_SQL = "UPDATE marmot_dash_board SET volume_id=?,board_name=?,board_type =?,founder_id=?,founder_name=?,content=? where board_id=?";
+	private static final String DASH_BOARD_UPDATE_SQL = "UPDATE marmot_dash_board SET volume_code=?,board_name=?,board_type =?,founder_id=?,founder_name=?,content=? where board_id=?";
 	
 	/**
 	 * 更新仪表盘
@@ -78,7 +77,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 	}
 	
 	private void setDashboardPreparedStatement(PreparedStatement ps, Dashboard dashboard) throws SQLException {
-		ps.setLong(1, dashboard.getVolumeId());
+		ps.setString(1, dashboard.getVolumeCode());
 		ps.setString(2, dashboard.getBoardName());
 		ps.setString(3, dashboard.getBoardType().getCode());
 		ps.setString(4, dashboard.getFounderId());
@@ -86,7 +85,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		ps.setString(6, dashboard.getContent());
 	}
 	
-	private static final String DASH_BOARD_FIND_SQL = "select board_id, volume_id, board_name,board_type, founder_id, founder_name, content from marmot_dash_board where board_id =?";
+	private static final String DASH_BOARD_FIND_SQL = "select board_id, volume_code, board_name,board_type, founder_id, founder_name, content from marmot_dash_board where board_id =?";
 	
 	/**
 	 * 根据仪表盘ID获取仪表盘信息
@@ -101,37 +100,6 @@ public class GraphicTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String DASH_BOARD_FIND_NAME_SQL = "select board_id, volume_id, board_name, board_type,founder_id, founder_name, content from marmot_dash_board where board_name =?";
-	
-	/**
-	 * 根据仪表盘ID获取仪表盘信息
-	 * @param boardName 仪表盘名称
-	 */
-	public Dashboard findDashboard(String boardName) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DASH_BOARD_FIND_NAME_SQL, new Object[] { boardName }, new RowMapper<Dashboard>() {
-			
-			public Dashboard mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return buildDashboard(rs);
-			}
-		}));
-	}
-	
-	private static final String DASH_BOARD_QUERY_SQL = "select board_id, volume_id, board_name,board_type, founder_id, founder_name, content from marmot_dash_board where  volume_id=?";
-	
-	/**
-	 * 查询仪表盘
-	 * @param volumeId 数据集ID
-	 * @return
-	 */
-	public List<Dashboard> queryDashboard(long volumeId) {
-		return jdbcTemplate.query(DASH_BOARD_QUERY_SQL, new Object[] { volumeId }, new RowMapper<Dashboard>() {
-			
-			public Dashboard mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return buildDashboard(rs);
-			}
-		});
-	}
-	
 	/**
 	 * 查询仪表盘
 	 * @param founderId 创建人ID
@@ -143,7 +111,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 	 */
 	public List<Dashboard> queryPageDashboard(String founderId, String boardName, String boardType, int pageNum, int pageSize) {
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"SELECT board_id, volume_id, board_name,board_type, founder_id, founder_name, content FROM marmot_dash_board");
+			"SELECT board_id, volume_code, board_name,board_type, founder_id, founder_name, content FROM marmot_dash_board");
 		sqlBuilder.addCondition(Operators.equals, ColumnType.number, "founder_id", founderId).addCondition(Operators.like, ColumnType.string, "board_name", boardName)
 			.addCondition(Operators.equals, ColumnType.string, "board_type", boardType).addOrderBy("board_id", OrderType.desc).addLimit(pageNum, pageSize);
 		return jdbcTemplate.query(sqlBuilder.toSql(), new RowMapper<Dashboard>() {
@@ -157,7 +125,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 	private Dashboard buildDashboard(ResultSet rs) throws SQLException {
 		Dashboard dashboard = new Dashboard();
 		dashboard.setBoardId(rs.getLong(1));
-		dashboard.setVolumeId(rs.getLong(2));
+		dashboard.setVolumeCode(rs.getString(2));
 		dashboard.setBoardName(rs.getString(3));
 		dashboard.setBoardType(BoardType.getByCode(rs.getString(4)));
 		dashboard.setFounderId(rs.getString(5));
@@ -287,7 +255,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		return graphicDesign;
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_STORE_SQL = "INSERT INTO marmot_graphic_download(founder_id, file_name, graphic_id,volume_id, graphic_type, graphic, file_url, download_url, status, memo) values (?,?,?,?,?,?,?,?,?,?)";
+	private static final String GRAPHIC_DOWNLOAD_STORE_SQL = "INSERT INTO marmot_graphic_download(founder_id, file_name,volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo) values (?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保持图表导出任务
@@ -301,8 +269,8 @@ public class GraphicTemplate implements DataSourceTemplate {
 				PreparedStatement ps = con.prepareStatement(GRAPHIC_DOWNLOAD_STORE_SQL, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, graphicDownload.getFounderId());
 				ps.setString(2, graphicDownload.getFileName());
-				ps.setLong(3, graphicDownload.getGraphicId());
-				ps.setLong(4, graphicDownload.getVolumeId());
+				ps.setString(3, graphicDownload.getVolumeCode());
+				ps.setString(4, graphicDownload.getGraphicName());
 				ps.setString(5, graphicDownload.getGraphicType().getCode());
 				ps.setString(6, graphicDownload.getGraphic().toJSONGraphic());
 				ps.setString(7, graphicDownload.getFileUrl());
@@ -342,7 +310,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		jdbcTemplate.update(GRAPHIC_DOWNLOAD_DELETE_SQL, new Object[] { downloadId });
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_FIND_SQL = "select download_id, founder_id, file_name,graphic_id, volume_id, graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ?";
+	private static final String GRAPHIC_DOWNLOAD_FIND_SQL = "select download_id, founder_id, file_name,volume_code,graphic_name, graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ?";
 	
 	/**
 	 * 根据下载ID获取图表下载任务
@@ -358,7 +326,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String GRAPHIC_DOWNLOAD_LOAD_SQL = "select download_id, founder_id, file_name, graphic_id,volume_id, graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ? for update ";
+	private static final String GRAPHIC_DOWNLOAD_LOAD_SQL = "select download_id, founder_id, file_name,volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo from marmot_graphic_download where download_id = ? for update ";
 	
 	/**
 	 * 根据下载ID获取图表下载任务
@@ -386,7 +354,7 @@ public class GraphicTemplate implements DataSourceTemplate {
 	 */
 	public List<GraphicDownload> queryPageGraphicDownloads(String founderId, String fileName, GraphicType graphicType, DownloadStatus status, OrderType orderType, int pageNum, int pageSize) {
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"SELECT download_id,founder_id, file_name, volume_id, graphic_type, graphic, file_url, download_url, status, memo FROM marmot_graphic_download");
+			"SELECT download_id,founder_id, file_name, volume_code, graphic_name,graphic_type, graphic, file_url, download_url, status, memo FROM marmot_graphic_download");
 		sqlBuilder.addCondition(Operators.equals, ColumnType.number, "founder_id", founderId).addCondition(Operators.like, ColumnType.string, "file_name", fileName)
 			.addCondition(Operators.equals, ColumnType.string, "graphic_type", graphicType == null ? null : graphicType.getCode())
 			.addCondition(Operators.equals, ColumnType.string, "status", status == null ? null : status.getCode()).addOrderBy("download_id", orderType).addLimit(pageNum, pageSize);
@@ -403,8 +371,8 @@ public class GraphicTemplate implements DataSourceTemplate {
 		graphicDownload.setDownloadId(rs.getLong(1));
 		graphicDownload.setFounderId(rs.getString(2));
 		graphicDownload.setFileName(rs.getString(3));
-		graphicDownload.setGraphicId(rs.getLong(4));
-		graphicDownload.setVolumeId(rs.getLong(5));
+		graphicDownload.setVolumeCode(rs.getString(4));
+		graphicDownload.setGraphicName(rs.getString(5));
 		GraphicType graphicType = GraphicType.getByCode(rs.getString(6));
 		graphicDownload.setGraphicType(graphicType);
 		GraphicConverter graphicConverter = ConverterAdapter.getInstance().getGraphicConverter(graphicType);

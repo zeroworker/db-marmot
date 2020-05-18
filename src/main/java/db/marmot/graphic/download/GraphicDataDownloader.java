@@ -11,6 +11,7 @@ import db.marmot.graphic.GraphicDownload;
 import db.marmot.graphic.generator.GraphicData;
 import db.marmot.graphic.generator.GraphicGeneratorAdapter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -46,12 +47,12 @@ public abstract class GraphicDataDownloader<G extends GraphicData> implements Gr
 	 * @return
 	 */
 	private G generateGraphicData(GraphicDownload graphicDownload) {
-		if (graphicDownload.getGraphicId() > 0) {
-			return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getGraphicId(), Boolean.FALSE.booleanValue());
+		if (StringUtils.isNotBlank(graphicDownload.getGraphicName())) {
+			return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getGraphicName(), Boolean.FALSE.booleanValue());
 		}
 		Graphic graphic = graphicDownload.getGraphic();
 		graphic.setGraphicFormat(Boolean.FALSE.booleanValue());
-		return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getVolumeId(), graphicDownload.getGraphicType(), graphic);
+		return graphicGeneratorAdapter.generateGraphicData(graphicDownload.getVolumeCode(), graphicDownload.getGraphicType(), graphic);
 	}
 	
 	/**

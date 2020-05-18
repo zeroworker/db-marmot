@@ -1,21 +1,18 @@
 package db.marmot.graphic;
 
-import java.util.List;
+import db.marmot.enums.BoardType;
+import db.marmot.repository.validate.ValidateException;
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.enums.BoardType;
-import db.marmot.repository.validate.ValidateException;
-import db.marmot.repository.validate.Validators;
-import db.marmot.volume.DataVolume;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
 /**
  * 仪表盘
@@ -31,9 +28,11 @@ public class Dashboard {
 	private long boardId;
 	
 	/**
-	 * 数据集ID
+	 * 数据集编码
 	 */
-	private long volumeId;
+	@NotBlank
+	@Size(max = 512)
+	private String volumeCode;
 	
 	/**
 	 * 仪表盘名称
@@ -42,13 +41,13 @@ public class Dashboard {
 	@Size(max = 128)
 	@Pattern(regexp = "^[\\u4E00-\\u9FA5A-Za-z0-9_.()（）]+$", message = "仪表盘名称只能由中文、英文、数字及和\"_.()（）构成\"")
 	private String boardName;
-
+	
 	/**
 	 * 仪表盘类型
 	 */
 	@NotNull
 	private BoardType boardType = BoardType.personal;
-
+	
 	/**
 	 * 创建人ID
 	 */
@@ -62,7 +61,6 @@ public class Dashboard {
 	@NotBlank
 	@Size(max = 512)
 	private String founderName;
-
 	
 	/**
 	 * 说明

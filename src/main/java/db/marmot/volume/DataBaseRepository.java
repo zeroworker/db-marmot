@@ -35,48 +35,17 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 			throw new RepositoryException("数据源不能为空");
 		}
 		database.validateDatabase();
+		DruidDataSource dataSource = buildDruidDataSource(database);
 		try {
-			DruidDataSource dataSource = buildDruidDataSource(database);
 			dataSource.init();
 			databaseTemplate.storeDatabase(database);
 			databaseTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
 		} catch (SQLException sqlException) {
 			throw new RepositoryException(String.format("数据源%s初始化失败", database.getName()), sqlException);
 		} catch (DuplicateKeyException e) {
-			throw new RepositoryException(String.format("重复数据源%s配置", database.getName()));
-		}
-	}
-	
-	/**
-	 * 更新数据库配置
-	 * @param database
-	 */
-	public void updateDatabase(Database database) {
-		if (database == null) {
-			throw new RepositoryException("数据源不能为空");
-		}
-		database.validateDatabase();
-		
-		try {
 			databaseTemplate.updateDatabase(database);
-			DruidDataSource dataSource = buildDruidDataSource(database);
 			databaseTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
-		} catch (DuplicateKeyException e) {
-			throw new RepositoryException(String.format("重复数据源%s配置", database.getName()));
 		}
-	}
-	
-	/**
-	 * 删除数库库配置
-	 * @param id
-	 */
-	public void deleteDatabase(long id) {
-		Database database = databaseTemplate.findDatabase(id);
-		if (database == null) {
-			throw new RepositoryException("数据源配置不存在");
-		}
-		databaseTemplate.deleteDatabase(id);
-		databaseTemplate.removeJdbcTemplate(database.getName());
 	}
 	
 	/**
@@ -123,7 +92,7 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 	}
 	
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		List<Database> databases = databaseTemplate.getDatabases();
 		if (databases != null && !databases.isEmpty()) {
 			databases.forEach(database -> {

@@ -132,7 +132,8 @@ public class XmlGenerateCoder {
 							conditionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							conditionColumn
+								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getConditionColumns().add(conditionColumn);
 						}
 					}
@@ -162,7 +163,8 @@ public class XmlGenerateCoder {
 							directionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							directionColumn
+								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getDirectionColumns().add(directionColumn);
 						}
 					}
@@ -269,6 +271,8 @@ public class XmlGenerateCoder {
 				@Override
 				public ColumnVolume build(Element element) {
 					ColumnVolume columnVolume = new ColumnVolume();
+					columnVolume.setVolumeName(element.getAttribute("volumeName"));
+					columnVolume.setVolumeCode(element.getAttribute("volumeCode"));
 					columnVolume.setVolumeType(VolumeType.getByCode(element.getAttribute("volumeType")));
 					columnVolume.setColumnCode(element.getAttribute("columnCode"));
 					columnVolume.setDbName(element.getAttribute("dbName"));

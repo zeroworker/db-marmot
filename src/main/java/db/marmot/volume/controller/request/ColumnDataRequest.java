@@ -19,7 +19,7 @@ public class ColumnDataRequest {
 	/**
 	 * 数据集ID
 	 */
-	private long volumeId;
+	private String volumeCode;
 	
 	/**
 	 * 字段编码
@@ -47,7 +47,7 @@ public class ColumnDataRequest {
 	@Override
 	public String toString() {
 		return new StringJoiner(", ", ColumnDataRequest.class.getSimpleName() + "[", "]")
-				.add("volumeId=" + volumeId)
+				.add("volumeCode=" + volumeCode)
 				.add("columnCode='" + columnCode + "'")
 				.add("filterColumns=" + filterColumns)
 				.add("pageNum=" + pageNum)

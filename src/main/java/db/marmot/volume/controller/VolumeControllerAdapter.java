@@ -1,9 +1,5 @@
 package db.marmot.volume.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import db.marmot.contorller.AbstractWebController;
 import db.marmot.contorller.WebControllerAdapter;
 import db.marmot.volume.DataVolume;
@@ -12,6 +8,10 @@ import db.marmot.volume.controller.request.ColumnDataRequest;
 import db.marmot.volume.controller.request.DataVolumeRequest;
 import db.marmot.volume.generator.ColumnData;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -48,7 +48,7 @@ public class VolumeControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected DataVolume postHandleResult(DataVolumeRequest request) {
-			return volumeRepository.findDataVolume(request.getVolumeId());
+			return volumeRepository.findDataVolume(request.getVolumeCode());
 		}
 	}
 	
@@ -70,7 +70,7 @@ public class VolumeControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected ColumnData postHandleResult(ColumnDataRequest request) {
-			return columnGeneratorAdapter.generateColumnData(request.getVolumeId(), request.getColumnCode(), request.getFilterColumns(), request.getPageNum(), request.getPageSize());
+			return columnGeneratorAdapter.generateColumnData(request.getVolumeCode(), request.getColumnCode(), request.getFilterColumns(), request.getPageNum(), request.getPageSize());
 		}
 	}
 }

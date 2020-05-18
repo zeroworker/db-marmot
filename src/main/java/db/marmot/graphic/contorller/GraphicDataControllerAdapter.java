@@ -1,10 +1,5 @@
 package db.marmot.graphic.contorller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import db.marmot.contorller.AbstractWebController;
 import db.marmot.contorller.WebControllerAdapter;
@@ -16,6 +11,10 @@ import db.marmot.graphic.contorller.request.TabGraphicDataRequest;
 import db.marmot.graphic.download.GraphicDownloadAdapter;
 import db.marmot.graphic.generator.GraphicData;
 import db.marmot.graphic.generator.GraphicGeneratorAdapter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -74,7 +73,7 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected GraphicData postHandleResult(GraphicRequest request) {
-			return graphicGeneratorAdapter.generateGraphicData(request.getGraphicId(), true);
+			return graphicGeneratorAdapter.generateGraphicData(request.getGraphicName(), true);
 		}
 	}
 	
@@ -86,9 +85,9 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		@Override
 		protected GraphicDownload postHandleResult(GraphicRequest request) {
 			if (StringUtils.isNotBlank(request.getFounderId())) {
-				return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getGraphicId());
+				return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getGraphicName());
 			}
-			return graphicDownloadAdapter.downloadGraphicData(request.getGraphicId());
+			return graphicDownloadAdapter.downloadGraphicData(request.getGraphicName());
 		}
 	}
 	
@@ -105,7 +104,7 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		@Override
 		protected GraphicData postHandleResult(GraphicDataRequest request) {
 			request.getGraphic().setGraphicFormat(true);
-			return graphicGeneratorAdapter.generateGraphicData(request.getVolumeId(), request.getGraphicType(), request.getGraphic());
+			return graphicGeneratorAdapter.generateGraphicData(request.getVolumeCode(), request.getGraphicType(), request.getGraphic());
 		}
 	}
 	
@@ -122,9 +121,9 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 		@Override
 		protected GraphicDownload postHandleResult(GraphicDataRequest request) {
 			if (StringUtils.isNotBlank(request.getFounderId())) {
-				return graphicDownloadAdapter.downloadGraphicData(request.getVolumeId(), request.getGraphicName(), request.getGraphicType(), request.getGraphic());
+				return graphicDownloadAdapter.downloadGraphicData(request.getVolumeCode(), request.getGraphicName(), request.getGraphicType(), request.getGraphic());
 			}
-			return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getVolumeId(), request.getGraphicName(), request.getGraphicType(), request.getGraphic());
+			return graphicDownloadAdapter.downloadGraphicData(request.getFounderId(), request.getVolumeCode(), request.getGraphicName(), request.getGraphicType(), request.getGraphic());
 		}
 	}
 }

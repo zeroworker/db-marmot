@@ -16,9 +16,9 @@ import java.util.StringJoiner;
 public abstract class GraphicDataRequest<G extends Graphic> {
 	
 	/**
-	 * 数据集ID
+	 * 数据集编码
 	 */
-	private long volumeId;
+	private String volumeCode;
 	
 	/**
 	 * 创建人ID
@@ -45,7 +45,7 @@ public abstract class GraphicDataRequest<G extends Graphic> {
 	@Override
 	public String toString() {
 		return new StringJoiner(", ", GraphicDataRequest.class.getSimpleName() + "[", "]")
-				.add("volumeId=" + volumeId)
+				.add("volumeCode=" + volumeCode)
 				.add("founderId='" + founderId + "'")
 				.add("graphicName='" + graphicName + "'")
 				.add("graphicType=" + graphicType)

@@ -114,7 +114,7 @@ public class TabGraphic extends Graphic {
 			statisticalModel.setWindowUnit(WindowUnit.DAY);
 			statisticalModel.addOffsetExpr(getOffsetExpr());
 			statisticalModel.setWindowType(WindowType.SIMPLE_TIME);
-			statisticalModel.setVolumeId(dataVolume.getVolumeId());
+			statisticalModel.setVolumeCode(dataVolume.getVolumeCode());
 			statisticalModel.setFetchSql(selectSqlBuilder.toSql());
 			statisticalModel.setFetchStep(dataVolume.getVolumeLimit());
 			statisticalModel.setMemo(StringUtils.join("tab图表(", graphicName, ")"));

@@ -54,34 +54,36 @@ public interface GraphicDownloadAdapter {
 	
 	/**
 	 * 未指定图表创建人,直接下载图表数据
+	 * @param graphicName
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(long graphicId);
+	GraphicDownload downloadGraphicData(String graphicName);
 	
 	/**
 	 * 指定图表创建人,异步下载
+	 * @param graphicName
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(String founderId, long graphicId);
+	GraphicDownload downloadGraphicData(String founderId, String graphicName);
 	
 	/**
 	 * 未指定图表创建人,直接下载图表数据
-	 * @param volumeId
+	 * @param volumeCode
 	 * @param graphicType
 	 * @param graphicName
 	 * @param graphic
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(long volumeId, String graphicName, GraphicType graphicType, Graphic graphic);
+	GraphicDownload downloadGraphicData(String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic);
 	
 	/**
 	 * 指定图表创建人,异步下载
 	 * @param founderId
-	 * @param volumeId
+	 * @param volumeCode
 	 * @param graphicType
 	 * @param graphic
 	 * @return
 	 */
-	GraphicDownload downloadGraphicData(String founderId, long volumeId, String graphicName, GraphicType graphicType, Graphic graphic);
+	GraphicDownload downloadGraphicData(String founderId, String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic);
 	
 }

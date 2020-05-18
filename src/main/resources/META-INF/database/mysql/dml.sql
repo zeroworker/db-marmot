@@ -33,24 +33,27 @@ drop table if exists marmot_column_volume;
 create table marmot_column_volume
 (
     volume_id         bigint auto_increment comment 'ID',
-    volume_type       varchar(16)  not null comment '类型',
-    column_code       varchar(512) not null comment '字段编码',
-    db_name           varchar(128) not null comment '数据源名称',
-    column_value_code varchar(512) not null comment '字段值编码',
-    column_show_code  varchar(512) not null comment '字段展示编码',
-    script            text         not null comment '脚本',
-    content           varchar(512) null comment '描述',
+    volume_name       varchar(1024) not null comment '名称',
+    volume_code       varchar(512)  not null comment '数据集编码',
+    volume_type       varchar(16)   not null comment '类型',
+    column_code       varchar(512)  not null comment '字段编码',
+    db_name           varchar(128)  not null comment '数据源名称',
+    column_value_code varchar(512)  not null comment '字段值编码',
+    column_show_code  varchar(512)  not null comment '字段展示编码',
+    script            text          not null comment '脚本',
+    content           varchar(512)  null comment '描述',
     CONSTRAINT `PRIMARY` PRIMARY KEY (volume_id),
-    CONSTRAINT uq_column_volume_code UNIQUE KEY (column_code)
+    CONSTRAINT uq_column_volume_c_code UNIQUE KEY (column_code),
+    CONSTRAINT uq_column_volume_name UNIQUE KEY (volume_name),
+    CONSTRAINT uq_column_volume_code UNIQUE KEY (volume_code)
 ) COMMENT ='字段数据集';
-
 
 -- 数据集字段表
 drop table if exists marmot_data_column;
 create table marmot_data_column
 (
     column_id     bigint auto_increment comment '字段ID',
-    volume_id     bigint       not null comment '数据集ID',
+    volume_code   varchar(512) not null comment '数据集编码',
     column_order  int          not null comment '字段顺序',
     column_name   varchar(512) null comment '字段名称',
     column_code   varchar(512) not null comment '字段编码',
@@ -65,8 +68,8 @@ create table marmot_data_column
     unit_value    double       null comment '单位换算',
     content       varchar(512) null comment '描述',
     CONSTRAINT `PRIMARY` PRIMARY KEY (column_id),
-    CONSTRAINT uq_data_volume_column_code UNIQUE KEY (volume_id, column_code),
-    CONSTRAINT uq_data_volume_column_name UNIQUE KEY (volume_id, column_name)
+    CONSTRAINT uq_data_volume_column_code UNIQUE KEY (volume_code, column_code),
+    CONSTRAINT uq_data_volume_column_name UNIQUE KEY (volume_code, column_name)
 ) COMMENT ='数据集字段';
 
 
@@ -75,7 +78,7 @@ drop table if exists marmot_dash_board;
 create table marmot_dash_board
 (
     board_id     bigint auto_increment comment 'ID',
-    volume_id    bigint       not null comment '数据集ID',
+    volume_code  varchar(512) not null comment '数据集编码',
     board_name   varchar(128) not null comment '仪表盘名称',
     board_type   varchar(16)  not null comment '仪表盘类型',
     founder_id   varchar(512) not null comment '创建人ID',
@@ -83,7 +86,7 @@ create table marmot_dash_board
     content      varchar(512) null comment '描述',
     CONSTRAINT `PRIMARY` PRIMARY KEY (board_id),
     CONSTRAINT uq_dash_board_name UNIQUE KEY (founder_id, board_name),
-    KEY dash_board_volume_id_index (volume_id),
+    KEY dash_board_volume_code_index (volume_code),
     KEY dash_board_type_index (board_type)
 ) COMMENT ='数据仪表盘';
 
@@ -106,10 +109,10 @@ CREATE TABLE marmot_graphic_download
     download_id  bigint(20) auto_increment NOT NULL COMMENT '序列id',
     founder_id   varchar(64)               NOT NULL COMMENT '创建人ID',
     file_name    varchar(512)              NOT NULL COMMENT '文件名',
-    graphic_id   bigint(20)  DEFAULT NULL COMMENT '图表ID',
-    volume_id    bigint(20)  DEFAULT NULL COMMENT '数据集ID',
-    graphic_type varchar(16) DEFAULT null comment '图表类型',
-    graphic      text        DEFAULT null comment '图表',
+    volume_code  varchar(512) DEFAULT NULL COMMENT '数据集编码',
+    graphic_name varchar(128) DEFAULT NULL COMMENT '图表名称',
+    graphic_type varchar(16)  DEFAULT NULL COMMENT '图表类型',
+    graphic      text         DEFAULT NULL COMMENT '图表',
     file_url     varchar(1024)             NOT NULL COMMENT '文件地址',
     download_url varchar(1024)             NOT NULL COMMENT '下载地址',
     status       varchar(32)               NOT NULL COMMENT '状态',
@@ -121,27 +124,28 @@ CREATE TABLE marmot_graphic_download
 DROP TABLE IF EXISTS `marmot_statistical_model`;
 CREATE TABLE marmot_statistical_model
 (
-    model_id         bigint(20) auto_increment NOT NULL COMMENT '序列id',
-    volume_id        bigint(20)                         DEFAULT NULL COMMENT '数据集ID',
-    model_name       varchar(128)              NOT NULL COMMENT '模型名称',
-    db_name          varchar(128)              not null comment '数据源名称',
-    fetch_sql        varchar(1024)             NOT NULL COMMENT '数据抓取sql',
-    fetch_step       long                      NOT NULL COMMENT '数据抓取步长',
-    running          boolean                   NOT null NULL COMMENT '模型是否运行中',
-    calculated       boolean                   not null comment '模型是否已完成计算',
-    offsetExpr       varchar(128)              not null comment '模型时间偏移量',
-    time_column      varchar(512)              NOT NULL COMMENT '时间粒度字段',
-    window_length    int(5)                    NOT NULL COMMENT '统计窗口长度',
-    window_type      varchar(32)               NOT NULL COMMENT '统计窗口类型',
-    window_unit      varchar(32)               NOT NULL COMMENT '统计庄口粒度',
+    model_id          bigint(20) auto_increment NOT NULL COMMENT '序列id',
+    volume_code       varchar(512)              not null comment '数据集编码',
+    model_name        varchar(128)              NOT NULL COMMENT '模型名称',
+    db_name           varchar(128)              not null comment '数据源名称',
+    fetch_sql         varchar(1024)             NOT NULL COMMENT '数据抓取sql',
+    fetch_step        long                      NOT NULL COMMENT '数据抓取步长',
+    running           boolean                   NOT null NULL COMMENT '模型是否运行中',
+    calculated        boolean                   not null comment '模型是否已完成计算',
+    offsetExpr        varchar(128)              not null comment '模型时间偏移量',
+    time_column       varchar(512)              NOT NULL COMMENT '时间粒度字段',
+    window_length     int(5)                    NOT NULL COMMENT '统计窗口长度',
+    window_type       varchar(32)               NOT NULL COMMENT '统计窗口类型',
+    window_unit       varchar(32)               NOT NULL COMMENT '统计庄口粒度',
     aggregate_columns text                      NOT NULL COMMENT '统计聚合字段',
     condition_columns text                               default NULL COMMENT '统计条件字段',
     group_columns     text                               default NULL COMMENT '统计分组字段',
     direction_columns text                               default NULL COMMENT '统计方向字段',
-    memo             varchar(1024)                      default null COMMENT '说明',
-    raw_update_time  timestamp                 not null default current_timestamp on update current_timestamp COMMENT '更新时间',
+    memo              varchar(1024)                      default null COMMENT '说明',
+    raw_update_time   timestamp                 not null default current_timestamp on update current_timestamp COMMENT '更新时间',
     CONSTRAINT `PRIMARY` PRIMARY KEY (model_id),
-    UNIQUE KEY statistical_model_name (model_name)
+    UNIQUE KEY statistical_model_name (model_name),
+    KEY statistical_volume_code (volume_code)
 ) COMMENT ='统计模型定义';
 
 DROP TABLE IF EXISTS `marmot_statistical_task`;
@@ -164,7 +168,7 @@ CREATE TABLE marmot_statistical_data
     model_name      varchar(128)              NOT NULL COMMENT '模型名称',
     row_key         varchar(64)               NOT NULL COMMENT '统计数据行标识',
     aggregate_data  text                      NOT NULL COMMENT '聚合数据',
-    group_columns    text                               default NULL COMMENT '分组字段',
+    group_columns   text                               default NULL COMMENT '分组字段',
     time_unit       datetime                           default null comment '时间粒度',
     raw_update_time timestamp                 not null default current_timestamp on update current_timestamp COMMENT '更新时间',
     CONSTRAINT `PRIMARY` PRIMARY KEY (data_id),

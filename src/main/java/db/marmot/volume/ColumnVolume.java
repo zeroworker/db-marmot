@@ -1,22 +1,19 @@
 package db.marmot.volume;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.generator.ColumnEnum;
 import db.marmot.volume.parser.SqlSelectQueryParser;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 字段数据集
@@ -32,6 +29,21 @@ public class ColumnVolume {
 	private long volumeId;
 	
 	/**
+	 * 数据集名称
+	 */
+	@NotBlank
+	@Size(max = 1024)
+	@Pattern(regexp = "^[\\u4E00-\\u9FA5A-Za-z0-9_.()（）]+$", message = "数据集名称只能由中文、英文、数字及和\"_.()（）构成\"")
+	private String volumeName;
+	
+	/**
+	 * 数据集编码
+	 */
+	@NotBlank
+	@Size(max = 512)
+	private String volumeCode;
+	
+	/**
 	 * 类型
 	 */
 	@NotNull
@@ -42,7 +54,7 @@ public class ColumnVolume {
 	 */
 	@NotBlank
 	private String dbName;
-
+	
 	/**
 	 * 字段编码
 	 */
@@ -81,17 +93,17 @@ public class ColumnVolume {
 	 * 数据字段
 	 */
 	private List<DataColumn> dataColumns = new ArrayList<>();
-
+	
 	public void validateColumnVolume(Database database) {
 		Validators.assertJSR303(this);
-
+		
 		if (volumeType == VolumeType.model) {
 			throw new ValidateException("字段数据集不支持模型");
 		}
-		if (dataColumns == null || dataColumns.isEmpty()){
+		if (dataColumns == null || dataColumns.isEmpty()) {
 			throw new ValidateException("字段数据集数据字段不能为空");
 		}
-
+		
 		if (volumeType == VolumeType.sql) {
 			//-解析一次sql,针对模型sql必须存在一定规范
 			SqlSelectQueryParser sqlSelectQueryParser = new SqlSelectQueryParser(database.getDbType(), script).parse();

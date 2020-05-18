@@ -1,9 +1,5 @@
 package db.marmot.graphic.generator;
 
-import java.util.Map;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import com.google.common.collect.Maps;
 import db.marmot.enums.GraphicType;
 import db.marmot.enums.RepositoryType;
@@ -18,6 +14,9 @@ import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.VolumeRepository;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+import org.springframework.beans.factory.InitializingBean;
+
+import java.util.Map;
 
 /**
  * 图表生成适配器
@@ -31,7 +30,7 @@ public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, Ini
 	private ColumnGeneratorAdapter columnGeneratorAdapter;
 	private StatisticalGenerateAdapter statisticalGenerateAdapter;
 	private Map<GraphicType, GraphicDataGenerator> graphicDataGenerators = Maps.newHashMap();
-
+	
 	@Override
 	public void setRepositoryAdapter(RepositoryAdapter repositoryAdapter) {
 		this.repositoryAdapter = repositoryAdapter;
@@ -50,26 +49,26 @@ public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, Ini
 	}
 	
 	@Override
-	public GraphicData generateGraphicData(long graphicId, boolean graphicFormat) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicId);
+	public GraphicData generateGraphicData(String graphicName, boolean graphicFormat) {
+		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicName);
 		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeId());
+		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
 		
 		//-模型统计非实时生成图表,sql统计实时生成图表
 		Graphic graphic = graphicDesign.getGraphic();
 		graphic.setGraphicFormat(graphicFormat);
 		graphic.setGraphicInstant(dataVolume.getVolumeType() == VolumeType.model ? false : true);
 		
-		return generateGraphicData(graphicDesign.getGraphicId(), graphicDesign.getGraphicType(), graphic);
+		return generateGraphicData(dataVolume, graphicDesign.getGraphicType(), graphic);
 	}
 	
 	@Override
-	public GraphicData generateGraphicData(long volumeId, GraphicType graphicType, Graphic graphic) {
+	public GraphicData generateGraphicData(String volumeCode, GraphicType graphicType, Graphic graphic) {
 		Validators.notNull(graphic, "graphic 不能为空");
 		Validators.notNull(graphicType, "graphicType 不能为空");
 		//-实时生成图表	
 		graphic.setGraphicInstant(Boolean.TRUE.booleanValue());
-		DataVolume dataVolume = volumeRepository.findDataVolume(volumeId);
+		DataVolume dataVolume = volumeRepository.findDataVolume(volumeCode);
 		
 		return generateGraphicData(dataVolume, graphicType, graphic);
 	}

@@ -41,14 +41,14 @@ public class GraphicDownload {
 	private String fileName;
 	
 	/**
-	 * 图表ID
+	 * 数据集编码
 	 */
-	private long graphicId;
+	private String volumeCode;
 	
 	/**
-	 * 数据集ID
+	 * 图表名称
 	 */
-	private long volumeId;
+	private String graphicName;
 	
 	/**
 	 * 图表类型
@@ -140,20 +140,22 @@ public class GraphicDownload {
 	
 	public void validateGraphicDownload() {
 		Validators.assertJSR303(this);
-		if (graphicId == 0) {
+		if (StringUtils.isNotBlank(graphicName)) {
 			Validators.notNull(this.graphicType, "graphicType不能为空");
 			Validators.notNull(this.graphic, "graphic不能为空");
 		}
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		GraphicDownload that = (GraphicDownload) o;
 		return downloadId == that.downloadId;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(downloadId);
