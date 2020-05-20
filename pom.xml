@@ -16,7 +16,6 @@
     </licenses>
 
     <scm>
-        <!--https://github.com/gods-garden-->
         <url>git@git.xyb.com:hasulee/gods-garden.git</url>
         <connection>scm:git:git@git.xyb.com:hasulee/gods-garden.git</connection>
         <developerConnection>scm:git:git@git.xyb.com:hasulee/gods-garden.git</developerConnection>
