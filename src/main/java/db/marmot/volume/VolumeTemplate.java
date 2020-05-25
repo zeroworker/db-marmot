@@ -124,7 +124,7 @@ public class VolumeTemplate implements DataSourceTemplate {
 		return dataVolume;
 	}
 	
-	private static final String DATA_COLUMN_STORE_SQL = "INSERT INTO marmot_data_column (volume_code, column_order,column_name,column_code,column_type,column_label,screen_column,column_filter,column_hidden,column_escape,column_mask,data_format,unit_value,content) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DATA_COLUMN_STORE_SQL = "INSERT INTO marmot_data_column (volume_code, column_order,column_name,column_code,column_type,column_label,screen_column,column_filter,column_hidden,column_escape,column_mask,column_index,data_format,unit_value,content) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保存数据集字段
@@ -146,9 +146,10 @@ public class VolumeTemplate implements DataSourceTemplate {
 				ps.setBoolean(9, dataColumn.isColumnHidden());
 				ps.setBoolean(10, dataColumn.isColumnEscape());
 				ps.setBoolean(11, dataColumn.isColumnMask());
-				ps.setString(12, dataColumn.getDataFormat());
-				ps.setDouble(13, dataColumn.getUnitValue());
-				ps.setString(14, dataColumn.getContent());
+				ps.setBoolean(12, dataColumn.isColumnIndex());
+				ps.setString(13, dataColumn.getDataFormat());
+				ps.setDouble(14, dataColumn.getUnitValue());
+				ps.setString(15, dataColumn.getContent());
 			}
 			
 			public int getBatchSize() {
@@ -157,7 +158,7 @@ public class VolumeTemplate implements DataSourceTemplate {
 		});
 	}
 	
-	private static final String DATA_COLUMN_FIND_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,column_label,screen_column,column_filter,column_hidden,column_escape,column_mask,data_format, unit_value, content FROM marmot_data_column where column_id=?";
+	private static final String DATA_COLUMN_FIND_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,column_label,screen_column,column_filter,column_hidden,column_escape,column_mask,column_index,data_format, unit_value, content FROM marmot_data_column where column_id=?";
 	
 	/**
 	 * 根据字段ID查询数据集字段
@@ -173,7 +174,7 @@ public class VolumeTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String DATA_COLUMN_VOLUME_ID_AND_COLUMN_CODE_FIND_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,screen_column,column_filter,column_hidden,column_escape,column_mask, data_format, unit_value, content FROM marmot_data_column where volume_code=? and column_code=?";
+	private static final String DATA_COLUMN_VOLUME_ID_AND_COLUMN_CODE_FIND_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,screen_column,column_filter,column_hidden,column_escape,column_mask,column_index, data_format, unit_value, content FROM marmot_data_column where volume_code=? and column_code=?";
 	
 	/**
 	 * 根据数据集编码以及字段编码查询数据集字段
@@ -190,7 +191,7 @@ public class VolumeTemplate implements DataSourceTemplate {
 		}));
 	}
 	
-	private static final String DATA_COLUMN_QUERY_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,screen_column,column_filter,column_hidden,column_escape,column_mask, data_format, unit_value, content FROM marmot_data_column where volume_code=?";
+	private static final String DATA_COLUMN_QUERY_SQL = "SELECT column_id, volume_code, column_order, column_name, column_code, column_type,screen_column,column_filter,column_hidden,column_escape,column_mask,column_index, data_format, unit_value, content FROM marmot_data_column where volume_code=?";
 	
 	/**
 	 * 根据数据集编码查询数据集字段
@@ -220,9 +221,10 @@ public class VolumeTemplate implements DataSourceTemplate {
 		dataColumn.setColumnHidden(rs.getBoolean(10));
 		dataColumn.setColumnEscape(rs.getBoolean(11));
 		dataColumn.setColumnMask(rs.getBoolean(12));
-		dataColumn.setDataFormat(rs.getString(13));
-		dataColumn.setUnitValue(rs.getDouble(14));
-		dataColumn.setContent(rs.getString(15));
+		dataColumn.setColumnIndex(rs.getBoolean(13));
+		dataColumn.setDataFormat(rs.getString(14));
+		dataColumn.setUnitValue(rs.getDouble(15));
+		dataColumn.setContent(rs.getString(16));
 		return dataColumn;
 	}
 	

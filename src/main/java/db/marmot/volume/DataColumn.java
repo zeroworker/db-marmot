@@ -1,6 +1,7 @@
 package db.marmot.volume;
 
 import db.marmot.enums.ColumnType;
+import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import lombok.Getter;
 import lombok.Setter;
@@ -133,5 +134,8 @@ public class DataColumn {
 	
 	public void validateDataColumn() {
 		Validators.assertJSR303(this);
+		if (columnIndex && columnType != ColumnType.number) {
+			throw new ValidateException("角标字段必须为数字");
+		}
 	}
 }

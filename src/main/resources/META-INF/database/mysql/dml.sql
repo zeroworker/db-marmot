@@ -64,6 +64,7 @@ create table marmot_data_column
     column_hidden boolean      not null comment '字段隐藏',
     column_escape boolean      not null comment '字段转义',
     column_mask   boolean      not null comment '字段掩码',
+    column_index  boolean      not null comment '字段角标',
     data_format   varchar(512) null comment '数据格式',
     unit_value    double       null comment '单位换算',
     content       varchar(512) null comment '描述',

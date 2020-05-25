@@ -153,7 +153,7 @@ public class XmlGenerateCoder {
 					}
 				},
 				
-				direction_columnss("directionColumns") {
+				direction_columns("directionColumns") {
 					@Override
 					void setAttribute(StatisticalModel statisticalModel, Element element) {
 						Element nodeElement;
