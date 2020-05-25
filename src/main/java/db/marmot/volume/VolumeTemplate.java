@@ -237,7 +237,7 @@ public class VolumeTemplate implements DataSourceTemplate {
 		jdbcTemplate.update(DATA_COLUMN_VOLUME_ID_DELETE_SQL, new Object[] { volumeCode });
 	}
 	
-	private static final String COLUMN_VOLUME_STORE_SQL = "INSERT INTO marmot_column_volume (volume_name,volume_code,volume_type, column_code,db_name, column_value_code, column_show_code, script, content) VALUES(?,?,?,?,?,?,?)";
+	private static final String COLUMN_VOLUME_STORE_SQL = "INSERT INTO marmot_column_volume (volume_name,volume_code,volume_type, column_code,db_name, column_value_code, column_show_code, script, content) VALUES(?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保存字段数据集

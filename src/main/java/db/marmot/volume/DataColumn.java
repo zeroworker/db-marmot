@@ -90,6 +90,11 @@ public class DataColumn {
 	private boolean columnEscape = false;
 	
 	/**
+	 * 是否为角标字段,用于模型统计时抓取数据角标定位
+	 */
+	private boolean columnIndex = false;
+	
+	/**
 	 * 字段掩码-针对敏感字段掩码处理
 	 */
 	private boolean columnMask = false;

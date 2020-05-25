@@ -44,29 +44,14 @@
                     <documentation><![CDATA[模型名称 该模型名称唯一]]></documentation>
                 </annotation>
             </attribute>
-            <attribute name="dbName" type="string" use="required">
+            <attribute name="volumeCode" type="string" use="required">
                 <annotation>
-                    <documentation><![CDATA[数据源名称]]></documentation>
-                </annotation>
-            </attribute>
-            <attribute name="fetchSql" type="string" use="required">
-                <annotation>
-                    <documentation><![CDATA[抓取数据sql]]></documentation>
-                </annotation>
-            </attribute>
-            <attribute name="fetchStep" type="int" use="required">
-                <annotation>
-                    <documentation><![CDATA[抓取数据步长]]></documentation>
+                    <documentation><![CDATA[数据集编码]]></documentation>
                 </annotation>
             </attribute>
             <attribute name="offsetExpr" type="string" use="required">
                 <annotation>
                     <documentation><![CDATA[偏移量,多偏移量,隔开]]></documentation>
-                </annotation>
-            </attribute>
-            <attribute name="timeColumn" type="string" use="required">
-                <annotation>
-                    <documentation><![CDATA[时间字段]]></documentation>
                 </annotation>
             </attribute>
             <attribute name="windowLength" type="int" use="required">
@@ -172,7 +157,7 @@
                     <documentation><![CDATA[字段编码]]></documentation>
                 </annotation>
             </attribute>
-            <attribute name="columnType"  use="required">
+            <attribute name="columnType" use="required">
                 <simpleType>
                     <annotation>
                         <documentation><![CDATA[条件字段类型]]></documentation>
@@ -282,7 +267,7 @@
                     </documentation>
                 </annotation>
             </attribute>
-            <attribute name="columnType"  use="required">
+            <attribute name="columnType" use="required">
                 <simpleType>
                     <annotation>
                         <documentation><![CDATA[条件字段类型]]></documentation>
@@ -404,7 +389,7 @@
                     <documentation><![CDATA[字段编码]]></documentation>
                 </annotation>
             </attribute>
-            <attribute name="columnType"  use="required">
+            <attribute name="columnType" use="required">
                 <simpleType>
                     <annotation>
                         <documentation><![CDATA[条件字段类型]]></documentation>
@@ -463,7 +448,7 @@
                     </documentation>
                 </annotation>
             </attribute>
-            <attribute name="columnType"  use="required">
+            <attribute name="columnType" use="required">
                 <simpleType>
                     <annotation>
                         <documentation><![CDATA[条件字段类型]]></documentation>
