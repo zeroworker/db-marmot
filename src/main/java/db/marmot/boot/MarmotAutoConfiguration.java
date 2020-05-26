@@ -29,8 +29,8 @@ import javax.sql.DataSource;
  */
 @Configuration
 @ConditionalOnBean(DataSource.class)
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @EnableConfigurationProperties(MarmotProperties.class)
+@AutoConfigureOrder(value = Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnProperty(value = "db.marmot.enable", matchIfMissing = true)
 public class MarmotAutoConfiguration {
 	
