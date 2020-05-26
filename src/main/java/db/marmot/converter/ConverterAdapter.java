@@ -204,22 +204,6 @@ public class ConverterAdapter {
 	}
 	
 	/**
-	 * 根据数据库字段class类型获取字段转换器
-	 * @param columnClass
-	 * @return
-	 */
-	public ColumnConverter getColumnConverter(Class columnClass) {
-		Validators.notNull(columnClass, "columnClass 不能为空");
-		
-		for (ColumnConverter columnConverter : COLUMN_CONVERTERS.values()) {
-			if (columnConverter.columnClass().equals(columnClass)) {
-				return columnConverter;
-			}
-		}
-		throw new ConverterException(String.format("不支持的数据字段类型:%s", columnClass.getSimpleName()));
-	}
-	
-	/**
 	 * 根据数字段类型获取字段转换器
 	 * @param columnType
 	 * @return
@@ -367,7 +351,7 @@ public class ConverterAdapter {
 	public SelectSqlBuilderConverter newInstanceSqlBuilder(String sqlType, String sqlScript) {
 		
 		Validators.notNull(sqlType, "sqlType 不能为空");
-
+		
 		Class sqlBuilderConverterClasses = SELECT_SQL_CONVERTERS.get(sqlType);
 		if (sqlBuilderConverterClasses == null) {
 			throw new ConverterException(String.format("%s select sql 转换器未实现", sqlType));
@@ -421,11 +405,10 @@ public class ConverterAdapter {
 	public <T> T eval(String expr, Map<String, Object> params) {
 		return (T) MVEL.eval(expr, params);
 	}
-
-	public static class Mask{
+	
+	public static class Mask {
 		public static final char SEPARATOR_CHAR_ASTERISK = '*';
-		public static final String ALL_ASTERISK = "******";
-
+		
 		/**
 		 * 把字符串mask
 		 *
@@ -445,7 +428,7 @@ public class ConverterAdapter {
 			}
 			int maskLen;
 			int begin;
-
+			
 			if ((len >= 8 || len <= 11) && str.matches("[A-Z]{1,2}\\d{7,10}")) {
 				// 台胞证/回乡证/护照
 				// 台胞证上面有两个号码：台胞证号码：0099730503(B) 身份证号码：H125039525
@@ -475,7 +458,7 @@ public class ConverterAdapter {
 			}
 			return mask(str, begin, begin + maskLen);
 		}
-
+		
 		/**
 		 * 掩码指定的位数为*
 		 *
@@ -494,7 +477,7 @@ public class ConverterAdapter {
 			if (str.length() == 1) {
 				return String.valueOf(SEPARATOR_CHAR_ASTERISK);
 			}
-
+			
 			if (beginIndex < 0) {
 				beginIndex = 0;
 			}
@@ -505,7 +488,7 @@ public class ConverterAdapter {
 			if (subLen < 0) {
 				throw new StringIndexOutOfBoundsException(subLen);
 			}
-
+			
 			// 复制整个str
 			char[] chars = str.toCharArray();
 			char[] mask = repeatAsterisk(subLen);
@@ -514,14 +497,7 @@ public class ConverterAdapter {
 			// 复制输出
 			return new String(chars);
 		}
-
-		public static String maskAll(String str) {
-			if (str == null || str.length() == 0) {
-				return str;
-			}
-			return ALL_ASTERISK;
-		}
-
+		
 		protected static char[] repeatAsterisk(int len) {
 			char[] chars = new char[len];
 			Arrays.fill(chars, Mask.SEPARATOR_CHAR_ASTERISK);
