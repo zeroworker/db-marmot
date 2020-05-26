@@ -1,16 +1,5 @@
 package db.marmot.volume.parser;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.*;
@@ -21,6 +10,16 @@ import com.alibaba.druid.sql.parser.Token;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.Operators;
 import db.marmot.repository.validate.Validators;
+import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -82,6 +81,14 @@ public class SqlSelectQueryParser {
 		if (sqlSelectQueryBlock.isForUpdate() || sqlSelectQueryBlock.isNoWait()) {
 			throw new SqlParserException("查询sql不能包含数据库锁表子句");
 		}
+	}
+	
+	/**
+	 * 是否存在条件
+	 * @return
+	 */
+	public boolean exitSelectConditions() {
+		return sqlSelectQueryBlock.getWhere() != null;
 	}
 	
 	/**

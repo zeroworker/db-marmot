@@ -3,7 +3,7 @@ package db.marmot.graphic;
 import db.marmot.enums.*;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
-import db.marmot.statistical.StatisticalModel;
+import db.marmot.statistical.StatisticalModelBuilder;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.Database;
 import org.apache.commons.lang3.StringUtils;
@@ -20,11 +20,11 @@ public class GraphicRepository {
 	
 	protected DataSourceTemplate dataSourceTemplate;
 	private static final AtomicLong seqGen = new AtomicLong(System.currentTimeMillis());
-
+	
 	public GraphicRepository(DataSourceTemplate dataSourceTemplate) {
 		this.dataSourceTemplate = dataSourceTemplate;
 	}
-
+	
 	/**
 	 * 保存仪表盘
 	 * @param dashboard 仪表盘
@@ -59,8 +59,7 @@ public class GraphicRepository {
 					List<GraphicDesign> graphicDesigns = dataSourceTemplate.queryGraphicDesign(dashboard.getBoardId());
 					if (graphicDesigns != null && graphicDesigns.size() > 0) {
 						graphicDesigns.forEach(graphicDesign -> {
-							List<String> modelNames = graphicDesign.getGraphic().getModelNames();
-							modelNames.forEach(modelName -> dataSourceTemplate.deleteStatisticalModel(modelName));
+							dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
 						});
 					}
 				}
@@ -75,10 +74,14 @@ public class GraphicRepository {
 					graphicDesign.setGraphicCode(StringUtils.join(dashboard.getBoardId() + "_" + seqGen.incrementAndGet()));
 					dataSourceTemplate.storeGraphicDesign(graphicDesign);
 					if (dataVolume.getVolumeType() == VolumeType.model) {
-						List<StatisticalModel> statisticalModels = graphicDesign.getGraphic().createStatisticalModels(dataVolume, database.getDbType(), graphicDesign.getGraphicCode());
-						if (statisticalModels != null && statisticalModels.size() > 0) {
-							statisticalModels.forEach(statisticalModel -> dataSourceTemplate.storeStatisticalModel(statisticalModel));
-						}
+						StatisticalModelBuilder builder = new StatisticalModelBuilder()
+								.addMemo(graphicDesign.getGraphicName())
+								.addWindowUnit(WindowUnit.DAY)
+								.addWindowLength(0)
+								.addWindowType(WindowType.SIMPLE_TIME)
+								.addModelName(graphicDesign.getGraphicCode())
+								.addDataVolume(dataVolume);
+						dataSourceTemplate.storeStatisticalModel(graphicDesign.getGraphic().configurationModel(builder));
 					}
 				} catch (DuplicateKeyException keyException) {
 					GraphicDesign originalGraphicDesign = dataSourceTemplate.findGraphicDesign(graphicDesign.getGraphicId());
@@ -106,8 +109,7 @@ public class GraphicRepository {
 			if (deleteGraphicDesign) {
 				dataSourceTemplate.deleteGraphicDesignByGraphicId(graphicDesign.getGraphicId());
 				if (dataVolume.getVolumeType() == VolumeType.model) {
-					List<String> modelNames = graphicDesign.getGraphic().getModelNames();
-					modelNames.forEach(modelName -> dataSourceTemplate.deleteStatisticalModel(modelName));
+					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
 				}
 			}
 		}
@@ -130,8 +132,7 @@ public class GraphicRepository {
 			List<GraphicDesign> graphicDesigns = dataSourceTemplate.queryGraphicDesign(dashboard.getBoardId());
 			if (graphicDesigns != null && graphicDesigns.size() > 0) {
 				for (GraphicDesign graphicDesign : graphicDesigns) {
-					List<String> modelNames = graphicDesign.getGraphic().getModelNames();
-					modelNames.forEach(modelName -> dataSourceTemplate.deleteStatisticalModel(modelName));
+					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
 				}
 			}
 		}

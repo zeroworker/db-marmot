@@ -1,19 +1,16 @@
 package db.marmot.graphic;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.validation.constraints.Size;
-
-import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalModel;
+import db.marmot.statistical.StatisticalModelBuilder;
 import db.marmot.volume.DataVolume;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * @author shaokang
@@ -45,30 +42,23 @@ public abstract class Graphic implements Serializable {
 	private boolean graphicInstant = Boolean.TRUE;
 	
 	/**
-	 * 图表偏移量表达式 模型统计生效,sql统计直接使用时间维度过滤即可
-	 */
-	private String offsetExpr = "0*60*60*1000+0*60*1000+0*1000";
-	
-	/**
-	 * 获取统计模型名称
-	 * @return
-	 */
-	public abstract List<String> getModelNames();
-	
-	/**
-	 * 创建统计模型
-	 * @param dataVolume
-	 * @param graphicName
-	 * @param dbType
-	 * @return
-	 */
-	public abstract List<StatisticalModel> createStatisticalModels(DataVolume dataVolume,String dbType,String graphicName);
-	
-	/**
 	 * 序列化图表
 	 * @return
 	 */
 	public abstract String toJSONGraphic();
+	
+	/**
+	 * 获取模型名称
+	 * @return
+	 */
+	public abstract String getModelName();
+	
+	/**
+	 * 配置模型
+	 * @param builder
+	 * @return
+	 */
+	public abstract StatisticalModel configurationModel(StatisticalModelBuilder builder);
 	
 	/**
 	 * 验证图表
@@ -77,17 +67,8 @@ public abstract class Graphic implements Serializable {
 	public void validateGraphic(DataVolume dataVolume) {
 		Validators.assertJSR303(this);
 		if (dataVolume.getVolumeType() == VolumeType.model) {
-			
 			if (this.graphicLimit > 1000) {
 				throw new ValidateException("模型数据源图表数据最大支持预览1000");
-			}
-			
-			Validators.notNull(offsetExpr, "offsetExpr 不能为空");
-			
-			try {
-				Integer.valueOf(ConverterAdapter.getInstance().eval(offsetExpr).toString());
-			} catch (Exception e) {
-				throw new ValidateException(String.format("无法解析偏移量表达式:%s", offsetExpr));
 			}
 		}
 	}

@@ -50,6 +50,7 @@ public class StatisticalModel {
 	/**
 	 * 抓取数据sql
 	 */
+	@NotNull
 	private String fetchSql;
 	
 	/**
@@ -72,6 +73,12 @@ public class StatisticalModel {
 	 */
 	@NotNull
 	private List<String> offsetExpr = new ArrayList<>();
+	
+	/**
+	 * 角标字段
+	 */
+	@NotNull
+	private String indexColumn;
 	
 	/**
 	 * 时间字段

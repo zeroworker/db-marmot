@@ -109,18 +109,15 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 			timeGroupData.put((Date) dimenRowData.get(dimenCycleColumn.getColumnCode()), dimenRowData);
 		}
 		
-		int offset = Integer.valueOf(converterAdapter.eval(graphic.getOffsetExpr()).toString());
+		int offset = Integer.valueOf(converterAdapter.eval(graphic.getGraphicModel().getOffsetExpr()).toString());
 		List<Map<String, Object>> measureColumnsValues = null;
-		for (String modelName : graphic.getModelNames()) {
-			List<Map<String, Object>> aggregateData = statisticalGenerateAdapter.getAggregateData(modelName, offset, timeGroupData);
-			if (measureColumnsValues == null) {
-				measureColumnsValues = aggregateData;
-				continue;
-			}
-			
-			for (int i = 0; i < aggregateData.size(); i++) {
-				measureColumnsValues.get(i).putAll(aggregateData.get(i));
-			}
+		List<Map<String, Object>> aggregateData = statisticalGenerateAdapter.getAggregateData(graphic.getModelName(), offset, timeGroupData);
+		if (measureColumnsValues == null) {
+			measureColumnsValues = aggregateData;
+		}
+		
+		for (int i = 0; i < aggregateData.size(); i++) {
+			measureColumnsValues.get(i).putAll(aggregateData.get(i));
 		}
 		
 		for (int i = 0; i < dimenData.size(); i++) {
@@ -142,12 +139,12 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 	 */
 	private List<Map<String, Object>> timeSumMeasureDataFetch(TabGraphic graphic, List<Map<String, Object>> dimenData) {
 		List<Date> timeValue = findDateColumnValue(graphic);
-		int offset = Integer.valueOf(converterAdapter.eval(graphic.getOffsetExpr()).toString());
+		int offset = Integer.valueOf(converterAdapter.eval(graphic.getModelName()).toString());
 		
 		//-维度数据循环,补全维度数据统计值
 		for (Map<String, Object> dimenRowData : dimenData) {
 			//获取所有模型维度行度量数据
-			Map<String, Object> aggregateRowData = statisticalGenerateAdapter.getAggregateData(graphic.getModelNames(), offset, timeValue.get(1), timeValue.get(0), dimenRowData);
+			Map<String, Object> aggregateRowData = statisticalGenerateAdapter.getAggregateData(graphic.getModelName(), offset, timeValue.get(1), timeValue.get(0), dimenRowData);
 			addMeasureData(graphic, dimenRowData, aggregateRowData);
 		}
 		return dimenData;

@@ -52,13 +52,13 @@ public class DataVolume {
 	 */
 	@NotNull
 	private VolumeType volumeType;
-
+	
 	/**
 	 * 数据源名称
 	 */
 	@NotBlank
 	private String dbName;
-
+	
 	/**
 	 * sql脚本 若相同字段不同用途 可以 amount as amount_1 amount as amount_2, amount as amount_3
 	 */
@@ -83,7 +83,7 @@ public class DataVolume {
 	@NotNull
 	@Size(min = 1)
 	private List<DataColumn> dataColumns = new ArrayList<>();
-
+	
 	/**
 	 * 获取数据字段
 	 * @param columnCode
@@ -116,21 +116,36 @@ public class DataVolume {
 	}
 	
 	/**
+	 * 获取时间数据字段
+	 * @return
+	 */
+	public DataColumn findIndexColumn() {
+		DataColumn dataColumn = null;
+		for (DataColumn column : dataColumns) {
+			if (column.isColumnIndex()) {
+				dataColumn = column;
+				break;
+			}
+		}
+		return dataColumn;
+	}
+	
+	/**
 	 * 验证数据集字段
 	 */
 	public void validateDataVolume(Database database) {
-
+		
 		Validators.assertJSR303(this);
-
+		
 		//-数据集不支持枚举
 		if (volumeType == VolumeType.enums) {
 			throw new ValidateException(String.format("数据集不支持枚举"));
 		}
-
-		if (volumeType == VolumeType.sql || volumeType == VolumeType.model){
+		
+		if (volumeType == VolumeType.sql || volumeType == VolumeType.model) {
 			new SqlSelectQueryParser(database.getDbType(), sqlScript).parse();
 		}
-
+		
 		//-模型数据集必须存在唯一时间字段
 		if (volumeType == VolumeType.model) {
 			int dateColumnNum = 0;
@@ -141,6 +156,9 @@ public class DataVolume {
 			}
 			if (dateColumnNum != 1) {
 				throw new ValidateException("数据集必须存在时间字段并且只能存在唯一时间字段");
+			}
+			if (findIndexColumn() == null) {
+				throw new ValidateException("数据集必须存在角标字段");
 			}
 		}
 	}

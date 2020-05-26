@@ -30,11 +30,11 @@ public class StatisticalDataFetchProcedure implements StatisticalProcedure {
 	public boolean match(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		Database database = dataSourceRepository.findDatabase(statisticalModel.getDbName());
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), statisticalModel.getFetchSql());
-		sqlBuilder.addSelectAggregateItem(Aggregates.min, "id", "minValue").addSelectAggregateItem(Aggregates.max, "id", "maxValue");
+		sqlBuilder.addSelectAggregateItem(Aggregates.min, statisticalModel.getIndexColumn(), "minValue").addSelectAggregateItem(Aggregates.max, statisticalModel.getIndexColumn(), "maxValue");
 		
 		temporaryMemory.addThisTask(dataSourceRepository.findStatisticalTask(statisticalModel.getModelName()));
 		if (temporaryMemory.hashThisTask()) {
-			sqlBuilder.addCondition(Operators.greater_than, ColumnType.number, "id", temporaryMemory.getThisTask().getEndIndex());
+			sqlBuilder.addCondition(Operators.greater_than, ColumnType.number, statisticalModel.getIndexColumn(), temporaryMemory.getThisTask().getEndIndex());
 		}
 		
 		DataRange dataRange = dataSourceRepository.getDataRange(statisticalModel.getDbName(), sqlBuilder.toSql());
