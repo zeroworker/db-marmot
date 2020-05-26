@@ -1,34 +1,33 @@
 package db.marmot.volume.generator;
 
-import java.util.List;
-
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
-import db.marmot.enums.RepositoryType;
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.FilterColumn;
 import db.marmot.graphic.generator.GraphicGeneratorException;
-import db.marmot.repository.RepositoryAdapter;
-import db.marmot.volume.DataBaseRepository;
+import db.marmot.repository.DataSourceRepository;
+import db.marmot.repository.validate.Validators;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.Database;
+
+import java.util.List;
 
 /**
  * @author shaokang
  */
 public class ColumnSqlDataGenerator extends AbstractColumnDataGenerator {
 	
-	private RepositoryAdapter repositoryAdapter;
+	private DataSourceRepository dataSourceRepository;
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 	
-	public ColumnSqlDataGenerator(RepositoryAdapter repositoryAdapter) {
-		this.repositoryAdapter = repositoryAdapter;
+	public ColumnSqlDataGenerator(DataSourceRepository dataSourceRepository) {
+		Validators.notNull(dataSourceRepository, "dataSourceRepository 不能为空");
+		this.dataSourceRepository = dataSourceRepository;
 	}
 	
 	@Override
 	protected void generateData(ColumnData columnData, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
-		DataBaseRepository baseRepository = repositoryAdapter.getRepository(RepositoryType.database);
-		Database database = baseRepository.findDatabase(columnData.getDbName());
+		Database database = dataSourceRepository.findDatabase(columnData.getDbName());
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), columnData.getScript());
 		if (filterColumns != null && !filterColumns.isEmpty()) {
 			for (FilterColumn filterColumn : filterColumns) {
@@ -43,7 +42,7 @@ public class ColumnSqlDataGenerator extends AbstractColumnDataGenerator {
 			}
 		}
 		columnData.setScript(sqlBuilder.addLimit(pageNum, pageSize).toSql());
-		columnData.setData(baseRepository.queryData(columnData.getDbName(), columnData.getScript()));
+		columnData.setData(dataSourceRepository.querySourceData(columnData.getDbName(), columnData.getScript()));
 	}
 	
 	@Override

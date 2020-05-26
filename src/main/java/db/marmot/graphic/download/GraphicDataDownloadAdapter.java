@@ -2,13 +2,14 @@ package db.marmot.graphic.download;
 
 import com.google.common.collect.Maps;
 import db.marmot.enums.GraphicType;
-import db.marmot.enums.RepositoryType;
-import db.marmot.graphic.*;
+import db.marmot.graphic.Dashboard;
+import db.marmot.graphic.Graphic;
+import db.marmot.graphic.GraphicDesign;
+import db.marmot.graphic.GraphicDownload;
 import db.marmot.graphic.generator.GraphicGeneratorAdapter;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.DataVolume;
-import db.marmot.volume.VolumeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
@@ -44,16 +45,17 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	private String fileUrl;
 	private int downloadNum;
 	private String downloadUrl;
-	private VolumeRepository volumeRepository;
-	private GraphicRepository graphicRepository;
 	private ApplicationContext applicationContext;
+	private DataSourceRepository dataSourceRepository;
 	private ThreadPoolTaskExecutor downloadThreadPool;
 	private GraphicDownloadListener graphicDownloadListener;
 	private GraphicGeneratorAdapter graphicGeneratorAdapter;
 	private Map<GraphicType, Class> graphicDownloaderClasses = Maps.newHashMap();
 	private static final AtomicLong fileSeqGen = new AtomicLong(System.currentTimeMillis());
 	
-	public GraphicDataDownloadAdapter() {
+	public GraphicDataDownloadAdapter(DataSourceRepository dataSourceRepository, GraphicGeneratorAdapter graphicGeneratorAdapter) {
+		this.dataSourceRepository = dataSourceRepository;
+		this.graphicGeneratorAdapter = graphicGeneratorAdapter;
 		graphicDownloaderClasses.put(GraphicType.cross_tab, TabGraphicDownloader.class);
 	}
 	
@@ -94,29 +96,10 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	}
 	
 	@Override
-	public void setGraphicDownloadListener(GraphicDownloadListener graphicDownloadListener) {
-		Validators.notNull(graphicDownloadListener, "graphicDownloadListener 不能为空");
-		this.graphicDownloadListener = graphicDownloadListener;
-	}
-	
-	@Override
-	public void setRepositoryAdapter(RepositoryAdapter repositoryAdapter) {
-		Validators.notNull(repositoryAdapter, "repositoryAdapter 不能为空");
-		this.graphicRepository = repositoryAdapter.getRepository(RepositoryType.graphic);
-		this.volumeRepository = repositoryAdapter.getRepository(RepositoryType.volume);
-	}
-	
-	@Override
-	public void setGraphicGeneratorAdapter(GraphicGeneratorAdapter graphicGeneratorAdapter) {
-		Validators.notNull(graphicGeneratorAdapter, "graphicGeneratorAdapter 不能为空");
-		this.graphicGeneratorAdapter = graphicGeneratorAdapter;
-	}
-	
-	@Override
 	public GraphicDownload downloadGraphicData(String graphicCode) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
-		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
+		GraphicDesign graphicDesign = dataSourceRepository.findGraphicDesign(graphicCode);
+		Dashboard dashboard = dataSourceRepository.findDashboard(graphicDesign.getBoardId());
+		DataVolume dataVolume = dataSourceRepository.findDataVolume(dashboard.getVolumeCode());
 		GraphicDownload graphicDownload = buildGraphicDownload(dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
@@ -125,9 +108,9 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	public GraphicDownload downloadGraphicData(String founderId, String graphicCode) {
 		Validators.notNull(founderId, "founderId 不能为空");
 		
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
-		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
+		GraphicDesign graphicDesign = dataSourceRepository.findGraphicDesign(graphicCode);
+		Dashboard dashboard = dataSourceRepository.findDashboard(graphicDesign.getBoardId());
+		DataVolume dataVolume = dataSourceRepository.findDataVolume(dashboard.getVolumeCode());
 		GraphicDownload graphicDownload = buildGraphicDownload(founderId, dataVolume.getVolumeCode(), graphicDesign.getGraphicName(), graphicDesign.getGraphicType(), graphicDesign.getGraphic());
 		return downloadGraphicData(graphicDownload.downloadIng());
 	}
@@ -149,7 +132,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 		Validators.notNull(graphicType, "graphicType 不能为空");
 		
 		GraphicDownload graphicDownload = buildGraphicDownload(founderId, volumeCode, graphicName, graphicType, graphic);
-		graphicRepository.storeGraphicDownload(graphicDownload);
+		dataSourceRepository.storeGraphicDownload(graphicDownload);
 		
 		submitGraphicDownload(graphicDownload);
 		return graphicDownload;
@@ -157,7 +140,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	
 	@Override
 	public void downloadWaitGraphicData() {
-		List<GraphicDownload> graphicDownloads = graphicRepository.queryWaitGraphicDownloads(downloadNum);
+		List<GraphicDownload> graphicDownloads = dataSourceRepository.queryWaitGraphicDownloads(downloadNum);
 		if (graphicDownloads != null && graphicDownloads.size() > 0) {
 			graphicDownloads.forEach(this::submitGraphicDownload);
 		}
@@ -191,12 +174,12 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	private void executeGraphicDownload(GraphicDownload graphicDownload) {
 		try {
 			//-1.更新图表任务为下载中状态
-			graphicRepository.updateGraphicDownloadIng(graphicDownload);
+			dataSourceRepository.updateGraphicDownloadIng(graphicDownload);
 			//-2. 下载图表数据
 			downloadGraphicData(graphicDownload);
 			//-3.更新图表下载任务结果
 			if (!graphicDownload.isDownloadIng()) {
-				graphicRepository.updateGraphicDownload(graphicDownload);
+				dataSourceRepository.updateGraphicDownload(graphicDownload);
 			}
 		} catch (Exception e) {
 			log.error("图表数据下载异常 图表下载任务ID:{}图表名称:{},图表类型:{}", graphicDownload.getDownloadId(), graphicDownload.getFileName(), graphicDownload.getGraphicType(), e);
@@ -268,6 +251,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	private GraphicDownload buildGraphicDownload(String volumeCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		return buildGraphicDownload(null, volumeCode, null, graphicName, graphicType, graphic);
 	}
+	
 	/**
 	 * 创建图表下载任务
 	 * @param volumeCode
@@ -275,10 +259,10 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	 * @param graphic
 	 * @return
 	 */
-	private GraphicDownload buildGraphicDownload(String volumeCode,String graphicCode, String graphicName, GraphicType graphicType, Graphic graphic) {
+	private GraphicDownload buildGraphicDownload(String volumeCode, String graphicCode, String graphicName, GraphicType graphicType, Graphic graphic) {
 		return buildGraphicDownload(null, volumeCode, graphicCode, graphicName, graphicType, graphic);
 	}
-
+	
 	/**
 	 * 创建图表下载任务
 	 * @param founderId
@@ -305,8 +289,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 		Validators.notNull(fileUrl, "fileUrl 不能为空");
 		Validators.notNull(downloadUrl, "downloadUrl 不能为空");
 		Validators.isTrue(downloadNum > 0, "downloadNum 必须大于零");
-		Validators.notNull(graphicRepository, "graphicRepository 不能为空");
-		Validators.notNull(volumeRepository, "volumeRepository 不能为空");
+		Validators.notNull(dataSourceRepository, "dataSourceRepository 不能为空");
 		Validators.notNull(graphicGeneratorAdapter, "graphicGeneratorAdapter 不能为空");
 		
 		DefaultListableBeanFactory factory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
@@ -322,6 +305,12 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 		db.setPropertyValues(threadPoolPropertyValues);
 		factory.registerBeanDefinition("marmot.download.threadPool", db);
 		this.downloadThreadPool = factory.getBean("marmot.download.threadPool", ThreadPoolTaskExecutor.class);
+		
+		try {
+			this.graphicDownloadListener = applicationContext.getBean(GraphicDownloadListener.class);
+		} catch (BeansException e) {
+			//-nothing
+		}
 	}
 	
 	@Override

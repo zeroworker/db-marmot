@@ -1,27 +1,20 @@
 package db.marmot.volume;
 
-import db.marmot.enums.TemplateType;
 import db.marmot.enums.VolumeType;
-import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
+import db.marmot.statistical.StatisticalRepository;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shaokang
  */
-public class VolumeRepository extends DataSourceRepository {
+public class VolumeRepository extends StatisticalRepository {
 	
-	private VolumeTemplate volumeTemplate;
-	private DatabaseTemplate databaseTemplate;
-	
-	public VolumeRepository(Map<TemplateType, DataSourceTemplate> templates) {
-		super(templates);
-		this.volumeTemplate = getTemplate(TemplateType.volume);
-		this.databaseTemplate = getTemplate(TemplateType.database);
+	public VolumeRepository(DataSourceTemplate dataSourceTemplate) {
+		super(dataSourceTemplate);
 	}
 	
 	/**
@@ -32,25 +25,25 @@ public class VolumeRepository extends DataSourceRepository {
 		if (dataVolume == null) {
 			throw new RepositoryException("数据集不能为空");
 		}
-		Database database = databaseTemplate.findDatabase(dataVolume.getDbName());
+		Database database = dataSourceTemplate.findDatabase(dataVolume.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%s不存在", dataVolume.getDbName()));
 		}
 		try {
-			volumeTemplate.storeDataVolume(dataVolume);
+			dataSourceTemplate.storeDataVolume(dataVolume);
 		} catch (DuplicateKeyException keyException) {
-			volumeTemplate.updateDataVolume(dataVolume);
-			volumeTemplate.deleteDataColumnByVolumeCode(dataVolume.getVolumeCode());
+			dataSourceTemplate.updateDataVolume(dataVolume);
+			dataSourceTemplate.deleteDataColumnByVolumeCode(dataVolume.getVolumeCode());
 		} finally {
 			if (dataVolume.getVolumeType() == VolumeType.custom) {
-				CustomTemplate customTemplate = getTemplate(TemplateType.custom);
+				CustomTemplate customTemplate = dataSourceTemplate.getCustomTemplate();
 				dataVolume.setDataColumns(customTemplate.getMetadataColumns(dataVolume.getVolumeCode()));
 			}
 			if (dataVolume.getVolumeType() == VolumeType.model || dataVolume.getVolumeType() == VolumeType.sql) {
-				dataVolume.setDataColumns(databaseTemplate.getDataColumns(dataVolume.getDbName(), dataVolume.getVolumeCode(), dataVolume.getSqlScript()));
+				dataVolume.setDataColumns(dataSourceTemplate.getDataColumns(dataVolume.getDbName(), dataVolume.getVolumeCode(), dataVolume.getSqlScript()));
 			}
 			dataVolume.validateDataVolume(database);
-			volumeTemplate.storeDataColumn(dataVolume.getDataColumns());
+			dataSourceTemplate.storeDataColumn(dataVolume.getDataColumns());
 		}
 	}
 	
@@ -60,11 +53,11 @@ public class VolumeRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public DataVolume findDataVolume(String volumeCode) {
-		DataVolume dataVolume = volumeTemplate.findDataVolume(volumeCode);
+		DataVolume dataVolume = dataSourceTemplate.findDataVolume(volumeCode);
 		if (dataVolume == null) {
 			throw new RepositoryException("数据集不存在");
 		}
-		List<DataColumn> dataColumns = volumeTemplate.queryDataColumn(dataVolume.getVolumeCode());
+		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(dataVolume.getVolumeCode());
 		if (dataColumns == null || dataColumns.isEmpty()) {
 			throw new RepositoryException(String.format("数据集%s数据字段不存在", dataVolume.getVolumeCode()));
 		}
@@ -80,7 +73,7 @@ public class VolumeRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public List<DataVolume> queryPageDataVolume(String volumeName, int pageNum, int pageSize) {
-		return volumeTemplate.queryPageDataVolume(volumeName, pageNum, pageSize);
+		return dataSourceTemplate.queryPageDataVolume(volumeName, pageNum, pageSize);
 	}
 	
 	/**
@@ -91,24 +84,24 @@ public class VolumeRepository extends DataSourceRepository {
 		if (columnVolume == null) {
 			throw new RepositoryException("字段数据集不能为空");
 		}
-		Database database = databaseTemplate.findDatabase(columnVolume.getDbName());
+		Database database = dataSourceTemplate.findDatabase(columnVolume.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%s不存在", columnVolume.getDbName()));
 		}
 		try {
-			volumeTemplate.storeColumnVolume(columnVolume);
+			dataSourceTemplate.storeColumnVolume(columnVolume);
 		} catch (DuplicateKeyException keyException) {
-			volumeTemplate.updateColumnVolume(columnVolume);
-			volumeTemplate.deleteDataColumnByVolumeCode(columnVolume.getVolumeCode());
+			dataSourceTemplate.updateColumnVolume(columnVolume);
+			dataSourceTemplate.deleteDataColumnByVolumeCode(columnVolume.getVolumeCode());
 		} finally {
 			if (columnVolume.getVolumeType() == VolumeType.custom) {
-				CustomTemplate customTemplate = getTemplate(TemplateType.custom);
+				CustomTemplate customTemplate = dataSourceTemplate.getCustomTemplate();
 				columnVolume.setDataColumns(customTemplate.getMetadataColumns(columnVolume.getVolumeCode()));
-				volumeTemplate.storeDataColumn(columnVolume.getDataColumns());
+				dataSourceTemplate.storeDataColumn(columnVolume.getDataColumns());
 			}
 			if (columnVolume.getVolumeType() == VolumeType.sql) {
-				columnVolume.setDataColumns(databaseTemplate.getDataColumns(columnVolume.getDbName(), columnVolume.getVolumeCode(), columnVolume.getScript()));
-				volumeTemplate.storeDataColumn(columnVolume.getDataColumns());
+				columnVolume.setDataColumns(dataSourceTemplate.getDataColumns(columnVolume.getDbName(), columnVolume.getVolumeCode(), columnVolume.getScript()));
+				dataSourceTemplate.storeDataColumn(columnVolume.getDataColumns());
 			}
 			columnVolume.validateColumnVolume(database);
 		}
@@ -120,11 +113,11 @@ public class VolumeRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public ColumnVolume findColumnVolume(String columnCode) {
-		ColumnVolume columnVolume = volumeTemplate.findColumnVolume(columnCode);
+		ColumnVolume columnVolume = dataSourceTemplate.findColumnVolume(columnCode);
 		if (columnVolume == null) {
 			throw new RepositoryException(String.format("字段数据集不存在,字段编码:%s", columnCode));
 		}
-		List<DataColumn> dataColumns = volumeTemplate.queryDataColumn(columnVolume.getVolumeCode());
+		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(columnVolume.getVolumeCode());
 		if (dataColumns == null || dataColumns.isEmpty()) {
 			throw new RepositoryException(String.format("数据集%s数据字段不存在", columnVolume.getVolumeCode()));
 		}
@@ -139,7 +132,7 @@ public class VolumeRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public DataColumn findDataColumn(String volumeCode, String columnCode) {
-		DataColumn dataColumn = volumeTemplate.findDataColumn(volumeCode, columnCode);
+		DataColumn dataColumn = dataSourceTemplate.findDataColumn(volumeCode, columnCode);
 		if (dataColumn == null) {
 			throw new RepositoryException("数据字段不存在");
 		}

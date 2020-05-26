@@ -1,21 +1,22 @@
 package db.marmot.graphic.generator.procedure.fetch;
 
-import java.util.*;
-
-import org.apache.commons.lang3.StringUtils;
-
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.Operators;
-import db.marmot.enums.RepositoryType;
 import db.marmot.graphic.DimenColumn;
 import db.marmot.graphic.FilterColumn;
 import db.marmot.graphic.MeasureColumn;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.TabGraphicData;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
-import db.marmot.volume.*;
+import db.marmot.volume.ColumnVolume;
+import db.marmot.volume.DataColumn;
+import db.marmot.volume.DataVolume;
+import db.marmot.volume.Database;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 /**
  * @author shaokang
@@ -23,14 +24,10 @@ import db.marmot.volume.*;
 public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraphicData> {
 	
 	private GraphicFetch graphicMockFetch;
-	private VolumeRepository volumeRepository;
-	private DataBaseRepository dataBaseRepository;
 	
-	public TabGraphicModelFetch(RepositoryAdapter repositoryAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
-		super(repositoryAdapter, statisticalGenerateAdapter);
+	public TabGraphicModelFetch(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		super(dataSourceRepository, statisticalGenerateAdapter);
 		this.graphicMockFetch = new TabGraphicMockFetch();
-		this.volumeRepository = repositoryAdapter.getRepository(RepositoryType.volume);
-		this.dataBaseRepository = repositoryAdapter.getRepository(RepositoryType.database);
 	}
 	
 	@Override
@@ -55,13 +52,13 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 	 */
 	private List<Map<String, Object>> dimenDataFetch(TabGraphic graphic, DataVolume dataVolume) {
 		StringBuilder tableBuilder = new StringBuilder();
-		Database database = dataBaseRepository.findDatabase(dataVolume.getDbName());
+		Database database = dataSourceRepository.findDatabase(dataVolume.getDbName());
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), null);
 		
 		List<DimenColumn> dimenColumns = graphic.getGraphicColumn().getDimenColumns();
 		for (int i = 0; i < dimenColumns.size(); i++) {
 			DimenColumn dimenColumn = dimenColumns.get(i);
-			ColumnVolume columnVolume = volumeRepository.findColumnVolume(dataVolume.findDataColumn(dimenColumn.getColumnCode()).getScreenColumn());
+			ColumnVolume columnVolume = dataSourceRepository.findColumnVolume(dataVolume.findDataColumn(dimenColumn.getColumnCode()).getScreenColumn());
 			SelectSqlBuilderConverter dimenColumnDataSqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), columnVolume.getScript());
 			//-添加查询字段
 			dimenColumnDataSqlBuilder.addSelectItem(dimenColumn.getColumnCode());
@@ -80,7 +77,7 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 		}
 		
 		sqlBuilder.addSelectTable(tableBuilder.substring(0, tableBuilder.length() - 1)).addLimit(graphic.getGraphicPage(), graphic.getGraphicLimit());
-		return dataBaseRepository.queryData(dataVolume.getDbName(), sqlBuilder.toSql());
+		return dataSourceRepository.querySourceData(dataVolume.getDbName(), sqlBuilder.toSql());
 	}
 	
 	/**

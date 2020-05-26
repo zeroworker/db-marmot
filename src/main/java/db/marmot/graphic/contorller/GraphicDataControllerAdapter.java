@@ -24,15 +24,12 @@ public class GraphicDataControllerAdapter extends WebControllerAdapter {
 	private GraphicDownloadAdapter graphicDownloadAdapter;
 	private GraphicGeneratorAdapter graphicGeneratorAdapter;
 	private Map<String, Class> graphicTypeRequest = new HashMap<>();
-	
-	public void setGraphicDownloadAdapter(GraphicDownloadAdapter graphicDownloadAdapter) {
+
+	public GraphicDataControllerAdapter(GraphicDownloadAdapter graphicDownloadAdapter, GraphicGeneratorAdapter graphicGeneratorAdapter) {
 		this.graphicDownloadAdapter = graphicDownloadAdapter;
-	}
-	
-	public void setGraphicGeneratorAdapter(GraphicGeneratorAdapter graphicGeneratorAdapter) {
 		this.graphicGeneratorAdapter = graphicGeneratorAdapter;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();

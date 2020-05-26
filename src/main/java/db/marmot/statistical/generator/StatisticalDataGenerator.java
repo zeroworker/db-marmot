@@ -1,9 +1,7 @@
 package db.marmot.statistical.generator;
 
-import db.marmot.enums.RepositoryType;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.StatisticalModel;
-import db.marmot.statistical.StatisticalRepository;
 import db.marmot.statistical.generator.memory.StatisticalTemporaryMemory;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.statistical.generator.procedure.StatisticalDataCalculateProcedure;
@@ -24,14 +22,14 @@ import java.util.List;
 @Slf4j
 public class StatisticalDataGenerator implements StatisticalGenerator {
 
-	private StatisticalRepository statisticalRepository;
+	private DataSourceRepository dataSourceRepository;
 	private List<StatisticalProcedure> statisticalProcedures = new ArrayList<>();
-	
-	public StatisticalDataGenerator(RepositoryAdapter repositoryAdapter) {
-		this.statisticalRepository = repositoryAdapter.getRepository(RepositoryType.statistical);
-		statisticalProcedures.add(new StatisticalDataFetchProcedure(repositoryAdapter));
+
+	public StatisticalDataGenerator(DataSourceRepository dataSourceRepository) {
+		this.dataSourceRepository = dataSourceRepository;
+		statisticalProcedures.add(new StatisticalDataFetchProcedure(dataSourceRepository));
 		statisticalProcedures.add(new StatisticalDataCalculateProcedure());
-		statisticalProcedures.add(new StatisticalDataMergeProcedure(statisticalRepository));
+		statisticalProcedures.add(new StatisticalDataMergeProcedure(dataSourceRepository));
 		statisticalProcedures.sort(Comparator.comparingInt(Ordered::getOrder));
 	}
 	
@@ -42,13 +40,13 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				Iterator<StatisticalProcedure> procedures = statisticalProcedures.iterator();
 				TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
 				try {
-					statisticalRepository.updateStatisticalModelCalculateIng(statisticalModel);
+					dataSourceRepository.updateStatisticalModelCalculateIng(statisticalModel);
 					processedProcedure(procedures, statisticalModel, temporaryMemory);
 				} catch (Exception e) {
 					log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
 				} finally {
 					try {
-						statisticalRepository.updateStatisticalModelCalculated(statisticalModel, temporaryMemory);
+						dataSourceRepository.updateStatisticalModelCalculated(statisticalModel, temporaryMemory);
 					} catch (Exception e) {
 						log.error("更新模型{}计算完成异常", statisticalModel.getModelName(), e);
 					}

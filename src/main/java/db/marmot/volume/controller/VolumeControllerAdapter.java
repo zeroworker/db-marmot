@@ -2,8 +2,8 @@ package db.marmot.volume.controller;
 
 import db.marmot.contorller.AbstractWebController;
 import db.marmot.contorller.WebControllerAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.volume.DataVolume;
-import db.marmot.volume.VolumeRepository;
 import db.marmot.volume.controller.request.ColumnDataRequest;
 import db.marmot.volume.controller.request.DataVolumeRequest;
 import db.marmot.volume.generator.ColumnData;
@@ -18,17 +18,14 @@ import java.util.Map;
  */
 public class VolumeControllerAdapter extends WebControllerAdapter {
 	
-	private VolumeRepository volumeRepository;
+	private DataSourceRepository dataSourceRepository;
 	private ColumnGeneratorAdapter columnGeneratorAdapter;
-	
-	public void setVolumeRepository(VolumeRepository volumeRepository) {
-		this.volumeRepository = volumeRepository;
-	}
-	
-	public void setColumnGeneratorAdapter(ColumnGeneratorAdapter columnGeneratorAdapter) {
+
+	public VolumeControllerAdapter(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter) {
+		this.dataSourceRepository = dataSourceRepository;
 		this.columnGeneratorAdapter = columnGeneratorAdapter;
 	}
-	
+
 	@Override
 	public Map<String, Class> getController() {
 		Map<String, Class> controllers = new HashMap<>();
@@ -48,7 +45,7 @@ public class VolumeControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected DataVolume postHandleResult(DataVolumeRequest request) {
-			return volumeRepository.findDataVolume(request.getVolumeCode());
+			return dataSourceRepository.findDataVolume(request.getVolumeCode());
 		}
 	}
 	
@@ -59,7 +56,7 @@ public class VolumeControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected List<DataVolume> postHandleResult(DataVolumeRequest request) {
-			return volumeRepository.queryPageDataVolume(request.getVolumeName(), 0, Integer.MAX_VALUE);
+			return dataSourceRepository.queryPageDataVolume(request.getVolumeName(), 0, Integer.MAX_VALUE);
 		}
 	}
 	

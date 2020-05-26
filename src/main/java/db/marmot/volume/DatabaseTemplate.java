@@ -8,14 +8,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import db.marmot.converter.ColumnConverter;
 import db.marmot.converter.ConverterAdapter;
-import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
+import db.marmot.repository.validate.Validators;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
@@ -24,17 +25,20 @@ import java.util.Map;
 /**
  * @author shaokang
  */
-public class DatabaseTemplate implements DataSourceTemplate {
+public class DatabaseTemplate {
 	
-	private String dbType;
-	private JdbcTemplate jdbcTemplate;
-	private ConverterAdapter converterAdapter;
+	protected String dbType;
+	protected JdbcTemplate jdbcTemplate;
+	protected ConverterAdapter converterAdapter;
 	private Map<String, JdbcTemplate> jdbcTemplates = new HashMap<>();//数据源
 	
-	public DatabaseTemplate(String dbType, JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-		jdbcTemplates.put("master", jdbcTemplate);
+	public DatabaseTemplate(DataSource dataSource) {
+		Validators.notNull(dataSource, "dataSource 不能为空");
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.converterAdapter = ConverterAdapter.getInstance();
+		Database database = new Database(dataSource);
+		this.dbType = database.getDbType();
+		addJdbcTemplate(database.getName(), this.jdbcTemplate);
 	}
 	
 	public void addJdbcTemplate(String dbName, JdbcTemplate jdbcTemplate) {

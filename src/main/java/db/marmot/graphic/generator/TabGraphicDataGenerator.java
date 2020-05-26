@@ -7,6 +7,7 @@ import db.marmot.enums.GraphicType;
 import db.marmot.enums.TabGraphicType;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.procedure.*;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.RepositoryAdapter;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
@@ -17,8 +18,8 @@ import db.marmot.volume.generator.ColumnGeneratorAdapter;
  */
 public class TabGraphicDataGenerator extends AbstractGraphicDataGenerator<TabGraphic, TabGraphicData> {
 	
-	public TabGraphicDataGenerator(RepositoryAdapter repositoryAdapter, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
-		super(repositoryAdapter, columnGeneratorAdapter, statisticalGenerateAdapter);
+	public TabGraphicDataGenerator(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		super(dataSourceRepository, columnGeneratorAdapter, statisticalGenerateAdapter);
 	}
 	
 	@Override
@@ -39,9 +40,9 @@ public class TabGraphicDataGenerator extends AbstractGraphicDataGenerator<TabGra
 	}
 	
 	@Override
-	protected List<GraphicProcedure> getGraphicProcedure(RepositoryAdapter repositoryAdapter, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+	protected List<GraphicProcedure> getGraphicProcedure(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
 		List<GraphicProcedure> graphicProcedures = new ArrayList<>();
-		graphicProcedures.add(new TabGraphicFetchProcedure(repositoryAdapter, statisticalGenerateAdapter));
+		graphicProcedures.add(new TabGraphicFetchProcedure(dataSourceRepository, statisticalGenerateAdapter));
 		graphicProcedures.add(new TabGraphicCycleProcedure());
 		graphicProcedures.add(new TabGraphicFilterProcedure());
 		graphicProcedures.add(new TabGraphicStructureProcedure(columnGeneratorAdapter));

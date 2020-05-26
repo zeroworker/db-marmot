@@ -1,11 +1,13 @@
 package db.marmot.statistical.generator;
 
 import db.marmot.converter.ConverterAdapter;
-import db.marmot.enums.RepositoryType;
 import db.marmot.enums.WindowUnit;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.*;
+import db.marmot.statistical.AggregateColumn;
+import db.marmot.statistical.StatisticalData;
+import db.marmot.statistical.StatisticalException;
+import db.marmot.statistical.StatisticalModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -33,25 +35,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapter, ApplicationContextAware, InitializingBean, ApplicationListener<ContextClosedEvent> {
 	
 	private int maxPoolSize;
-	private RepositoryAdapter repositoryAdapter;
+	private DataSourceRepository dataSourceRepository;
 	private ApplicationContext applicationContext;
-	private StatisticalRepository statisticalRepository;
 	private StatisticalGenerator statisticalGenerator;
 	private ThreadPoolTaskExecutor statisticalThreadPool;
 	private final ReentrantLock lock = new ReentrantLock();
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
-	
-	@Override
-	public void setMaxPoolSize(int maxPoolSize) {
+
+	public StatisticalDataGenerateAdapter(int maxPoolSize, DataSourceRepository dataSourceRepository) {
 		this.maxPoolSize = maxPoolSize;
+		this.dataSourceRepository = dataSourceRepository;
 	}
-	
-	@Override
-	public void setRepositoryAdapter(RepositoryAdapter repositoryAdapter) {
-		this.repositoryAdapter = repositoryAdapter;
-		this.statisticalRepository = repositoryAdapter.getRepository(RepositoryType.statistical);
-	}
-	
+
 	@Override
 	public void generateStatisticalData() {
 		if (lock.isLocked()){
@@ -59,7 +54,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 		}
 		lock.lock();
 		try {
-			List<StatisticalModel> statisticalModels = statisticalRepository.findNormalStatisticalModels();
+			List<StatisticalModel> statisticalModels = dataSourceRepository.findNormalStatisticalModels();
 			if (statisticalModels != null && !statisticalModels.isEmpty()) {
 				Iterator<StatisticalModel> iterator = statisticalModels.iterator();
 				List<Integer> threadsModelNum = calculateThreadModelNum(statisticalModels.size());
@@ -82,13 +77,13 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, Map<String, Object> groupData) {
-		StatisticalModel statisticalModel = statisticalRepository.findStatisticalModel(modelName);
+		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
 		if (statisticalModel.getWindowUnit() != WindowUnit.NON) {
 			throw new StatisticalException(String.format("模型%s非粒度模型", modelName));
 		}
 		
 		String rowKey = statisticalModel.createRowKey(groupData, null, 0);
-		StatisticalData statisticalData = statisticalRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
+		StatisticalData statisticalData = dataSourceRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
 		return getAggregateData(statisticalModel, statisticalData);
 	}
 	
@@ -99,21 +94,21 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, int offset, Date timeValue, Map<String, Object> groupData) {
-		StatisticalModel statisticalModel = statisticalRepository.findStatisticalModel(modelName);
+		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
 		String rowKey = statisticalModel.createRowKey(groupData, timeValue, 0);
-		StatisticalData statisticalData = statisticalRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
+		StatisticalData statisticalData = dataSourceRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
 		return getAggregateData(statisticalModel, statisticalData);
 	}
 	
 	@Override
 	public List<Map<String, Object>> getAggregateData(String modelName, int offset, Map<Date, Map<String, Object>> timeGroupData) {
-		StatisticalModel statisticalModel = statisticalRepository.findStatisticalModel(modelName);
+		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
 		
 		List<String> rowKeys = new ArrayList<>();
 		timeGroupData.forEach((timeValue, groupData) -> rowKeys.add(statisticalModel.createRowKey(groupData, timeValue, offset)));
 		
 		List<Map<String, Object>> aggregateData = new ArrayList<>();
-		List<StatisticalData> statisticalData = statisticalRepository.findStatisticalData(modelName, rowKeys);
+		List<StatisticalData> statisticalData = dataSourceRepository.findStatisticalData(modelName, rowKeys);
 		
 		for (String rowKey : rowKeys) {
 			int index = statisticalData.indexOf(new StatisticalData(modelName, rowKey));
@@ -139,7 +134,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, int offset, Date startTime, Date endTime, Map<String, Object> groupData) {
-		StatisticalModel statisticalModel = statisticalRepository.findStatisticalModel(modelName);
+		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
 		
 		LocalDateTime startLocalTime = startTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		LocalDateTime endLocalTime = endTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -150,7 +145,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 			startLocalTime.plusDays(1);
 		}
 		
-		List<StatisticalData> statisticalData = statisticalRepository.findStatisticalData(modelName, rowKeys);
+		List<StatisticalData> statisticalData = dataSourceRepository.findStatisticalData(modelName, rowKeys);
 		
 		return getAggregateData(statisticalModel, statisticalData);
 	}
@@ -182,7 +177,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	public void afterPropertiesSet() {
 		Validators.isTrue(maxPoolSize > 1, "maxPoolSize 必须大于1");
 		
-		this.statisticalGenerator = new StatisticalDataGenerator(repositoryAdapter);
+		this.statisticalGenerator = new StatisticalDataGenerator(dataSourceRepository);
 		
 		DefaultListableBeanFactory factory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
 		RootBeanDefinition db = new RootBeanDefinition(ThreadPoolTaskExecutor.class);

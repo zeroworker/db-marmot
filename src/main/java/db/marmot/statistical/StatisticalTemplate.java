@@ -2,15 +2,13 @@ package db.marmot.statistical;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.Operators;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
-import db.marmot.repository.DataSourceTemplate;
+import db.marmot.volume.VolumeTemplate;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,6 +16,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
@@ -27,18 +26,12 @@ import java.util.Set;
 /**
  * @author shaokang
  */
-public class StatisticalTemplate implements DataSourceTemplate {
-	
-	private String dbType;
-	private JdbcTemplate jdbcTemplate;
-	private ConverterAdapter converterAdapter;
-	
-	public StatisticalTemplate(String dbType, JdbcTemplate jdbcTemplate) {
-		this.dbType = dbType;
-		this.jdbcTemplate = jdbcTemplate;
-		this.converterAdapter = ConverterAdapter.getInstance();
+public class StatisticalTemplate extends VolumeTemplate {
+
+	public StatisticalTemplate(DataSource dataSource) {
+		super(dataSource);
 	}
-	
+
 	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	/**

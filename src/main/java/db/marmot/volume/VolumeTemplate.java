@@ -1,33 +1,29 @@
 package db.marmot.volume;
 
-import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.Operators;
 import db.marmot.enums.OrderType;
 import db.marmot.enums.VolumeType;
-import db.marmot.repository.DataSourceTemplate;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 
 /**
  * @author shaokang
  */
-public class VolumeTemplate implements DataSourceTemplate {
+public class VolumeTemplate extends DatabaseTemplate {
 	
-	private String dbType;
-	private JdbcTemplate jdbcTemplate;
-	private ConverterAdapter converterAdapter;
-	
-	public VolumeTemplate(String dbType, JdbcTemplate jdbcTemplate) {
-		this.dbType = dbType;
-		this.jdbcTemplate = jdbcTemplate;
-		converterAdapter = ConverterAdapter.getInstance();
+	public VolumeTemplate(DataSource dataSource) {
+		super(dataSource);
 	}
 	
 	private static final String DATA_VOLUME_STORE_SQL = "INSERT INTO marmot_data_volume (volume_name,volume_code,volume_type,db_name,sql_script,volume_limit,content) VALUES(?,?,?,?,?,?,?)";

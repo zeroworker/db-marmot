@@ -1,18 +1,17 @@
 package db.marmot.graphic.generator;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
-import org.springframework.core.Ordered;
-
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.Graphic;
 import db.marmot.graphic.generator.procedure.GraphicProcedure;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+import org.springframework.core.Ordered;
+
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author shaokang
@@ -21,8 +20,8 @@ public abstract class AbstractGraphicDataGenerator<G extends Graphic, D extends 
 	
 	private List<GraphicProcedure> graphicProcedures;
 	
-	public AbstractGraphicDataGenerator(RepositoryAdapter repositoryAdapter, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
-		graphicProcedures = getGraphicProcedure(repositoryAdapter, columnGeneratorAdapter, statisticalGenerateAdapter);
+	public AbstractGraphicDataGenerator(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		graphicProcedures = getGraphicProcedure(dataSourceRepository, columnGeneratorAdapter, statisticalGenerateAdapter);
 		graphicProcedures.sort(Comparator.comparingInt(Ordered::getOrder));
 	}
 	
@@ -65,10 +64,10 @@ public abstract class AbstractGraphicDataGenerator<G extends Graphic, D extends 
 	
 	/**
 	 * 注册图表生成器
-	 * @param repositoryAdapter 数据源仓储
+	 * @param dataSourceRepository 数据源仓储
 	 * @param columnGeneratorAdapter 字段数据生成适配器
 	 * @param statisticalGenerateAdapter 字段数据生成适配器
 	 */
-	protected abstract List<GraphicProcedure> getGraphicProcedure(RepositoryAdapter repositoryAdapter, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter);
+	protected abstract List<GraphicProcedure> getGraphicProcedure(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter);
 	
 }

@@ -2,30 +2,22 @@ package db.marmot.statistical;
 
 import com.alibaba.druid.sql.builder.SQLBuilderFactory;
 import com.alibaba.druid.sql.builder.SQLSelectBuilder;
-import db.marmot.enums.TemplateType;
-import db.marmot.repository.DataSourceRepository;
+import db.marmot.graphic.GraphicRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.volume.Database;
-import db.marmot.volume.DatabaseTemplate;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shaokang
  */
-public class StatisticalRepository extends DataSourceRepository {
+public class StatisticalRepository extends GraphicRepository {
 	
-	private DatabaseTemplate databaseTemplate;
-	private StatisticalTemplate statisticalTemplate;
-	
-	public StatisticalRepository(Map<TemplateType, DataSourceTemplate> templates) {
-		super(templates);
-		this.databaseTemplate = getTemplate(TemplateType.database);
-		this.statisticalTemplate = getTemplate(TemplateType.statistical);
+	public StatisticalRepository(DataSourceTemplate dataSourceTemplate) {
+		super(dataSourceTemplate);
 	}
 	
 	/**
@@ -36,7 +28,7 @@ public class StatisticalRepository extends DataSourceRepository {
 			throw new RepositoryException("统计模型不能为空");
 		}
 		
-		Database database = databaseTemplate.findDatabase(statisticalModel.getDbName());
+		Database database = dataSourceTemplate.findDatabase(statisticalModel.getDbName());
 		if (database == null) {
 			throw new RepositoryException(String.format("数据源%不存在", statisticalModel.getModelName()));
 		}
@@ -44,13 +36,13 @@ public class StatisticalRepository extends DataSourceRepository {
 		
 		try {
 			SQLSelectBuilder sqlSelectBuilder = SQLBuilderFactory.createSelectSQLBuilder(statisticalModel.getFetchSql(), database.getDbType()).limit(1);
-			databaseTemplate.queryData(statisticalModel.getDbName(), sqlSelectBuilder.toString());
+			dataSourceTemplate.queryData(statisticalModel.getDbName(), sqlSelectBuilder.toString());
 		} catch (Exception e) {
 			throw new RepositoryException(String.format("统计模型%s fetch sql 验证异常", statisticalModel.getModelName(), e));
 		}
 		
 		try {
-			statisticalTemplate.storeStatisticalModel(statisticalModel);
+			dataSourceTemplate.storeStatisticalModel(statisticalModel);
 		} catch (DuplicateKeyException e) {
 			throw new RepositoryException(String.format("重复统计模型%s", statisticalModel.getModelName()));
 		}
@@ -62,7 +54,7 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public StatisticalModel findStatisticalModel(String modelName) {
-		StatisticalModel statisticalModel = statisticalTemplate.findStatisticalModel(modelName);
+		StatisticalModel statisticalModel = dataSourceTemplate.findStatisticalModel(modelName);
 		if (statisticalModel == null) {
 			throw new RepositoryException(String.format("统计模型%s不存在", statisticalModel.getModelName()));
 		}
@@ -74,7 +66,7 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public List<StatisticalModel> findNormalStatisticalModels() {
-		return statisticalTemplate.findStatisticalModelByStatus(true, false);
+		return dataSourceTemplate.findStatisticalModelByStatus(true, false);
 	}
 	
 	/**
@@ -82,12 +74,12 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @param statisticalModel
 	 */
 	public void updateStatisticalModelCalculateIng(StatisticalModel statisticalModel) {
-		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId(), true);
+		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), true);
 		if (originalStatisticalModel == null) {
 			throw new RepositoryException(String.format("统计模型%s不存在或者未计算完成", statisticalModel.getModelName()));
 		}
 		statisticalModel.setCalculated(false);
-		statisticalTemplate.updateStatisticalModel(statisticalModel);
+		dataSourceTemplate.updateStatisticalModel(statisticalModel);
 	}
 	
 	/**
@@ -95,48 +87,48 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @param statisticalModel
 	 */
 	public void updateStatisticalModelCalculated(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
-		StatisticalModel originalStatisticalModel = statisticalTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
+		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
 		if (originalStatisticalModel == null) {
 			throw new RepositoryException(String.format("未获取到计算中模型%s", statisticalModel.getModelName()));
 		}
 		
 		if (!originalStatisticalModel.isCalculated()) {
 			statisticalModel.setCalculated(true);
-			statisticalTemplate.updateStatisticalModel(statisticalModel);
+			dataSourceTemplate.updateStatisticalModel(statisticalModel);
 			
 		}
 		if (temporaryMemory.hashMemoryStatistics()) {
 			temporaryMemory.getMemoryStatistics().values().forEach(data -> {
-				if (statisticalTemplate.findStatisticalData(data.getModelName(), data.getRowKey()) == null) {
-					statisticalTemplate.storeStatisticalData(data);
+				if (dataSourceTemplate.findStatisticalData(data.getModelName(), data.getRowKey()) == null) {
+					dataSourceTemplate.storeStatisticalData(data);
 					return;
 				}
-				statisticalTemplate.updateStatisticalData(data);
+				dataSourceTemplate.updateStatisticalData(data);
 			});
 		}
 		
 		if (temporaryMemory.hashMemoryDistinct()) {
 			temporaryMemory.getMemoryDistinct().values().forEach(distinct -> {
-				if (statisticalTemplate.findStatisticalDistinct(distinct.getRowKey(), distinct.getDistinctColumn()) == null) {
-					statisticalTemplate.storeStatisticalDistinct(distinct);
+				if (dataSourceTemplate.findStatisticalDistinct(distinct.getRowKey(), distinct.getDistinctColumn()) == null) {
+					dataSourceTemplate.storeStatisticalDistinct(distinct);
 					return;
 				}
-				statisticalTemplate.updateStatisticalDistinct(distinct);
+				dataSourceTemplate.updateStatisticalDistinct(distinct);
 			});
 		}
 		
 		if (temporaryMemory.hashThisTask()) {
-			StatisticalTask statisticalTask = statisticalTemplate.findStatisticalTask(temporaryMemory.getThisTask().getModelName());
+			StatisticalTask statisticalTask = dataSourceTemplate.findStatisticalTask(temporaryMemory.getThisTask().getModelName());
 			if (temporaryMemory.hashNextTask()) {
-				statisticalTemplate.deleteStatisticalTask(statisticalTask.getTaskId());
+				dataSourceTemplate.deleteStatisticalTask(statisticalTask.getTaskId());
 			} else {
 				statisticalTask.setScanned(true);
-				statisticalTemplate.updateStatisticalTask(statisticalTask);
+				dataSourceTemplate.updateStatisticalTask(statisticalTask);
 			}
 		}
 		
 		if (temporaryMemory.hashNextTask()) {
-			statisticalTemplate.storeStatisticalTask(temporaryMemory.getNextTask());
+			dataSourceTemplate.storeStatisticalTask(temporaryMemory.getNextTask());
 		}
 	}
 	
@@ -147,7 +139,7 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public StatisticalData findStatisticalData(String modelName, String rowKey) {
-		return statisticalTemplate.findStatisticalData(modelName, rowKey);
+		return dataSourceTemplate.findStatisticalData(modelName, rowKey);
 	}
 	
 	/**
@@ -157,7 +149,7 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public List<StatisticalData> findStatisticalData(String modelName, List<String> rowKeys) {
-		return statisticalTemplate.findStatisticalData(modelName, rowKeys);
+		return dataSourceTemplate.findStatisticalData(modelName, rowKeys);
 	}
 	
 	/**
@@ -166,7 +158,7 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public StatisticalTask findStatisticalTask(String modelName) {
-		return statisticalTemplate.findStatisticalTask(modelName);
+		return dataSourceTemplate.findStatisticalTask(modelName);
 	}
 	
 	/**
@@ -176,6 +168,6 @@ public class StatisticalRepository extends DataSourceRepository {
 	 * @return
 	 */
 	public StatisticalDistinct findStatisticalDistinct(String rowKey, String distinctColumn) {
-		return statisticalTemplate.findStatisticalDistinct(rowKey, distinctColumn);
+		return dataSourceTemplate.findStatisticalDistinct(rowKey, distinctColumn);
 	}
 }

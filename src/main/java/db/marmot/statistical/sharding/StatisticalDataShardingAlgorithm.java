@@ -1,13 +1,12 @@
-package db.marmot.sharding;
+package db.marmot.statistical.sharding;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.api.sharding.complex.ComplexKeysShardingAlgorithm;
 import org.apache.shardingsphere.api.sharding.complex.ComplexKeysShardingValue;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author shaokang

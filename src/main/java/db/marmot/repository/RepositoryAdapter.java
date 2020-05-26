@@ -7,8 +7,6 @@ import db.marmot.enums.RepositoryType;
  */
 public interface RepositoryAdapter {
 
-	void setSharding(boolean sharding);
-
 	/**
 	 * 根据仓库类型获取仓储服务
 	 * @param repository

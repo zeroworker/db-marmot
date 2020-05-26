@@ -1,24 +1,24 @@
 package db.marmot.graphic.contorller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import db.marmot.contorller.AbstractWebController;
 import db.marmot.contorller.WebControllerAdapter;
 import db.marmot.graphic.Dashboard;
-import db.marmot.graphic.GraphicRepository;
 import db.marmot.graphic.contorller.request.DashboardRequest;
+import db.marmot.repository.DataSourceRepository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
  */
 public class DashboardControllerAdapter extends WebControllerAdapter {
 	
-	private GraphicRepository graphicRepository;
+	private DataSourceRepository dataSourceRepository;
 
-	public void setGraphicRepository(GraphicRepository graphicRepository) {
-		this.graphicRepository = graphicRepository;
+	public DashboardControllerAdapter(DataSourceRepository dataSourceRepository) {
+		this.dataSourceRepository = dataSourceRepository;
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class DashboardControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected void postHandle(Dashboard request) {
-			graphicRepository.storeDashboard(request);
+			dataSourceRepository.storeDashboard(request);
 		}
 	}
 	
@@ -53,7 +53,7 @@ public class DashboardControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected List<Dashboard> postHandleResult(DashboardRequest request) {
-			return graphicRepository.queryPageDashboard(request.getFounderId(), request.getBoardName(), request.getBoardType(), request.getPageNum(), request.getPageSize());
+			return dataSourceRepository.queryPageDashboard(request.getFounderId(), request.getBoardName(), request.getBoardType(), request.getPageNum(), request.getPageSize());
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class DashboardControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected Dashboard postHandleResult(DashboardRequest request) {
-			return graphicRepository.findDashboard(request.getDashboardId());
+			return dataSourceRepository.findDashboard(request.getDashboardId());
 		}
 	}
 	
@@ -75,7 +75,7 @@ public class DashboardControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected void postHandle(DashboardRequest request) {
-			graphicRepository.deleteDashboard(request.getDashboardId());
+			dataSourceRepository.deleteDashboard(request.getDashboardId());
 		}
 	}
 }

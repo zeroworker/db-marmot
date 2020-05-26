@@ -1,26 +1,26 @@
 package db.marmot.graphic.contorller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import db.marmot.contorller.AbstractWebController;
 import db.marmot.contorller.WebControllerAdapter;
 import db.marmot.graphic.GraphicDownload;
-import db.marmot.graphic.GraphicRepository;
 import db.marmot.graphic.contorller.request.GraphicDownloadRequest;
+import db.marmot.repository.DataSourceRepository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
  */
 public class GraphicDownloadControllerAdapter extends WebControllerAdapter {
 	
-	private GraphicRepository graphicRepository;
-	
-	public void setGraphicRepository(GraphicRepository graphicRepository) {
-		this.graphicRepository = graphicRepository;
+	private DataSourceRepository dataSourceRepository;
+
+	public GraphicDownloadControllerAdapter(DataSourceRepository dataSourceRepository) {
+		this.dataSourceRepository = dataSourceRepository;
 	}
-	
+
 	@Override
 	public Map<String, Class> getController() {
 		Map<String, Class> controllers = new HashMap<>();
@@ -41,7 +41,7 @@ public class GraphicDownloadControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected List<GraphicDownload> postHandleResult(GraphicDownloadRequest request) {
-			return graphicRepository.queryPageGraphicDownloads(request.getFounderId(), request.getFileName(), request.getGraphicType(), request.getStatus(), request.getPageNum(), request.getPageSize());
+			return dataSourceRepository.queryPageGraphicDownloads(request.getFounderId(), request.getFileName(), request.getGraphicType(), request.getStatus(), request.getPageNum(), request.getPageSize());
 		}
 	}
 	
@@ -52,7 +52,7 @@ public class GraphicDownloadControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected GraphicDownload postHandleResult(GraphicDownloadRequest request) {
-			return graphicRepository.findGraphicDownload(request.getDownloadId());
+			return dataSourceRepository.findGraphicDownload(request.getDownloadId());
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class GraphicDownloadControllerAdapter extends WebControllerAdapter {
 		
 		@Override
 		protected void postHandle(GraphicDownloadRequest request) {
-			graphicRepository.deleteGraphicDownload(request.getDownloadId());
+			dataSourceRepository.deleteGraphicDownload(request.getDownloadId());
 		}
 	}
 	

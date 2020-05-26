@@ -12,6 +12,7 @@ import db.marmot.graphic.generator.procedure.fetch.GraphicFetch;
 import db.marmot.graphic.generator.procedure.fetch.TabGraphicCustomFetch;
 import db.marmot.graphic.generator.procedure.fetch.TabGraphicModelFetch;
 import db.marmot.graphic.generator.procedure.fetch.TabGraphicSqlFetch;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.RepositoryAdapter;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
@@ -22,16 +23,16 @@ import db.marmot.volume.DataVolume;
  */
 public class TabGraphicFetchProcedure extends GraphicFetchProcedure<TabGraphic, TabGraphicData> {
 	
-	public TabGraphicFetchProcedure(RepositoryAdapter repositoryAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
-		super(repositoryAdapter, statisticalGenerateAdapter);
+	public TabGraphicFetchProcedure(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		super(dataSourceRepository, statisticalGenerateAdapter);
 	}
 	
 	@Override
-	protected Map<VolumeType, GraphicFetch> getGraphicFetches(RepositoryAdapter repositoryAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+	protected Map<VolumeType, GraphicFetch> getGraphicFetches(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
 		Map<VolumeType, GraphicFetch> graphicFetches = new HashMap<>();
-		graphicFetches.put(VolumeType.model, new TabGraphicModelFetch(repositoryAdapter, statisticalGenerateAdapter));
-		graphicFetches.put(VolumeType.sql, new TabGraphicSqlFetch(repositoryAdapter.getRepository(RepositoryType.database)));
-		graphicFetches.put(VolumeType.custom, new TabGraphicCustomFetch(repositoryAdapter));
+		graphicFetches.put(VolumeType.model, new TabGraphicModelFetch(dataSourceRepository, statisticalGenerateAdapter));
+		graphicFetches.put(VolumeType.sql, new TabGraphicSqlFetch(dataSourceRepository));
+		graphicFetches.put(VolumeType.custom, new TabGraphicCustomFetch(dataSourceRepository));
 		return graphicFetches;
 	}
 	

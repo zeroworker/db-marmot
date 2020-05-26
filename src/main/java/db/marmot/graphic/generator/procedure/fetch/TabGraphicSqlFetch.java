@@ -1,8 +1,5 @@
 package db.marmot.graphic.generator.procedure.fetch;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
@@ -13,6 +10,9 @@ import db.marmot.volume.DataBaseRepository;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.Database;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -33,7 +33,7 @@ public class TabGraphicSqlFetch extends GraphicSqlFetch<TabGraphic, TabGraphicDa
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), dataVolume.getSqlScript());
 		tabGraphicSqlBuilders.get(graphic.getTabType()).builderSql(sqlBuilder, graphic, dataVolume);
 		graphicData.setGraphicSql(sqlBuilder.toSql());
-		graphicData.setTabData(dataBaseRepository.queryData(dataVolume.getDbName(), sqlBuilder.toSql()));
+		graphicData.setTabData(dataBaseRepository.querySourceData(dataVolume.getDbName(), sqlBuilder.toSql()));
 	}
 	
 	interface TabGraphicSqlBuilder {

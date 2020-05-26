@@ -3,8 +3,6 @@ package db.marmot.graphic.download;
 import db.marmot.enums.GraphicType;
 import db.marmot.graphic.Graphic;
 import db.marmot.graphic.GraphicDownload;
-import db.marmot.graphic.generator.GraphicGeneratorAdapter;
-import db.marmot.repository.RepositoryAdapter;
 
 /**
  * @author shaokang
@@ -28,24 +26,6 @@ public interface GraphicDownloadAdapter {
 	 * @param downloadUrl
 	 */
 	void setDownloadUrl(String downloadUrl);
-	
-	/**
-	 * 设置下载监听
-	 * @param graphicDownloadListener
-	 */
-	void setGraphicDownloadListener(GraphicDownloadListener graphicDownloadListener);
-	
-	/**
-	 * 设置仓库
-	 * @param repositoryAdapter
-	 */
-	void setRepositoryAdapter(RepositoryAdapter repositoryAdapter);
-	
-	/**
-	 * 设置图表适配器
-	 * @param graphicGeneratorAdapter
-	 */
-	void setGraphicGeneratorAdapter(GraphicGeneratorAdapter graphicGeneratorAdapter);
 	
 	/**
 	 * 下载等待中的图表数据

@@ -4,33 +4,27 @@ import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.*;
 import db.marmot.graphic.converter.GraphicConverter;
-import db.marmot.repository.DataSourceTemplate;
+import db.marmot.statistical.StatisticalTemplate;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 
 /**
  * @author shaokang
  */
-public class GraphicTemplate implements DataSourceTemplate {
-	
-	private String dbType;
-	private JdbcTemplate jdbcTemplate;
-	private ConverterAdapter converterAdapter;
-	
-	public GraphicTemplate(String dbType, JdbcTemplate jdbcTemplate) {
-		this.dbType = dbType;
-		this.jdbcTemplate = jdbcTemplate;
-		this.converterAdapter = ConverterAdapter.getInstance();
+public class GraphicTemplate extends StatisticalTemplate {
+
+	public GraphicTemplate(DataSource dataSource) {
+		super(dataSource);
 	}
-	
+
 	private static final String DASH_BOARD_STORE_SQL = "INSERT INTO marmot_dash_board (volume_code, board_name, board_type,founder_id, founder_name, content) VALUES(?,?,?,?,?,?)";
 	
 	/**

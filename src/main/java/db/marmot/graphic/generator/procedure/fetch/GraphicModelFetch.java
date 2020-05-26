@@ -3,7 +3,7 @@ package db.marmot.graphic.generator.procedure.fetch;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.graphic.Graphic;
 import db.marmot.graphic.generator.GraphicData;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
 
@@ -12,13 +12,13 @@ import db.marmot.volume.DataVolume;
  */
 public abstract class GraphicModelFetch<G extends Graphic, D extends GraphicData> implements GraphicFetch<G, D> {
 
-	protected RepositoryAdapter repositoryAdapter;
+	protected DataSourceRepository dataSourceRepository;
 	protected StatisticalGenerateAdapter statisticalGenerateAdapter;
 	protected ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 	
-	public GraphicModelFetch(RepositoryAdapter repositoryAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+	public GraphicModelFetch(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		this.dataSourceRepository = dataSourceRepository;
 		this.statisticalGenerateAdapter = statisticalGenerateAdapter;
-		this.repositoryAdapter = repositoryAdapter;
 	}
 	
 	@Override

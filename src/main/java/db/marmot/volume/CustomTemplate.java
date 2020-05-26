@@ -1,7 +1,6 @@
 package db.marmot.volume;
 
 import db.marmot.graphic.FilterColumn;
-import db.marmot.repository.DataSourceTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,7 @@ import java.util.Map;
 /**
  * @author shaokang
  */
-public interface CustomTemplate extends DataSourceTemplate {
+public interface CustomTemplate {
 	
 	/**
 	 * 获取源数据数据集字段

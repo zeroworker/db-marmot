@@ -2,21 +2,12 @@ package db.marmot.graphic.generator;
 
 import db.marmot.enums.GraphicType;
 import db.marmot.graphic.Graphic;
-import db.marmot.repository.RepositoryAdapter;
-import db.marmot.statistical.generator.StatisticalGenerateAdapter;
-import db.marmot.volume.generator.ColumnGeneratorAdapter;
 
 /**
  * 图表生成适配器
  * @author shaokang
  */
 public interface GraphicGeneratorAdapter {
-	
-	void setRepositoryAdapter(RepositoryAdapter repositoryAdapter);
-	
-	void setColumnGeneratorAdapter(ColumnGeneratorAdapter columnGeneratorAdapter);
-	
-	void setStatisticalGenerateAdapter(StatisticalGenerateAdapter statisticalGenerateAdapter);
 	
 	/**
 	 * 生成图表数据

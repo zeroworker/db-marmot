@@ -4,9 +4,8 @@
 
 package db.marmot.repository;
 
-import db.marmot.enums.TemplateType;
 import db.marmot.repository.validate.Validators;
-import db.marmot.sharding.StatisticalDataShardingAlgorithm;
+import db.marmot.statistical.sharding.StatisticalDataShardingAlgorithm;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.TableRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.strategy.ComplexShardingStrategyConfiguration;
@@ -33,39 +32,11 @@ import java.util.Properties;
 public abstract class RepositoryFactoryBean<T> implements FactoryBean<T>, InitializingBean {
 	
 	private Class<T> targetType;
-	private boolean sharding = false;
-	private DataSource dataSource;
+	protected DataSource dataSource;
 	private PlatformTransactionManager transactionManager;
-	private Map<TemplateType, DataSourceTemplate> templates;
 	private TransactionProxyFactoryBean proxyFactoryBean = new TransactionProxyFactoryBean();
 	
-	public void setSharding(boolean sharding) {
-		this.sharding = sharding;
-	}
-	
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-	
-	public void setTemplates(Map<TemplateType, DataSourceTemplate> templates) {
-		this.templates = templates;
-	}
-	
-	public Map<TemplateType, DataSourceTemplate> getTemplates() {
-		return templates;
-	}
-	
-	@Override
-	public void afterPropertiesSet() {
-		
-		Validators.notNull(dataSource, "jdbcTemplate 不能为空");
-		
-		Type factoryBeanType = getClass().getGenericSuperclass();
-		if (!(factoryBeanType instanceof ParameterizedType)) {
-			throw new RepositoryException("RepositoryFactoryBean 实现过程不可忽略范型");
-		}
-		this.targetType = (Class<T>) ((ParameterizedType) factoryBeanType).getActualTypeArguments()[0];
-		
+	public RepositoryFactoryBean(boolean sharding, DataSource dataSource) {
 		if (sharding) {
 			try {
 				ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
@@ -78,25 +49,40 @@ public abstract class RepositoryFactoryBean<T> implements FactoryBean<T>, Initia
 				shardingRuleConfig.getTableRuleConfigs().add(statisticsDataTableRuleConfiguration);
 				Map<String, DataSource> dataSourceMap = new HashMap<>();
 				dataSourceMap.put("shardingDataSource", dataSource);
-				dataSource = ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfig, null);
+				this.dataSource = ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfig, null);
 			} catch (SQLException e) {
 				throw new RepositoryException("创建分表数据源异常", e);
 			}
+			return;
+		}
+		this.dataSource = dataSource;
+	}
+	
+	@Override
+	public void afterPropertiesSet() {
+		
+		Validators.notNull(dataSource, "dataSource 不能为空");
+		
+		Type factoryBeanType = getClass().getGenericSuperclass();
+		if (!(factoryBeanType instanceof ParameterizedType)) {
+			throw new RepositoryException("RepositoryFactoryBean 实现过程不可忽略范型");
 		}
 		
-		this.transactionManager = new DataSourceTransactionManager(dataSource);
-		Properties transactionAttributes = new Properties();
+		this.targetType = (Class<T>) ((ParameterizedType) factoryBeanType).getActualTypeArguments()[0];
+		
 		try {
-			transactionAttributes.load(new StringReader("store*=PROPAGATION_REQUIRED\n" + "delete*=PROPAGATION_REQUIRED\n" + "update*=PROPAGATION_REQUIRED\n" + "load*=PROPAGATION_REQUIRED\n" + "*=PROPAGATION_NOT_SUPPORTED,readOnly\n"));
+			this.transactionManager = new DataSourceTransactionManager(dataSource);
+			Properties transactionAttributes = new Properties();
+			transactionAttributes.load(new StringReader(
+				"store*=PROPAGATION_REQUIRED\n" + "delete*=PROPAGATION_REQUIRED\n" + "update*=PROPAGATION_REQUIRED\n" + "load*=PROPAGATION_REQUIRED\n" + "*=PROPAGATION_NOT_SUPPORTED,readOnly\n"));
+			proxyFactoryBean.setTransactionAttributes(transactionAttributes);
+			proxyFactoryBean.setTarget(newInstance());
+			proxyFactoryBean.setProxyTargetClass(true);
+			proxyFactoryBean.setTransactionManager(transactionManager);
+			proxyFactoryBean.afterPropertiesSet();
 		} catch (IOException e) {
 			throw new RepositoryException("初始化事务参数异常", e);
 		}
-		
-		proxyFactoryBean.setTransactionAttributes(transactionAttributes);
-		proxyFactoryBean.setTarget(newInstance());
-		proxyFactoryBean.setProxyTargetClass(true);
-		proxyFactoryBean.setTransactionManager(transactionManager);
-		proxyFactoryBean.afterPropertiesSet();
 	}
 	
 	public abstract T newInstance();

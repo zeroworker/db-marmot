@@ -1,8 +1,6 @@
 package db.marmot.volume;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import db.marmot.enums.TemplateType;
-import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
 import org.springframework.beans.factory.InitializingBean;
@@ -17,15 +15,13 @@ import java.util.Map;
 /**
  * @author shaokang
  */
-public class DataBaseRepository extends DataSourceRepository implements InitializingBean {
-	
-	private DatabaseTemplate databaseTemplate;
-	
-	public DataBaseRepository(Map<TemplateType, DataSourceTemplate> templates) {
-		super(templates);
-		this.databaseTemplate = getTemplate(TemplateType.database);
+public class DataBaseRepository extends VolumeRepository implements InitializingBean {
+
+
+	public DataBaseRepository(DataSourceTemplate dataSourceTemplate) {
+		super(dataSourceTemplate);
 	}
-	
+
 	/**
 	 * 保存数据源配置
 	 * @param database
@@ -38,13 +34,13 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 		DruidDataSource dataSource = buildDruidDataSource(database);
 		try {
 			dataSource.init();
-			databaseTemplate.storeDatabase(database);
-			databaseTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
+			dataSourceTemplate.storeDatabase(database);
+			dataSourceTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
 		} catch (SQLException sqlException) {
 			throw new RepositoryException(String.format("数据源%s初始化失败", database.getName()), sqlException);
 		} catch (DuplicateKeyException e) {
-			databaseTemplate.updateDatabase(database);
-			databaseTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
+			dataSourceTemplate.updateDatabase(database);
+			dataSourceTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
 		}
 	}
 	
@@ -67,7 +63,7 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 	 * @return
 	 */
 	public Database getDatabase(String name) {
-		Database database = databaseTemplate.findDatabase(name);
+		Database database = dataSourceTemplate.findDatabase(name);
 		return database;
 	}
 	
@@ -78,7 +74,7 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 	 * @return
 	 */
 	public DataRange getDataRange(String databaseName, String sqlScript) {
-		return databaseTemplate.getDataRange(databaseName, sqlScript);
+		return dataSourceTemplate.getDataRange(databaseName, sqlScript);
 	}
 	
 	/**
@@ -87,18 +83,18 @@ public class DataBaseRepository extends DataSourceRepository implements Initiali
 	 * @param sqlScript
 	 * @return
 	 */
-	public List<Map<String, Object>> queryData(String databaseName, String sqlScript) {
-		return databaseTemplate.queryData(databaseName, sqlScript);
+	public List<Map<String, Object>> querySourceData(String databaseName, String sqlScript) {
+		return dataSourceTemplate.queryData(databaseName, sqlScript);
 	}
 	
 	@Override
 	public void afterPropertiesSet() {
-		List<Database> databases = databaseTemplate.getDatabases();
+		List<Database> databases = dataSourceTemplate.getDatabases();
 		if (databases != null && !databases.isEmpty()) {
 			databases.forEach(database -> {
 				if (!database.getName().equals("master")) {
 					DruidDataSource dataSource = buildDruidDataSource(database);
-					databaseTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
+					dataSourceTemplate.addJdbcTemplate(database.getName(), new JdbcTemplate(dataSource));
 				}
 			});
 		}

@@ -4,17 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import db.marmot.repository.RepositoryAdapter;
-
 /**
  * @author shaokang
  */
 public interface StatisticalGenerateAdapter {
-	
-	void setMaxPoolSize(int maxPoolSize);
 
-	void setRepositoryAdapter(RepositoryAdapter repositoryAdapter);
-	
 	/**
 	 * 生成统计数据
 	 */

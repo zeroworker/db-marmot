@@ -2,17 +2,14 @@ package db.marmot.graphic.generator;
 
 import com.google.common.collect.Maps;
 import db.marmot.enums.GraphicType;
-import db.marmot.enums.RepositoryType;
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.Dashboard;
 import db.marmot.graphic.Graphic;
 import db.marmot.graphic.GraphicDesign;
-import db.marmot.graphic.GraphicRepository;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
-import db.marmot.volume.VolumeRepository;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -24,35 +21,22 @@ import java.util.Map;
  */
 public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, InitializingBean {
 	
-	private RepositoryAdapter repositoryAdapter;
-	private GraphicRepository graphicRepository;
-	private VolumeRepository volumeRepository;
+	private DataSourceRepository dataSourceRepository;
 	private ColumnGeneratorAdapter columnGeneratorAdapter;
 	private StatisticalGenerateAdapter statisticalGenerateAdapter;
 	private Map<GraphicType, GraphicDataGenerator> graphicDataGenerators = Maps.newHashMap();
 	
-	@Override
-	public void setRepositoryAdapter(RepositoryAdapter repositoryAdapter) {
-		this.repositoryAdapter = repositoryAdapter;
-		this.graphicRepository = repositoryAdapter.getRepository(RepositoryType.graphic);
-		this.volumeRepository = repositoryAdapter.getRepository(RepositoryType.volume);
-	}
-	
-	@Override
-	public void setColumnGeneratorAdapter(ColumnGeneratorAdapter columnGeneratorAdapter) {
+	public GraphicDataGeneratorAdapter(DataSourceRepository dataSourceRepository, ColumnGeneratorAdapter columnGeneratorAdapter, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		this.dataSourceRepository = dataSourceRepository;
 		this.columnGeneratorAdapter = columnGeneratorAdapter;
-	}
-	
-	@Override
-	public void setStatisticalGenerateAdapter(StatisticalGenerateAdapter statisticalGenerateAdapter) {
 		this.statisticalGenerateAdapter = statisticalGenerateAdapter;
 	}
 	
 	@Override
 	public GraphicData generateGraphicData(String graphicCode, boolean graphicFormat) {
-		GraphicDesign graphicDesign = graphicRepository.findGraphicDesign(graphicCode);
-		Dashboard dashboard = graphicRepository.findDashboard(graphicDesign.getBoardId());
-		DataVolume dataVolume = volumeRepository.findDataVolume(dashboard.getVolumeCode());
+		GraphicDesign graphicDesign = dataSourceRepository.findGraphicDesign(graphicCode);
+		Dashboard dashboard = dataSourceRepository.findDashboard(graphicDesign.getBoardId());
+		DataVolume dataVolume = dataSourceRepository.findDataVolume(dashboard.getVolumeCode());
 		
 		//-模型统计非实时生成图表,sql统计实时生成图表
 		Graphic graphic = graphicDesign.getGraphic();
@@ -68,7 +52,7 @@ public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, Ini
 		Validators.notNull(graphicType, "graphicType 不能为空");
 		//-实时生成图表	
 		graphic.setGraphicInstant(Boolean.TRUE.booleanValue());
-		DataVolume dataVolume = volumeRepository.findDataVolume(volumeCode);
+		DataVolume dataVolume = dataSourceRepository.findDataVolume(volumeCode);
 		
 		return generateGraphicData(dataVolume, graphicType, graphic);
 	}
@@ -86,7 +70,7 @@ public class GraphicDataGeneratorAdapter implements GraphicGeneratorAdapter, Ini
 	
 	@Override
 	public void afterPropertiesSet() {
-		registerGraphicDataGenerator(new TabGraphicDataGenerator(repositoryAdapter, columnGeneratorAdapter, statisticalGenerateAdapter));
+		registerGraphicDataGenerator(new TabGraphicDataGenerator(dataSourceRepository, columnGeneratorAdapter, statisticalGenerateAdapter));
 	}
 	
 	/**
