@@ -3,10 +3,12 @@ package db.marmot.coder;
 import com.google.common.base.Splitter;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.*;
-import db.marmot.repository.RepositoryAdapter;
+import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.*;
-import db.marmot.volume.*;
+import db.marmot.volume.ColumnVolume;
+import db.marmot.volume.DataVolume;
+import db.marmot.volume.Database;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -32,13 +34,13 @@ public class XmlGenerateCoder {
 	
 	private static SchemaFactory schemaFactory;
 	private static DocumentBuilder domBuilder;
-	private static RepositoryAdapter repositoryAdapter;
+	private static DataSourceRepository dataSourceRepository;
 	public static final String VOLUME_XSD_PATH = "/META-INF/xsd/volume.xsd";
 	public static final String STATISTICAL_XSD_PATH = "/META-INF/xsd/statistical.xsd";
 	
-	public XmlGenerateCoder(RepositoryAdapter repositoryAdapter) {
-		Validators.notNull(repositoryAdapter, "repositoryAdapter 不能为空");
-		this.repositoryAdapter = repositoryAdapter;
+	public XmlGenerateCoder(DataSourceRepository dataSourceRepository) {
+		Validators.notNull(dataSourceRepository, "dataSourceRepository 不能为空");
+		this.dataSourceRepository = dataSourceRepository;
 		try {
 			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 			builderFactory.setNamespaceAware(true);
@@ -74,7 +76,7 @@ public class XmlGenerateCoder {
 				
 				@Override
 				public void store(StatisticalModel statisticalModel) {
-					((StatisticalRepository) repositoryAdapter.getRepository(RepositoryType.statistical)).storeStatisticalModel(statisticalModel);
+					dataSourceRepository.storeStatisticalModel(statisticalModel);
 				}
 			});
 		
@@ -132,8 +134,7 @@ public class XmlGenerateCoder {
 							conditionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							conditionColumn
-								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getConditionColumns().add(conditionColumn);
 						}
 					}
@@ -163,8 +164,7 @@ public class XmlGenerateCoder {
 							directionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
-							directionColumn
-								.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
+							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							statisticalModel.getDirectionColumns().add(directionColumn);
 						}
 					}
@@ -243,7 +243,7 @@ public class XmlGenerateCoder {
 				
 				@Override
 				public void store(Database database) {
-					((DataBaseRepository) repositoryAdapter.getRepository(RepositoryType.database)).storeDatabase(database);
+					dataSourceRepository.storeDatabase(database);
 				}
 			}),
 			
@@ -263,7 +263,7 @@ public class XmlGenerateCoder {
 				
 				@Override
 				public void store(DataVolume dataVolume) {
-					((VolumeRepository) repositoryAdapter.getRepository(RepositoryType.volume)).storeDataVolume(dataVolume);
+					dataSourceRepository.storeDataVolume(dataVolume);
 				}
 			}),
 			
@@ -285,7 +285,7 @@ public class XmlGenerateCoder {
 				
 				@Override
 				public void store(ColumnVolume columnVolume) {
-					((VolumeRepository) repositoryAdapter.getRepository(RepositoryType.volume)).storeColumnVolume(columnVolume);
+					dataSourceRepository.storeColumnVolume(columnVolume);
 				}
 			});
 		
