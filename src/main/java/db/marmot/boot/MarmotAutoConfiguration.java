@@ -14,11 +14,13 @@ import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.controller.VolumeControllerAdapter;
 import db.marmot.volume.generator.ColumnDataGeneratorAdapter;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 
 import javax.sql.DataSource;
 
@@ -27,6 +29,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @ConditionalOnBean(DataSource.class)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @EnableConfigurationProperties(MarmotProperties.class)
 @ConditionalOnProperty(value = "db.marmot.enable", matchIfMissing = true)
 public class MarmotAutoConfiguration {
@@ -70,14 +73,14 @@ public class MarmotAutoConfiguration {
 	public DashboardControllerAdapter dashboardControllerAdapter(DataSourceRepository dataSourceRepository) {
 		return new DashboardControllerAdapter(dataSourceRepository);
 	}
-
+	
 	@Bean
-	public GraphicDataControllerAdapter graphicDataControllerAdapter(GraphicGeneratorAdapter graphicGeneratorAdapter,GraphicDownloadAdapter graphicDownloadAdapter){
-		return new GraphicDataControllerAdapter(graphicDownloadAdapter,graphicGeneratorAdapter);
+	public GraphicDataControllerAdapter graphicDataControllerAdapter(GraphicGeneratorAdapter graphicGeneratorAdapter, GraphicDownloadAdapter graphicDownloadAdapter) {
+		return new GraphicDataControllerAdapter(graphicDownloadAdapter, graphicGeneratorAdapter);
 	}
-
+	
 	@Bean
-	public GraphicDownloadControllerAdapter graphicDownloadControllerAdapter(DataSourceRepository dataSourceRepository){
+	public GraphicDownloadControllerAdapter graphicDownloadControllerAdapter(DataSourceRepository dataSourceRepository) {
 		return new GraphicDownloadControllerAdapter(dataSourceRepository);
 	}
 }
