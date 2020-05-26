@@ -1,17 +1,16 @@
 package db.marmot.graphic.generator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import db.marmot.enums.GraphicType;
 import db.marmot.enums.TabGraphicType;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.procedure.*;
 import db.marmot.repository.DataSourceRepository;
-import db.marmot.repository.RepositoryAdapter;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.generator.ColumnGeneratorAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shaokang
