@@ -1,16 +1,5 @@
 package db.marmot.graphic.generator.procedure.fetch;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import db.marmot.converter.ConverterAdapter;
@@ -23,6 +12,16 @@ import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
+import org.apache.commons.lang3.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -42,7 +41,7 @@ public class TabGraphicMockFetch extends GraphicMockFetch<TabGraphic, TabGraphic
 		metadata.forEach(rowData -> mockMeasureColumnData(rowData, graphic));
 		
 		//-添加到图表数据中
-		graphicData.setTabData(metadata);
+		graphicData.setData(metadata);
 	}
 	
 	/**

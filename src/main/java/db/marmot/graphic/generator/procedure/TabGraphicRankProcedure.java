@@ -1,20 +1,19 @@
 package db.marmot.graphic.generator.procedure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import db.marmot.enums.TabGraphicType;
+import db.marmot.enums.GraphicLayout;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.graphic.generator.TabGraphicDataColumn;
 import db.marmot.volume.DataVolume;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 表格数据层级处理-针对维度字段做层级处理
@@ -24,7 +23,7 @@ public class TabGraphicRankProcedure implements GraphicProcedure<TabGraphic, Tab
 	
 	@Override
 	public boolean match(TabGraphic graphic, DataVolume dataVolume) {
-		return graphic.getGraphicStyle().isRankColumn() && graphic.getTabType() == TabGraphicType.aggregate;
+		return graphic.getGraphicStyle().isRankColumn() && graphic.getGraphicLayout() == GraphicLayout.aggregate;
 	}
 	
 	@Override
@@ -90,13 +89,13 @@ public class TabGraphicRankProcedure implements GraphicProcedure<TabGraphic, Tab
 		public TabGraphicRank(TabGraphic graphic, TabGraphicData graphicData) {
 			this.graphic = graphic;
 			this.graphicData = graphicData;
-			this.dimenTabColumns = graphicData.getTabColumns().stream().filter(TabGraphicDataColumn::isDimenColumn).collect(Collectors.toList());
+			this.dimenTabColumns = graphicData.getGraphicDataColumns().stream().filter(TabGraphicDataColumn::isDimenColumn).collect(Collectors.toList());
 		}
 		
 		@Override
 		public void tabGraphicRankBuild() {
 			//-1.循环表格数据
-			for (Map<String, Object> rowData : graphicData.getTabData()) {
+			for (Map<String, Object> rowData : graphicData.getData()) {
 				//-2.只有一个维度字时不做层级;最后一个维度字段不做层级
 				for (int dimenIndex = 0; dimenIndex < dimenTabColumns.size() - 1; dimenIndex++) {
 					TabGraphicDataColumn dimenColumn = dimenTabColumns.get(dimenIndex);
@@ -200,7 +199,7 @@ public class TabGraphicRankProcedure implements GraphicProcedure<TabGraphic, Tab
 		public void addTabGraphicRank() {
 			
 			//-1.将层级数据添加到图表数据中
-			graphicData.setTabData(ranKTabData);
+			graphicData.setData(ranKTabData);
 			
 			//-2.添加维度字段层级行
 			for (int dimenIndex = 0; dimenIndex < dimenTabColumns.size() - 1; dimenIndex++) {

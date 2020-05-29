@@ -1,16 +1,15 @@
 package db.marmot.statistical;
 
-import java.util.Objects;
+import db.marmot.enums.ColumnType;
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.enums.ColumnType;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -32,6 +31,11 @@ public class GroupColumn {
 	@NotNull
 	private ColumnType columnType;
 	
+	public void validateGroupColumn(DataVolume dataVolume) {
+		Validators.assertJSR303(this);
+		dataVolume.findDataColumn(columnCode, columnType);
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) {
@@ -40,15 +44,7 @@ public class GroupColumn {
 		GroupColumn that = (GroupColumn) o;
 		return Objects.equals(columnCode, that.columnCode);
 	}
-
-	public GroupColumn() {
-	}
-
-	public GroupColumn(String columnCode, ColumnType columnType) {
-		this.columnCode = columnCode;
-		this.columnType = columnType;
-	}
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(columnCode);

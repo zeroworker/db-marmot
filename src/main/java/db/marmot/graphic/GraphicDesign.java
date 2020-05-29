@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -53,7 +52,6 @@ public class GraphicDesign {
 	 * 图表
 	 */
 	@NotNull
-	@Valid
 	private Graphic graphic;
 	
 	public void validateGraphicDesign(DataVolume dataVolume) {

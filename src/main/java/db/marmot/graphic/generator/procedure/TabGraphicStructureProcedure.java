@@ -51,7 +51,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 		public void structureBuild() {
 			
 			//-1.维度字段值转义以及掩码处理以及无值填充
-			for (Map<String, Object> rowData : graphicData.getTabData()) {
+			for (Map<String, Object> rowData : graphicData.getData()) {
 				graphic.getGraphicColumn().getDimenColumns().forEach(dimenColumn -> {
 					Object value = rowData.get(dimenColumn.getColumnCode());
 					if (value == null || StringUtils.isBlank(value.toString())) {
@@ -74,9 +74,9 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 			tabStructureBuild();
 			
 			//-3.计算字段样式列是否固定
-			for (int index = 0; index < graphicData.getTabColumns().size(); index++) {
-				TabGraphicDataColumn tabGraphicColumn = graphicData.getTabColumns().get(index);
-				tabGraphicColumn.setFreezeColumn(graphic.getGraphicStyle().calculateFreeze(index + 1, graphicData.getTabColumns().size()));
+			for (int index = 0; index < graphicData.getGraphicDataColumns().size(); index++) {
+				TabGraphicDataColumn tabGraphicColumn = graphicData.getGraphicDataColumns().get(index);
+				tabGraphicColumn.setFreezeColumn(graphic.getGraphicStyle().calculateFreeze(index + 1, graphicData.getGraphicDataColumns().size()));
 			}
 		}
 		
@@ -104,13 +104,8 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 				tabGraphicColumn.setDimenColumn(Boolean.TRUE);
 				tabGraphicColumn.setColumnCode(dimenColumn.getColumnCode());
 				tabGraphicColumn.setMergeColumn(graphic.getGraphicStyle().isMergeColumn());
-				//-时间周期字段时间已经做了格式化位字符串处理,顾此处重新定义字段类型以及格式化方式
-				tabGraphicColumn.setDataFormat(dimenColumn.mathCycleColumn() ? "TEXT" : dimenColumn.getDataFormat());
-				tabGraphicColumn.setColumnType(dimenColumn.mathCycleColumn() ? ColumnType.string : dimenColumn.getColumnType());
-				
 				//-列小计针对的是维度
 				tabGraphicColumn.setColumnSubtotal(tabGraphicColumn.isColumnSubtotal());
-				
 				//-根据自定义样式设置字段名称以及颜色
 				TabColumnStyle tabColumnStyle = graphic.getGraphicStyle().findTabColumnStyle(dimenColumn.getColumnCode());
 				if (tabColumnStyle != null) {
@@ -119,9 +114,8 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 					graphicData.addTabColumn(tabGraphicColumn);
 					return;
 				}
-				
 				//-设置默认字段字段名以及颜色
-				DataColumn dataColumn = dataVolume.findDataColumn(dimenColumn.getColumnCode());
+				DataColumn dataColumn = dataVolume.findDataColumn(dimenColumn.getColumnCode(),dimenColumn.getColumnType());
 				tabGraphicColumn.addRowColumn(dimenColumn.getColumnCode(), dataColumn.getColumnName());
 				tabGraphicColumn.setDataColor(DataColor.black);
 				graphicData.addTabColumn(tabGraphicColumn);
@@ -154,7 +148,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 				}
 				
 				//-设置默认字段字段名以及颜色
-				DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode());
+				DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode(),measureColumn.getColumnType());
 				tabGraphicColumn.setDataColor(DataColor.black);
 				tabGraphicColumn.addRowColumn(measureColumn.getColumnCode(), dataColumn.getColumnName());
 				graphicData.addTabColumn(tabGraphicColumn);
@@ -203,15 +197,10 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 				TabGraphicDataColumn tabGraphicColumn = new TabGraphicDataColumn();
 				tabGraphicColumn.setDimenColumn(Boolean.TRUE);
 				tabGraphicColumn.setColumnCode(dimenColumn.getColumnCode());
-				//-时间周期字段时间已经做了格式化位字符串处理,顾此处重新定义字段类型以及格式化方式
-				tabGraphicColumn.setDataFormat(dimenColumn.mathCycleColumn() ? "TEXT" : dimenColumn.getDataFormat());
-				tabGraphicColumn.setColumnType(dimenColumn.mathCycleColumn() ? ColumnType.string : dimenColumn.getColumnType());
 				tabGraphicColumn.setMergeColumn(graphic.getGraphicStyle().isMergeColumn());
 				tabGraphicColumn.setFreezeColumn(graphic.getGraphicStyle().isFreezeColumn());
-				
 				//-列小计针对的是维度
 				tabGraphicColumn.setColumnSubtotal(tabGraphicColumn.isColumnSubtotal());
-				
 				//-根据自定义样式设置字段名称以及颜色
 				TabColumnStyle tabColumnStyle = graphic.getGraphicStyle().findTabColumnStyle(dimenColumn.getColumnCode());
 				if (tabColumnStyle != null) {
@@ -223,9 +212,8 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 					graphicData.addTabColumn(tabGraphicColumn);
 					return;
 				}
-				
 				//-设置默认字段字段名以及颜色
-				DataColumn dataColumn = dataVolume.findDataColumn(dimenColumn.getColumnCode());
+				DataColumn dataColumn = dataVolume.findDataColumn(dimenColumn.getColumnCode(),dimenColumn.getColumnType());
 				tabGraphicColumn.setDataColor(DataColor.black);
 				//-列转行 根据列转行的字段数据确定每列行数
 				for (int rowIndex = 0; rowIndex < columnToRowDimens.size(); rowIndex++) {
@@ -239,7 +227,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 		public void tabStructureBuild() {
 			
 			//-1.单行数据处理 生成列转行数据
-			graphicData.getTabData().forEach(this::columnToRowByRowData);
+			graphicData.getData().forEach(this::columnToRowByRowData);
 			
 			//-2.将列转行数据转成标准数据结构
 			columnToRowDataStructureBuild();
@@ -349,7 +337,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 			tabGraphicColumn.setColumnType(ColumnType.number);
 			tabGraphicColumn.setMergeColumn(Boolean.FALSE);
 			tabGraphicColumn.setDimenColumn(Boolean.FALSE);
-			
+
 			//-设置需要合计的列的合计方式 若没有指定默认所有度量字段列合计sum
 			if (graphic.getGraphicStyle().isColumnTotal()) {
 				tabGraphicColumn.setColumnTotal(graphic.getGraphicStyle().isColumnTotal());
@@ -366,7 +354,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 			//-创建列度量行字段颜色以及字段名
 			TabColumnStyle tabColumnStyle = graphic.getGraphicStyle().findTabColumnStyle(measureColumn.getColumnCode());
 			if (tabColumnStyle == null) {
-				DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode());
+				DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode(),measureColumn.getColumnType());
 				tabGraphicColumn.setDataColor(DataColor.black);
 				tabGraphicColumn.addRowColumn(columnCode, dataColumn.getColumnName());
 				graphicData.addTabColumn(tabGraphicColumn);
@@ -419,7 +407,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 						return;
 					}
 					//-获取默认度量字段名
-					DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode());
+					DataColumn dataColumn = dataVolume.findDataColumn(measureColumn.getColumnCode(),measureColumn.getColumnType());
 					tabGraphicColumn.addRowColumn(measureRowTotalColumnCode, dataColumn.getColumnName());
 					graphicData.addTabColumn(tabGraphicColumn);
 				}
@@ -449,7 +437,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 				}
 				tabData.add(columnToRowRowData);
 			});
-			graphicData.setTabData(tabData);
+			graphicData.setData(tabData);
 		}
 	}
 }

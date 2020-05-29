@@ -1,17 +1,17 @@
 package db.marmot.statistical;
 
-import java.util.Objects;
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.ColumnType;
+import db.marmot.enums.Operators;
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.enums.ColumnType;
-import db.marmot.enums.Operators;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -44,6 +44,12 @@ public class DirectionColumn {
 	 */
 	@NotNull
 	private Object rightValue;
+	
+	public void validateDirectionColumn(DataVolume dataVolume) {
+		Validators.assertJSR303(this);
+		dataVolume.findDataColumn(columnCode, columnType);
+		ConverterAdapter.getInstance().getOperatorsConverter(operators).validateValue(columnType, rightValue);
+	}
 	
 	@Override
 	public boolean equals(Object o) {

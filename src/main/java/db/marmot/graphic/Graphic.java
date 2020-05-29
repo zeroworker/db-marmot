@@ -1,5 +1,8 @@
 package db.marmot.graphic;
 
+import db.marmot.enums.ColumnType;
+import db.marmot.enums.GraphicCycle;
+import db.marmot.enums.GraphicLayout;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
@@ -9,8 +12,11 @@ import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author shaokang
@@ -42,42 +48,77 @@ public abstract class Graphic implements Serializable {
 	private boolean graphicInstant = Boolean.TRUE;
 	
 	/**
-	 * 序列化图表
-	 * @return
+	 * 图表周期
 	 */
-	public abstract String toJSONGraphic();
+	@NotNull
+	private GraphicCycle graphicCycle = GraphicCycle.non;
 	
 	/**
-	 * 获取模型名称
-	 * @return
+	 * 图表格式
 	 */
-	public abstract String getModelName();
+	@NotNull
+	private GraphicLayout graphicLayout = GraphicLayout.detail;
 	
 	/**
-	 * 配置模型
-	 * @param builder
-	 * @return
+	 * 图表模型
 	 */
-	public abstract StatisticalModel configurationModel(StatisticalModelBuilder builder);
+	@NotNull
+	private GraphicModel graphicModel = new GraphicModel();
 	
 	/**
-	 * 验证图表
-	 * @param dataVolume
+	 * 图表数据列
 	 */
-	public void validateGraphic(DataVolume dataVolume) {
-		Validators.assertJSR303(this);
-		if (dataVolume.getVolumeType() == VolumeType.model) {
-			if (this.graphicLimit > 1000) {
-				throw new ValidateException("模型数据源图表数据最大支持预览1000");
-			}
-		}
-	}
+	@Valid
+	@NotNull
+	private GraphicColumn graphicColumn = new GraphicColumn();
 	
-	/**
-	 * 图表数据下页
-	 */
 	public void nextGraphicPage() {
 		this.graphicPage = this.graphicPage + 1;
 	}
 	
+	public String getModelName() {
+		return graphicModel.getModelName();
+	}
+	
+	public StatisticalModel configurationModel(StatisticalModelBuilder builder) {
+		builder.addOffsetExpr(graphicModel.getModelName());
+		StatisticalModel statisticalModel = builder.builder();
+		graphicModel.setModelName(statisticalModel.getModelName());
+		return statisticalModel;
+	}
+	
+	public void validateGraphic(DataVolume dataVolume) {
+		Validators.assertJSR303(this);
+		validateModelGraphic(dataVolume);
+		dataVolume.validateVolumeLimit(graphicLimit);
+		graphicColumn.validateDimenColumn(dataVolume);
+		graphicModel.validateGraphicModel(dataVolume);
+		graphicColumn.validateFilterColumn(dataVolume);
+		graphicColumn.validateMeasureColumn(dataVolume);
+	}
+
+	private void validateModelGraphic(DataVolume dataVolume) {
+		List<DimenColumn> dimenColumns = graphicColumn.getDimenColumns();
+		if (graphicLayout == GraphicLayout.aggregate
+				&& graphicCycle == GraphicCycle.non
+				&& dataVolume.getVolumeType() == VolumeType.model) {
+			if (dimenColumns
+					.stream()
+					.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
+					.count() > 0) {
+				throw new ValidateException("无周期模型聚合图表不允许存在时间维度字段");
+			}
+			if (graphicLayout == GraphicLayout.aggregate
+					&& graphicCycle != GraphicCycle.non
+					&& dataVolume.getVolumeType() == VolumeType.model) {
+				List<FilterColumn> filterColumns = graphicColumn.getFilterColumns();
+				if (filterColumns
+						.stream()
+						.filter(filterColumn -> filterColumn.getColumnType() == ColumnType.date)
+						.count() !=2) {
+					throw new ValidateException("周期模型聚合图表必须存在唯一时间区间过滤条件");
+				}
+			}
+		}
+	}
 }

@@ -1,11 +1,5 @@
 package db.marmot.converter;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.ObjectUtils;
-
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLLimit;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
@@ -18,7 +12,12 @@ import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.Token;
 import com.alibaba.druid.util.JdbcUtils;
 import db.marmot.enums.*;
-import db.marmot.graphic.converter.DateCycleConverter;
+import db.marmot.graphic.converter.GraphicCycleConverter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ObjectUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -30,7 +29,7 @@ public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter
 	private MySqlSelectQueryBlock queryBlock = new MySqlSelectQueryBlock();
 	private Map<Operators, OperatorsConverter> operatorsConverters;
 	private Map<Aggregates, AggregatesConverter> aggregatesConverters;
-	private Map<DateCycle, DateCycleConverter> dateCycleConverters;
+	private Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters;
 	private SQLSelectGroupByClause sqlSelectGroupByClause;
 	private SQLOrderBy sqlOrderBy;
 	
@@ -57,8 +56,8 @@ public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter
 	}
 
 	@Override
-	public void setDateCycleConverters(Map<DateCycle, DateCycleConverter> dateCycleConverters) {
-		this.dateCycleConverters = dateCycleConverters;
+	public void setGraphicCycleConverters(Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters) {
+		this.graphicCycleConverters = graphicCycleConverters;
 	}
 
 	@Override
@@ -109,15 +108,15 @@ public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter
 	}
 	
 	@Override
-	public SelectSqlBuilderConverter addSelectDateCycleItem(String columnCode, DateCycle dateCycle) {
-		if (dateCycle != DateCycle.non) {
-			for (DateCycleConverter dateCycleConverter : dateCycleConverters.values()) {
-				if (dateCycleConverter.dateCycle().equals(dateCycle)) {
+	public SelectSqlBuilderConverter addSelectDateCycleItem(String columnCode, GraphicCycle graphicCycle) {
+		if (graphicCycle != GraphicCycle.non) {
+			for (GraphicCycleConverter dateCycleConverter : graphicCycleConverters.values()) {
+				if (dateCycleConverter.graphicCycle().equals(graphicCycle)) {
 					dateCycleConverter.addSelectItem(this.queryBlock, columnCode);
 					return this;
 				}
 			}
-			throw new ConverterException(String.format("不支持的时间周期·:%s", dateCycle.getMessage()));
+			throw new ConverterException(String.format("不支持的时间周期·:%s", graphicCycle.getMessage()));
 		}
 		return this;
 	}
@@ -178,15 +177,15 @@ public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter
 	}
 	
 	@Override
-	public SelectSqlBuilderConverter addDateCycleGroupBy(String columnCode, DateCycle dateCycle) {
-		if (dateCycle != DateCycle.non) {
-			for (DateCycleConverter dateCycleConverter : dateCycleConverters.values()) {
-				if (dateCycleConverter.dateCycle().equals(dateCycle)) {
+	public SelectSqlBuilderConverter addDateCycleGroupBy(String columnCode, GraphicCycle graphicCycle) {
+		if (graphicCycle != GraphicCycle.non) {
+			for (GraphicCycleConverter dateCycleConverter : graphicCycleConverters.values()) {
+				if (dateCycleConverter.graphicCycle().equals(graphicCycle)) {
 					dateCycleConverter.addGroupBy(this.sqlSelectGroupByClause, columnCode);
 					return this;
 				}
 			}
-			throw new ConverterException(String.format("不支持的时间周期·:%s", dateCycle.getMessage()));
+			throw new ConverterException(String.format("不支持的时间周期·:%s", graphicCycle.getMessage()));
 		}
 		return this;
 	}

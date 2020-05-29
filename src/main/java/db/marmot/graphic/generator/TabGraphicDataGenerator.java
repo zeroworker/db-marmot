@@ -1,7 +1,7 @@
 package db.marmot.graphic.generator;
 
 import db.marmot.enums.GraphicType;
-import db.marmot.enums.TabGraphicType;
+import db.marmot.enums.GraphicLayout;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.procedure.*;
 import db.marmot.repository.DataSourceRepository;
@@ -29,12 +29,12 @@ public class TabGraphicDataGenerator extends AbstractGraphicDataGenerator<TabGra
 	@Override
 	protected TabGraphicData newInstanceGraphicData(TabGraphic graphic, DataVolume dataVolume) {
 		TabGraphicData tabGraphicData = new TabGraphicData();
-		tabGraphicData.setTabType(graphic.getTabType());
+		tabGraphicData.setGraphicLayout(graphic.getGraphicLayout());
 		tabGraphicData.setRowTotal(graphic.getGraphicStyle().isRowTotal());
 		tabGraphicData.setSerialNum(graphic.getGraphicStyle().isSerialNum());
 		tabGraphicData.setColumnTotal(graphic.getGraphicStyle().isColumnTotal());
-		tabGraphicData.setRankColumn(graphic.getTabType() == TabGraphicType.detail ? false : graphic.getGraphicStyle().isRankColumn());
-		tabGraphicData.setMergeColumn(graphic.getTabType() == TabGraphicType.detail ? false : graphic.getGraphicStyle().isMergeColumn());
+		tabGraphicData.setRankColumn(graphic.getGraphicLayout() == GraphicLayout.detail ? false : graphic.getGraphicStyle().isRankColumn());
+		tabGraphicData.setMergeColumn(graphic.getGraphicLayout() == GraphicLayout.detail ? false : graphic.getGraphicStyle().isMergeColumn());
 		return tabGraphicData;
 	}
 	

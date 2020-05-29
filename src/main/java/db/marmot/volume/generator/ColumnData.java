@@ -1,14 +1,13 @@
 package db.marmot.volume.generator;
 
+import db.marmot.volume.DataColumn;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import db.marmot.volume.DataColumn;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author shaokang
@@ -23,11 +22,6 @@ public class ColumnData implements Serializable {
 	 * 脚本
 	 */
 	private String script;
-
-	/**
-	 * 数据库名称
-	 */
-	private String dbName;
 
 	/**
 	 * 字段值编码
@@ -49,9 +43,13 @@ public class ColumnData implements Serializable {
 	 */
 	private List<Map<String, Object>> data = new ArrayList<>();
 
-	public ColumnData(String script, String dbName, String columnValueCode, String columnShowCode) {
+	public ColumnData(String script,String columnValueCode, String columnShowCode) {
 		this.script = script;
-		this.dbName = dbName;
+		this.columnValueCode = columnValueCode;
+		this.columnShowCode = columnShowCode;
+	}
+
+	public ColumnData(String columnValueCode, String columnShowCode) {
 		this.columnValueCode = columnValueCode;
 		this.columnShowCode = columnShowCode;
 	}

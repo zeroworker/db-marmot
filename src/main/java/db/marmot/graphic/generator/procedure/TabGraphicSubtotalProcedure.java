@@ -1,22 +1,20 @@
 package db.marmot.graphic.generator.procedure;
 
+import com.google.common.collect.Maps;
+import db.marmot.enums.GraphicLayout;
+import db.marmot.graphic.TabGraphic;
+import db.marmot.graphic.generator.TabGraphicData;
+import db.marmot.graphic.generator.TabGraphicDataColumn;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-
-import com.google.common.collect.Maps;
-import db.marmot.enums.TabGraphicType;
-import db.marmot.graphic.TabGraphic;
-import db.marmot.graphic.generator.TabGraphicData;
-import db.marmot.graphic.generator.TabGraphicDataColumn;
-import db.marmot.volume.DataVolume;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 表格数据列小计处理(针对聚合统计表格数据) 列小计做整体列小记不做指定字段的列小计 感觉没撒意义
@@ -26,27 +24,27 @@ public class TabGraphicSubtotalProcedure implements GraphicProcedure<TabGraphic,
 	
 	@Override
 	public boolean match(TabGraphic graphic, DataVolume dataVolume) {
-		return graphic.getTabType() == TabGraphicType.aggregate && graphic.getGraphicStyle().isColumnSubtotal();
+		return graphic.getGraphicLayout() == GraphicLayout.aggregate && graphic.getGraphicStyle().isColumnSubtotal();
 	}
 	
 	@Override
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		
 		//-1.拆分表格图表字段拆分为维度字段和度量字段
-		List<TabGraphicDataColumn> dimenTabColumns = graphicData.getTabColumns().stream().filter(TabGraphicDataColumn::isDimenColumn).collect(Collectors.toList());
-		List<TabGraphicDataColumn> measureTabColumns = graphicData.getTabColumns().stream().filter(tabGraphicColumn -> !tabGraphicColumn.isDimenColumn()).collect(Collectors.toList());
+		List<TabGraphicDataColumn> dimenTabColumns = graphicData.getGraphicDataColumns().stream().filter(TabGraphicDataColumn::isDimenColumn).collect(Collectors.toList());
+		List<TabGraphicDataColumn> measureTabColumns = graphicData.getGraphicDataColumns().stream().filter(tabGraphicColumn -> !tabGraphicColumn.isDimenColumn()).collect(Collectors.toList());
 		
 		//-2.列小计按列处理
 		for (int columnIndex = 0; columnIndex < dimenTabColumns.size(); columnIndex++) {
-			TabGraphicDataColumn tabGraphicColumn = graphicData.getTabColumns().get(columnIndex);
+			TabGraphicDataColumn tabGraphicColumn = graphicData.getGraphicDataColumns().get(columnIndex);
 			if (tabGraphicColumn.isColumnSubtotal()) {
 				GraphicSubtotal graphicSubtotal = new TabGraphicSubtotal(columnIndex, graphic, dimenTabColumns.get(columnIndex), dimenTabColumns, measureTabColumns);
-				for (int rowIndex = 0; rowIndex < graphicData.getTabData().size(); rowIndex++) {
+				for (int rowIndex = 0; rowIndex < graphicData.getData().size(); rowIndex++) {
 					//-2.1 该列对应的行数据计算该列的小计
-					graphicSubtotal.setRowIndex(rowIndex).columnSubtotalBuild(graphicData.getTabData().get(rowIndex));
+					graphicSubtotal.setRowIndex(rowIndex).columnSubtotalBuild(graphicData.getData().get(rowIndex));
 				}
 				//-2.2 添加该列小计数据
-				graphicSubtotal.addColumnSubtotalData(graphicData.getTabData());
+				graphicSubtotal.addColumnSubtotalData(graphicData.getData());
 			}
 		}
 	}

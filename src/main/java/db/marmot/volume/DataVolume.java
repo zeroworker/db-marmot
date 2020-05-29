@@ -4,20 +4,18 @@ import db.marmot.enums.ColumnType;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.volume.parser.SelectColumn;
-import db.marmot.volume.parser.SqlSelectQueryParser;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 数据集
@@ -79,17 +77,28 @@ public class DataVolume {
 	/**
 	 * 数据字段
 	 */
-	@Valid
 	@NotNull
 	@Size(min = 1)
 	private List<DataColumn> dataColumns = new ArrayList<>();
 	
-	/**
-	 * 获取数据字段
-	 * @param columnCode
-	 * @return
-	 */
-	public DataColumn findDataColumn(String columnCode) {
+	public void validateVolumeLimit(int validateLimit) {
+		if (validateLimit > this.volumeLimit) {
+			throw new ValidateException(String.format("支持最大数据行为:%s", this.volumeLimit));
+		}
+	}
+	
+	public void validateDataVolume(Database database) {
+		Validators.assertJSR303(this);
+		if (volumeType == VolumeType.model){
+			findDateDataColumn();
+			findIndexDataColumn();
+		}
+		dataColumns.forEach(DataColumn::validateDataColumn);
+		Validators.validateSqlSelect(database.getDbType(), this.sqlScript);
+		Validators.isTrue(volumeType != VolumeType.enums, "数据集不支持枚举");
+	}
+	
+	public DataColumn findDataColumn(String columnCode, ColumnType columnType) {
 		DataColumn dataColumn = null;
 		for (DataColumn column : dataColumns) {
 			if (columnCode.equals(column.getColumnCode())) {
@@ -97,104 +106,33 @@ public class DataVolume {
 				break;
 			}
 		}
+		if (dataColumn == null) {
+			throw new ValidateException(String.format("字段%s在数据集字段中不存在", columnCode));
+		}
+		if (columnType != null && columnType != dataColumn.getColumnType()) {
+			throw new ValidateException(String.format("字段%s字段类型与数据集字段类型不匹配", columnCode));
+		}
 		return dataColumn;
 	}
 	
-	/**
-	 * 获取时间数据字段
-	 * @return
-	 */
+	public List<DataColumn> findFilterDataColumns() {
+		return dataColumns.stream().filter(DataColumn::isColumnFilter).collect(Collectors.toList());
+	}
+	
+	public DataColumn findIndexDataColumn() {
+		Stream<DataColumn> stream = dataColumns.stream().filter(DataColumn::isColumnIndex);
+		if (stream.count() != 1) {
+			throw new ValidateException("数据集必须存在唯一的角标字段");
+		}
+		return stream.findFirst().get();
+	}
+	
 	public DataColumn findDateDataColumn() {
-		DataColumn dataColumn = null;
-		for (DataColumn column : dataColumns) {
-			if (column.getColumnType() == ColumnType.date) {
-				dataColumn = column;
-				break;
-			}
+		Stream<DataColumn> stream = dataColumns.stream().filter(dataColumn -> dataColumn.getColumnType() == ColumnType.date);
+		if (stream.count() != 1) {
+			throw new ValidateException("数据集必须存在唯一的时间字段");
 		}
-		return dataColumn;
-	}
-	
-	/**
-	 * 获取时间数据字段
-	 * @return
-	 */
-	public DataColumn findIndexColumn() {
-		DataColumn dataColumn = null;
-		for (DataColumn column : dataColumns) {
-			if (column.isColumnIndex()) {
-				dataColumn = column;
-				break;
-			}
-		}
-		return dataColumn;
-	}
-	
-	/**
-	 * 验证数据集字段
-	 */
-	public void validateDataVolume(Database database) {
-		
-		Validators.assertJSR303(this);
-		
-		//-数据集不支持枚举
-		if (volumeType == VolumeType.enums) {
-			throw new ValidateException(String.format("数据集不支持枚举"));
-		}
-		
-		if (volumeType == VolumeType.sql || volumeType == VolumeType.model) {
-			new SqlSelectQueryParser(database.getDbType(), sqlScript).parse();
-		}
-		
-		//-模型数据集必须存在唯一时间字段
-		if (volumeType == VolumeType.model) {
-			int dateColumnNum = 0;
-			for (DataColumn dataColumn : dataColumns) {
-				if (dataColumn.getColumnType() == ColumnType.date) {
-					dateColumnNum++;
-				}
-			}
-			if (dateColumnNum != 1) {
-				throw new ValidateException("数据集必须存在时间字段并且只能存在唯一时间字段");
-			}
-			if (findIndexColumn() == null) {
-				throw new ValidateException("数据集必须存在角标字段");
-			}
-		}
-	}
-	
-	/**
-	 * 添加数据字段
-	 * @param dataColumn
-	 * @return
-	 */
-	public boolean addDataColumn(DataColumn dataColumn) {
-		return dataColumns.add(dataColumn);
-	}
-	
-	/**
-	 * 更新数据字段
-	 * @param dataColumn
-	 */
-	public boolean updateDataColumn(DataColumn dataColumn) {
-		int index = dataColumns.indexOf(dataColumn);
-		if (index != -1) {
-			dataColumns.remove(index);
-			return dataColumns.add(dataColumn);
-		}
-		return false;
-	}
-	
-	/**
-	 * 添加时间字段
-	 * @param statisticalModel
-	 * @param selectColumn
-	 */
-	public void addTimeColumn(StatisticalModel statisticalModel, SelectColumn selectColumn) {
-		DataColumn dataColumn = findDateDataColumn();
-		if (dataColumn.getColumnCode().equals(selectColumn.getColumnAlias())) {
-			statisticalModel.setTimeColumn(dataColumn.getColumnCode());
-		}
+		return stream.findFirst().get();
 	}
 	
 	@Override

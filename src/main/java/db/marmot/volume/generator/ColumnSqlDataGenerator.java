@@ -7,6 +7,7 @@ import db.marmot.graphic.FilterColumn;
 import db.marmot.graphic.generator.GraphicGeneratorException;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
+import db.marmot.volume.ColumnVolume;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.Database;
 
@@ -26,8 +27,9 @@ public class ColumnSqlDataGenerator extends AbstractColumnDataGenerator {
 	}
 	
 	@Override
-	protected void generateData(ColumnData columnData, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
-		Database database = dataSourceRepository.findDatabase(columnData.getDbName());
+	protected ColumnData generateData(ColumnVolume columnVolume, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
+		ColumnData columnData = new ColumnData(columnVolume.getScript(), columnVolume.getColumnValueCode(), columnVolume.getColumnShowCode());
+		Database database = dataSourceRepository.findDatabase(columnVolume.getDbName());
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(database.getDbType(), columnData.getScript());
 		if (filterColumns != null && !filterColumns.isEmpty()) {
 			for (FilterColumn filterColumn : filterColumns) {
@@ -42,7 +44,8 @@ public class ColumnSqlDataGenerator extends AbstractColumnDataGenerator {
 			}
 		}
 		columnData.setScript(sqlBuilder.addLimit(pageNum, pageSize).toSql());
-		columnData.setData(dataSourceRepository.querySourceData(columnData.getDbName(), columnData.getScript()));
+		columnData.setData(dataSourceRepository.querySourceData(columnVolume.getDbName(), columnData.getScript()));
+		return columnData;
 	}
 	
 	@Override

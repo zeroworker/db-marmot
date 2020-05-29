@@ -1,10 +1,10 @@
 package db.marmot.statistical.generator.convert;
 
+import db.marmot.enums.WindowUnit;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-
-import db.marmot.enums.WindowUnit;
 
 /**
  * @author shaokang
@@ -13,7 +13,7 @@ public class DayWindowUnitConverter implements WindowUnitConverter {
 	
 	@Override
 	public WindowUnit windowUnit() {
-		return WindowUnit.DAY;
+		return WindowUnit.day;
 	}
 	
 	@Override

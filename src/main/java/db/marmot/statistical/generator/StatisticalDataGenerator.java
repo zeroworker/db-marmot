@@ -8,6 +8,7 @@ import db.marmot.statistical.generator.procedure.StatisticalDataCalculateProcedu
 import db.marmot.statistical.generator.procedure.StatisticalDataFetchProcedure;
 import db.marmot.statistical.generator.procedure.StatisticalDataMergeProcedure;
 import db.marmot.statistical.generator.procedure.StatisticalProcedure;
+import db.marmot.volume.DataVolume;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 
@@ -41,7 +42,8 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
 				try {
 					dataSourceRepository.updateStatisticalModelCalculateIng(statisticalModel);
-					processedProcedure(procedures, statisticalModel, temporaryMemory);
+					DataVolume dataVolume = dataSourceRepository.findDataVolume(statisticalModel.getVolumeCode());
+					processedProcedure(procedures, dataVolume,statisticalModel,temporaryMemory);
 				} catch (Exception e) {
 					log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
 				} finally {
@@ -58,16 +60,17 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 	/**
 	 * 执行模型统计
 	 * @param iterator
+	 * @param dataVolume
 	 * @param statisticalModel
 	 * @param temporaryMemory
 	 */
-	private void processedProcedure(Iterator<StatisticalProcedure> iterator, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
+	private void processedProcedure(Iterator<StatisticalProcedure> iterator,DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		if (iterator.hasNext()) {
 			StatisticalProcedure procedure = iterator.next();
-			if (procedure.match(statisticalModel, temporaryMemory)) {
-				procedure.processed(statisticalModel, temporaryMemory);
+			if (procedure.match(dataVolume,statisticalModel, temporaryMemory)) {
+				procedure.processed(dataVolume,statisticalModel, temporaryMemory);
 			}
-			processedProcedure(iterator, statisticalModel, temporaryMemory);
+			processedProcedure(iterator,dataVolume, statisticalModel, temporaryMemory);
 		}
 	}
 }

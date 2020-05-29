@@ -3,9 +3,9 @@ package db.marmot.enums;
 /**
  * @author shaokang
  */
-public enum WindowUnit {
+public enum GraphicCycle {
 		
-		non("non", "non"),
+		non("non", "无周期"),
 		
 		second("second", "秒"),
 		
@@ -13,13 +13,21 @@ public enum WindowUnit {
 		
 		hour("hour", "小时"),
 		
-		day("day", "天");
+		day("day", "天"),
+		
+		week("week", "周"),
+		
+		month("month", "月"),
+		
+		season("season", "季"),
+		
+		year("year", "年");
 	
 	private final String code;
 	
 	private final String message;
 	
-	WindowUnit(String code, String message) {
+	GraphicCycle(String code, String message) {
 		this.code = code;
 		this.message = message;
 	}
@@ -32,8 +40,8 @@ public enum WindowUnit {
 		return message;
 	}
 	
-	public static WindowUnit getByCode(String code) {
-		for (WindowUnit _enum : values()) {
+	public static GraphicCycle getByCode(String code) {
+		for (GraphicCycle _enum : values()) {
 			if (_enum.getCode().equals(code)) {
 				return _enum;
 			}

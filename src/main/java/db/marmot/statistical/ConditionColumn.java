@@ -1,17 +1,17 @@
 package db.marmot.statistical;
 
-import java.util.Objects;
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.ColumnType;
+import db.marmot.enums.Operators;
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.enums.ColumnType;
-import db.marmot.enums.Operators;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -44,17 +44,13 @@ public class ConditionColumn {
 	 */
 	@NotNull
 	private Object rightValue;
-
-	public ConditionColumn() {
+	
+	public void validateConditionColumn(DataVolume dataVolume) {
+		Validators.assertJSR303(this);
+		dataVolume.findDataColumn(columnCode,columnType);
+		ConverterAdapter.getInstance().getOperatorsConverter(operators).validateValue(columnType, rightValue);
 	}
-
-	public ConditionColumn(String columnCode, ColumnType columnType, Operators operators, Object rightValue) {
-		this.columnCode = columnCode;
-		this.columnType = columnType;
-		this.operators = operators;
-		this.rightValue = rightValue;
-	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) {

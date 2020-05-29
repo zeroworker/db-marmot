@@ -3,17 +3,13 @@ package db.marmot.statistical;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
-import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.generator.convert.WindowUnitConverter;
-import db.marmot.volume.Database;
-import db.marmot.volume.parser.SelectTable;
-import db.marmot.volume.parser.SqlSelectQueryParser;
+import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.*;
@@ -42,23 +38,6 @@ public class StatisticalModel {
 	private String modelName;
 	
 	/**
-	 * 数据源名
-	 */
-	@NotNull
-	private String dbName;
-	
-	/**
-	 * 抓取数据sql
-	 */
-	@NotNull
-	private String fetchSql;
-	
-	/**
-	 * 抓取数据步长
-	 */
-	private long fetchStep;
-	
-	/**
 	 * 模型是否运行中
 	 */
 	private boolean running = true;
@@ -73,18 +52,6 @@ public class StatisticalModel {
 	 */
 	@NotNull
 	private List<String> offsetExpr = new ArrayList<>();
-	
-	/**
-	 * 角标字段
-	 */
-	@NotNull
-	private String indexColumn;
-	
-	/**
-	 * 时间字段
-	 */
-	@NotNull
-	private String timeColumn;
 	
 	/**
 	 * 统计窗口长度
@@ -106,7 +73,6 @@ public class StatisticalModel {
 	/**
 	 * 统计聚合字段
 	 */
-	@Valid
 	@NotNull
 	@Size(min = 1)
 	private List<AggregateColumn> aggregateColumns = new ArrayList<>();
@@ -114,21 +80,18 @@ public class StatisticalModel {
 	/**
 	 * 统计条件
 	 */
-	@Valid
 	@NotNull
 	private List<ConditionColumn> conditionColumns = new ArrayList<>();
 	
 	/**
 	 * 统计分组
 	 */
-	@Valid
 	@NotNull
 	private List<GroupColumn> groupColumns = new ArrayList<>();
 	
 	/**
 	 * 统计方向
 	 */
-	@Valid
 	@NotNull
 	private List<DirectionColumn> directionColumns = new ArrayList<>();
 	
@@ -142,51 +105,12 @@ public class StatisticalModel {
 	 */
 	private Date rawUpdateTime;
 	
-	public void validateStatisticalModel(Database database) {
+	public void validateStatisticalModel(DataVolume dataVolume) {
 		Validators.assertJSR303(this);
-		SqlSelectQueryParser sqlSelectQueryParser = new SqlSelectQueryParser(database.getDbType(), fetchSql).parse();
-		List<SelectTable> selectTables = sqlSelectQueryParser.getSelectTables();
-		if (selectTables.size() != 1) {
-			throw new ValidateException("模型fetch sql必须为单表查询");
-		}
-		if (sqlSelectQueryParser.getSelectColumn("id") == null) {
-			throw new ValidateException("模型fetch sql 查询字段必须包含自增ID(id)");
-		}
-		if (sqlSelectQueryParser.getSelectColumn(timeColumn) == null) {
-			throw new ValidateException("模型fetch sql 查询字段必须包含 timeColumn");
-		}
-		for (AggregateColumn column : aggregateColumns) {
-			if (sqlSelectQueryParser.getSelectColumn(column.getColumnCode()) == null) {
-				throw new ValidateException(String.format("模型聚合字段%s fetch sql中未定义", column.getColumnCode()));
-			}
-		}
-		for (ConditionColumn column : conditionColumns) {
-			if (sqlSelectQueryParser.getSelectColumn(column.getColumnCode()) == null) {
-				throw new ValidateException(String.format("模型条件字段%s fetch sql中未定义", column.getColumnCode()));
-			}
-		}
-		for (GroupColumn column : groupColumns) {
-			if (sqlSelectQueryParser.getSelectColumn(column.getColumnCode()) == null) {
-				throw new ValidateException(String.format("模型分组字段%s fetch sql中未定义", column.getColumnCode()));
-			}
-		}
-		for (DirectionColumn column : directionColumns) {
-			if (sqlSelectQueryParser.getSelectColumn(column.getColumnCode()) == null) {
-				throw new ValidateException(String.format("模型方向字段%s fetch sql中未定义", column.getColumnCode()));
-			}
-		}
-		
-		for (String expr : offsetExpr) {
-			try {
-				Integer.valueOf(ConverterAdapter.getInstance().eval(expr).toString());
-			} catch (Exception e) {
-				throw new ValidateException(String.format("无法解析偏移量表达式:%s", expr));
-			}
-		}
-	}
-	
-	public void addOffsetExpr(String expr) {
-		this.offsetExpr.add(expr);
+		groupColumns.forEach(groupColumn -> groupColumn.validateGroupColumn(dataVolume));
+		aggregateColumns.forEach(aggregateColumn -> aggregateColumn.validateAggregateColumn(dataVolume));
+		conditionColumns.forEach(conditionColumn -> conditionColumn.validateConditionColumn(dataVolume));
+		directionColumns.forEach(directionColumn -> directionColumn.validateDirectionColumn(dataVolume));
 	}
 	
 	public String createRowKey(Map<String, Object> groupData, Date timeValue, int offset) {
@@ -200,16 +124,16 @@ public class StatisticalModel {
 			}
 		}
 		
-		if (this.windowUnit != WindowUnit.NON && timeValue != null) {
+		if (this.windowUnit != WindowUnit.non && timeValue != null) {
 			ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 			WindowUnitConverter windowUnitConverter = converterAdapter.getWindowUnitConverter(this.windowUnit);
 			
 			long ts = converterAdapter.getGMT8Timestamp(timeValue).getTime();
-			if (this.windowType == WindowType.SIMPLE_TIME) {
+			if (this.windowType == WindowType.simple_time) {
 				long granularity = this.windowLength * windowUnitConverter.getTimeMillis();
 				rowKeyBuilder.append("_").append(Long.MAX_VALUE - (ts - offset + (3600 * 1000 * 8)) / (granularity));
 			}
-			if (this.windowType == WindowType.SLIDING_TIME) {
+			if (this.windowType == WindowType.sliding_time) {
 				rowKeyBuilder.append("_").append(Long.MAX_VALUE - (ts - offset + (3600 * 1000 * 8)) / (windowUnitConverter.getTimeMillis()));
 			}
 		}

@@ -3,7 +3,7 @@ package db.marmot.graphic.converter;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import db.marmot.enums.DateCycle;
+import db.marmot.enums.GraphicCycle;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -13,21 +13,21 @@ import java.util.Date;
 /**
  * @author shaokang
  */
-public class DayDateCycleConverter implements DateCycleConverter {
+public class SecondGraphicCycleConverter implements GraphicCycleConverter {
 	
 	@Override
-	public DateCycle dateCycle() {
-		return DateCycle.day;
+	public GraphicCycle graphicCycle() {
+		return GraphicCycle.second;
 	}
 	
 	@Override
 	public void addSelectItem(MySqlSelectQueryBlock queryBlock, String columnCode) {
-		queryBlock.addSelectItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d\")"), columnCode);
+		queryBlock.addSelectItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d %H:%i:%s\")"), columnCode);
 	}
 	
 	@Override
 	public void addGroupBy(SQLSelectGroupByClause sqlSelectGroupByClause, String columnCode) {
-		sqlSelectGroupByClause.addItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d\")"));
+		sqlSelectGroupByClause.addItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d %H:%i:%s\")"));
 	}
 	
 	@Override

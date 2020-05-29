@@ -1,26 +1,18 @@
 package db.marmot.graphic;
 
-import java.io.Serializable;
-import java.util.Objects;
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.ColumnType;
+import db.marmot.enums.OrderType;
+import db.marmot.volume.DataColumn;
+import db.marmot.volume.DataVolume;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import db.marmot.converter.ConverterAdapter;
-import db.marmot.enums.ColumnType;
-import db.marmot.enums.DateCycle;
-import db.marmot.enums.OrderType;
-import db.marmot.repository.validate.ValidateException;
-import db.marmot.statistical.GroupColumn;
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.volume.DataColumn;
-import db.marmot.volume.DataVolume;
-import db.marmot.volume.parser.SelectColumn;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -52,12 +44,6 @@ public class DimenColumn implements Serializable {
 	 */
 	@NotBlank
 	private String dataFormat;
-	
-	/**
-	 * 时间周期
-	 */
-	@NotNull
-	private DateCycle dateCycle = DateCycle.non;
 	
 	/**
 	 * 排序方式
@@ -99,52 +85,14 @@ public class DimenColumn implements Serializable {
 	}
 	
 	/**
-	 * 匹配周期字段
-	 * @return
-	 */
-	public boolean mathCycleColumn() {
-		return columnType == ColumnType.date && dateCycle != DateCycle.non;
-	}
-	
-	/**
 	 * 验证维度字段
 	 * @param dataVolume
-	 * @param aggregateDimen
 	 */
-	public void validateDimenColumn(DataVolume dataVolume, boolean aggregateDimen) {
-		
-		if (aggregateDimen && dateCycle == DateCycle.non) {
-			throw new ValidateException(String.format("聚合维度字段周期不能为non", this.columnCode));
-		}
-		
-		if (!aggregateDimen && dateCycle != DateCycle.non) {
-			throw new ValidateException(String.format("明细字段周期必须为non", this.columnCode));
-		}
-		
-		DataColumn dataColumn = dataVolume.findDataColumn(this.getColumnCode());
-		if (dataColumn == null) {
-			throw new ValidateException(String.format("维度字段%s在数据集字段中不存在", this.columnCode));
-		}
-		
-		if (columnType != dataColumn.getColumnType()) {
-			throw new ValidateException(String.format("维度字段%s字段类型与数据集字段类型不匹配", columnCode));
-		}
-		
+	public void validateDimenColumn(DataVolume dataVolume) {
 		ConverterAdapter.getInstance().getColumnConverter(columnType).validateColumnFormat(dataFormat);
-		
+		DataColumn dataColumn = dataVolume.findDataColumn(columnCode, columnType);
 		this.unitValue = dataColumn.getUnitValue();
 		this.columnMask = dataColumn.isColumnMask();
 		this.columnEscape = dataColumn.isColumnEscape();
 	}
-	
-	/**
-	 * 添加分组字段
-	 * @param statisticalModel
-	 */
-	public void addGroupColumn(StatisticalModel statisticalModel, SelectColumn selectColumn) {
-		if (columnCode.equals(selectColumn.getColumnAlias())){
-			statisticalModel.getGroupColumns().add(new GroupColumn(columnCode,columnType));
-		}
-	}
-	
 }

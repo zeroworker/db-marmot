@@ -1,6 +1,7 @@
 package db.marmot.statistical;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Splitter;
+
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
 import db.marmot.volume.DataVolume;
@@ -10,6 +11,7 @@ import db.marmot.volume.DataVolume;
  */
 public class StatisticalModelBuilder {
 	
+	private DataVolume dataVolume;
 	private StatisticalModel statisticalModel = new StatisticalModel();
 	
 	public StatisticalModelBuilder addMemo(String memo) {
@@ -38,7 +40,7 @@ public class StatisticalModelBuilder {
 	}
 	
 	public StatisticalModelBuilder addOffsetExpr(String offsetExpr) {
-		statisticalModel.getOffsetExpr().addAll(Lists.newArrayList(offsetExpr.split(",")));
+		statisticalModel.setOffsetExpr(Splitter.on(",").splitToList(offsetExpr));
 		return this;
 	}
 	
@@ -63,16 +65,13 @@ public class StatisticalModelBuilder {
 	}
 	
 	public StatisticalModelBuilder addDataVolume(DataVolume dataVolume) {
-		statisticalModel.setDbName(dataVolume.getDbName());
-		statisticalModel.setFetchSql(dataVolume.getSqlScript());
+		this.dataVolume = dataVolume;
 		statisticalModel.setVolumeCode(dataVolume.getVolumeCode());
-		statisticalModel.setFetchStep(dataVolume.getVolumeLimit());
-		statisticalModel.setTimeColumn(dataVolume.findDateDataColumn().getColumnCode());
-		statisticalModel.setIndexColumn(dataVolume.findIndexColumn().getColumnCode());
 		return this;
 	}
 	
 	public StatisticalModel builder() {
+		statisticalModel.validateStatisticalModel(dataVolume);
 		return statisticalModel;
 	}
 }

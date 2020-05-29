@@ -1,33 +1,33 @@
 package db.marmot.graphic.converter;
 
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import db.marmot.enums.GraphicCycle;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import db.marmot.enums.DateCycle;
-
 /**
  * @author shaokang
  */
-public class MonthDateCycleConverter implements DateCycleConverter {
+public class DayGraphicCycleConverter implements GraphicCycleConverter {
 	
 	@Override
-	public DateCycle dateCycle() {
-		return DateCycle.month;
+	public GraphicCycle graphicCycle() {
+		return GraphicCycle.day;
 	}
 	
 	@Override
 	public void addSelectItem(MySqlSelectQueryBlock queryBlock, String columnCode) {
-		queryBlock.addSelectItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m\")"), columnCode);
+		queryBlock.addSelectItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d\")"), columnCode);
 	}
 	
 	@Override
 	public void addGroupBy(SQLSelectGroupByClause sqlSelectGroupByClause, String columnCode) {
-		sqlSelectGroupByClause.addItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m\")"));
+		sqlSelectGroupByClause.addItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y-%m-%d\")"));
 	}
 	
 	@Override

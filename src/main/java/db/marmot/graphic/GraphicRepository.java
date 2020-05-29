@@ -37,7 +37,6 @@ public class GraphicRepository {
 		if (dataVolume == null) {
 			throw new RepositoryException("数据集不存在");
 		}
-		
 		Database database = dataSourceTemplate.findDatabase(dataVolume.getDbName());
 		if (database == null) {
 			throw new RepositoryException("数据集数据源不存在");
@@ -74,13 +73,8 @@ public class GraphicRepository {
 					graphicDesign.setGraphicCode(StringUtils.join(dashboard.getBoardId() + "_" + seqGen.incrementAndGet()));
 					dataSourceTemplate.storeGraphicDesign(graphicDesign);
 					if (dataVolume.getVolumeType() == VolumeType.model) {
-						StatisticalModelBuilder builder = new StatisticalModelBuilder()
-								.addMemo(graphicDesign.getGraphicName())
-								.addWindowUnit(WindowUnit.DAY)
-								.addWindowLength(0)
-								.addWindowType(WindowType.SIMPLE_TIME)
-								.addModelName(graphicDesign.getGraphicCode())
-								.addDataVolume(dataVolume);
+						StatisticalModelBuilder builder = new StatisticalModelBuilder().addMemo(graphicDesign.getGraphicName()).addWindowUnit(WindowUnit.day).addWindowLength(0)
+							.addWindowType(WindowType.simple_time).addModelName(graphicDesign.getGraphicCode()).addDataVolume(dataVolume);
 						dataSourceTemplate.storeStatisticalModel(graphicDesign.getGraphic().configurationModel(builder));
 					}
 				} catch (DuplicateKeyException keyException) {

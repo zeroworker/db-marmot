@@ -1,13 +1,14 @@
 package db.marmot.volume.generator;
 
+import db.marmot.enums.VolumeType;
+import db.marmot.graphic.FilterColumn;
+import db.marmot.graphic.generator.GraphicGeneratorException;
+import db.marmot.volume.ColumnVolume;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import db.marmot.enums.VolumeType;
-import db.marmot.graphic.FilterColumn;
-import db.marmot.graphic.generator.GraphicGeneratorException;
 
 /**
  * 枚举类型不做分页处理
@@ -18,7 +19,8 @@ public class ColumnEnumDataGenerator extends AbstractColumnDataGenerator {
 	private Map<String, Class> enumClassCache = new HashMap<>();
 
 	@Override
-	protected void generateData(ColumnData columnData, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
+	protected ColumnData generateData(ColumnVolume columnVolume, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
+		ColumnData columnData = new ColumnData(columnVolume.getColumnValueCode(), columnVolume.getColumnShowCode());
 		List<Map<String, Object>> enumData = new ArrayList<>();
 		Class enumClass = loadEnumClass(columnData.getScript());
 		for (Object enumObject : enumClass.getEnumConstants()) {
@@ -29,8 +31,9 @@ public class ColumnEnumDataGenerator extends AbstractColumnDataGenerator {
 			enumData.add(rowData);
 		}
 		columnData.setData(enumData);
+		return columnData;
 	}
-	
+
 	@Override
 	public VolumeType volumeType() {
 		return VolumeType.enums;

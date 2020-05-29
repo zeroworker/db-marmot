@@ -8,6 +8,7 @@ import db.marmot.statistical.StatisticalData;
 import db.marmot.statistical.StatisticalDistinct;
 import db.marmot.statistical.StatisticalModel;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.volume.DataVolume;
 
 import java.util.Set;
 
@@ -24,12 +25,12 @@ public class StatisticalDataMergeProcedure implements StatisticalProcedure {
 	}
 
 	@Override
-	public boolean match(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
+	public boolean match(DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		return true;
 	}
 	
 	@Override
-	public void processed(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
+	public void processed(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		
 		if (temporaryMemory.hashMemoryDistinct()) {
 			Set<String> rowKeys = temporaryMemory.getMemoryDistinct().keySet();

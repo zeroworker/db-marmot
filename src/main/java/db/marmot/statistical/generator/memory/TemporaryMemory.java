@@ -1,10 +1,14 @@
 package db.marmot.statistical.generator.memory;
 
+import db.marmot.statistical.StatisticalData;
+import db.marmot.statistical.StatisticalDistinct;
+import db.marmot.statistical.StatisticalModel;
+import db.marmot.statistical.StatisticalTask;
+import db.marmot.volume.DataRange;
+import db.marmot.volume.DataVolume;
+
 import java.util.List;
 import java.util.Map;
-
-import db.marmot.statistical.*;
-import db.marmot.volume.DataRange;
 
 /**
  * @author shaokang
@@ -13,7 +17,7 @@ public interface TemporaryMemory {
 
 	void addThisTask(StatisticalTask statisticalTask);
 	
-	void addNextTask(DataRange dataRange, StatisticalModel statisticalModel);
+	void addNextTask(DataRange dataRange, DataVolume dataVolume, StatisticalModel statisticalModel);
 	
 	void addMetaData(List<Map<String, Object>> metaData);
 	

@@ -1,6 +1,5 @@
 package db.marmot.coder;
 
-import com.google.common.base.Splitter;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.*;
 import db.marmot.repository.DataSourceRepository;
@@ -111,7 +110,7 @@ public class XmlGenerateCoder {
 				
 				aggregate_columns("aggregateColumns") {
 					@Override
-					void setAttribute(StatisticalModel statisticalModel, Element element) {
+					void setAttribute(StatisticalModelBuilder builder, Element element) {
 						Element nodeElement;
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
@@ -119,14 +118,14 @@ public class XmlGenerateCoder {
 							aggregateColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							aggregateColumn.setAggregates(Aggregates.getByCode(nodeElement.getAttribute("aggregates")));
 							aggregateColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
-							statisticalModel.getAggregateColumns().add(aggregateColumn);
+							builder.addAggregateColumn(aggregateColumn);
 						}
 					}
 				},
 				
 				condition_columns("conditionColumns") {
 					@Override
-					void setAttribute(StatisticalModel statisticalModel, Element element) {
+					void setAttribute(StatisticalModelBuilder builder, Element element) {
 						Element nodeElement;
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
@@ -135,28 +134,28 @@ public class XmlGenerateCoder {
 							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
 							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
-							statisticalModel.getConditionColumns().add(conditionColumn);
+							builder.addConditionColumn(conditionColumn);
 						}
 					}
 				},
 				
 				group_columns("groupColumns") {
 					@Override
-					void setAttribute(StatisticalModel statisticalModel, Element element) {
+					void setAttribute(StatisticalModelBuilder builder, Element element) {
 						Element nodeElement;
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
 							GroupColumn groupColumn = new GroupColumn();
 							groupColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
 							groupColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
-							statisticalModel.getGroupColumns().add(groupColumn);
+							builder.addGroupColumn(groupColumn);
 						}
 					}
 				},
 				
 				direction_columns("directionColumns") {
 					@Override
-					void setAttribute(StatisticalModel statisticalModel, Element element) {
+					void setAttribute(StatisticalModelBuilder builder, Element element) {
 						Element nodeElement;
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
@@ -165,7 +164,7 @@ public class XmlGenerateCoder {
 							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
 							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
 							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
-							statisticalModel.getDirectionColumns().add(directionColumn);
+							builder.addDirectionColumn(directionColumn);
 						}
 					}
 				};
@@ -177,39 +176,36 @@ public class XmlGenerateCoder {
 			}
 			
 			public static StatisticalModel create(Element element) {
-				StatisticalModel statisticalModel = createByAttribute(element);
-				setByChildNodes(statisticalModel, element.getChildNodes());
-				return statisticalModel;
+				StatisticalModelBuilder builder = createByAttribute(element);
+				setByChildNodes(builder, element.getChildNodes());
+				return builder.builder();
 			}
 			
-			public static StatisticalModel createByAttribute(Element element) {
-				StatisticalModel statisticalModel = new StatisticalModel();
-				statisticalModel.setModelName(element.getAttribute("modelName"));
-				statisticalModel.setDbName(element.getAttribute("dbName"));
-				statisticalModel.setFetchSql(element.getAttribute("fetchSql"));
-				statisticalModel.setFetchStep(Integer.valueOf(element.getAttribute("fetchStep")));
-				statisticalModel.setOffsetExpr(Splitter.on(",").splitToList(element.getAttribute("fetchSql")));
-				statisticalModel.setTimeColumn(element.getAttribute("timeColumn"));
-				statisticalModel.setWindowLength(Integer.valueOf(element.getAttribute("windowLength")));
-				statisticalModel.setWindowType(WindowType.getByCode(element.getAttribute("windowType")));
-				statisticalModel.setWindowUnit(WindowUnit.getByCode(element.getAttribute("windowUnit")));
-				statisticalModel.setMemo(element.getAttribute("memo"));
-				return statisticalModel;
+			public static StatisticalModelBuilder createByAttribute(Element element) {
+				StatisticalModelBuilder builder = new StatisticalModelBuilder();
+				builder.addMemo(element.getAttribute("memo"))
+						.addModelName(element.getAttribute("modelName"))
+						.addOffsetExpr(element.getAttribute("offsetExpr"))
+						.addWindowLength(Integer.valueOf(element.getAttribute("windowLength")))
+						.addWindowType(WindowType.getByCode(element.getAttribute("windowType")))
+						.addWindowUnit(WindowUnit.getByCode(element.getAttribute("windowUnit")))
+						.addDataVolume(dataSourceRepository.findDataVolume(element.getAttribute("volumeCode")));
+				return builder;
 			}
 			
-			public static void setByChildNodes(StatisticalModel statisticalModel, NodeList nodeList) {
+			public static void setByChildNodes(StatisticalModelBuilder builder, NodeList nodeList) {
 				Element nodeElement;
 				Iterator iterator = new Iterator(nodeList);
 				while ((nodeElement = iterator.nextElement()) != null) {
 					for (ModelCreator modelCreator : values()) {
 						if (modelCreator.nodeName.equals(nodeElement.getLocalName())) {
-							modelCreator.setAttribute(statisticalModel, nodeElement);
+							modelCreator.setAttribute(builder, nodeElement);
 						}
 					}
 				}
 			}
 			
-			abstract void setAttribute(StatisticalModel statisticalModel, Element element);
+			abstract void setAttribute(StatisticalModelBuilder builder, Element element);
 		}
 	}
 	

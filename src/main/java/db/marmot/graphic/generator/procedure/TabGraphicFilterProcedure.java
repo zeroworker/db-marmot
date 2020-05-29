@@ -1,14 +1,14 @@
 package db.marmot.graphic.generator.procedure;
 
-import java.util.List;
-import java.util.Map;
-
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.OperatorsConverter;
 import db.marmot.graphic.FilterColumn;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.volume.DataVolume;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 表格数据过滤(针对模型统计的数据-聚合值数据过滤)
@@ -27,7 +27,7 @@ public class TabGraphicFilterProcedure extends GraphicFilterProcedure<TabGraphic
 	@Override
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		List<FilterColumn> filterColumns = graphic.getGraphicColumn().getFilterColumns();
-		graphicData.getTabData().removeIf(rowData -> filterRowData(rowData, filterColumns));
+		graphicData.getData().removeIf(rowData -> filterRowData(rowData, filterColumns));
 	}
 	
 	/**

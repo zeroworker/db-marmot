@@ -5,10 +5,10 @@ import java.io.Serializable;
 /**
  * @author shaokang
  */
-public interface GraphicStyle extends Serializable {
+public abstract class GraphicStyle implements Serializable {
 	
 	/**
 	 * 校验图表样式
 	 */
-	void validateGraphicStyle();
+	abstract void validateGraphicStyle();
 }

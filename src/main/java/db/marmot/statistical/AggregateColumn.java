@@ -1,16 +1,16 @@
 package db.marmot.statistical;
 
-import java.util.Objects;
-
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotBlank;
-
+import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
-
+import db.marmot.repository.validate.Validators;
+import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -36,14 +36,11 @@ public class AggregateColumn {
 	 */
 	@NotNull
 	private Aggregates aggregates;
-
-	public AggregateColumn() {
-	}
-
-	public AggregateColumn(String columnCode, ColumnType columnType, Aggregates aggregates) {
-		this.columnCode = columnCode;
-		this.columnType = columnType;
-		this.aggregates = aggregates;
+	
+	public void validateAggregateColumn(DataVolume dataVolume) {
+		Validators.assertJSR303(this);
+		dataVolume.findDataColumn(columnCode, columnType);
+		ConverterAdapter.getInstance().getAggregatesConverter(aggregates).validateColumnType(columnType);
 	}
 	
 	@Override

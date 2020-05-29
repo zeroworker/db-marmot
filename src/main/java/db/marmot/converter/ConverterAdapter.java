@@ -42,7 +42,7 @@ public class ConverterAdapter {
 	/**
 	 * 时间周期转换器
 	 */
-	private static Map<DateCycle, DateCycleConverter> DATE_CYCLE_CONVERTERS = new HashMap<>();
+	private static Map<GraphicCycle, GraphicCycleConverter> GRAPHIC_CYCLE_CONVERTERS = new HashMap<>();
 	
 	/**
 	 * select sql 转换器
@@ -72,7 +72,11 @@ public class ConverterAdapter {
 		return CONVERTER_ADAPTER;
 	}
 	
-	public ConverterAdapter() {
+	private ConverterAdapter() {
+		if (CONVERTER_ADAPTER != null) {
+			throw new ConverterException("converterAdapter 不允许实例化");
+		}
+		
 		//-注册字段转换器
 		registerColumnConverter(new DateColumnConverter());
 		registerColumnConverter(new StringColumnConverter());
@@ -100,13 +104,16 @@ public class ConverterAdapter {
 		registerTotalConverter(new MaxTotalConverter());
 		registerTotalConverter(new MinTotalConverter());
 		registerTotalConverter(new AvgTotalConverter());
-		//-时间周期转换器
-		registerDateCycleConverter(new DayDateCycleConverter());
-		registerDateCycleConverter(new WeekDateCycleConverter());
-		registerDateCycleConverter(new MonthDateCycleConverter());
-		registerDateCycleConverter(new SeasonDateCycleConverter());
-		registerDateCycleConverter(new YearDateCycleConverter());
-		
+		//-图表周期转换器
+		registerGraphicCycleConverter(new SecondGraphicCycleConverter());
+		registerGraphicCycleConverter(new MinuteGraphicCycleConverter());
+		registerGraphicCycleConverter(new HourGraphicCycleConverter());
+		registerGraphicCycleConverter(new DayGraphicCycleConverter());
+		registerGraphicCycleConverter(new WeekGraphicCycleConverter());
+		registerGraphicCycleConverter(new MonthGraphicCycleConverter());
+		registerGraphicCycleConverter(new SeasonGraphicCycleConverter());
+		registerGraphicCycleConverter(new YearGraphicCycleConverter());
+		//-统计窗口转换器
 		registerWindowUnitConverter(new SecondWindowUnitConverter());
 		registerWindowUnitConverter(new MinuteWindowUnitConverter());
 		registerWindowUnitConverter(new HourWindowUnitConverter());
@@ -152,11 +159,11 @@ public class ConverterAdapter {
 	}
 	
 	/**
-	 * 注册时间周期转换器
-	 * @param dateCycleConverter
+	 * 注册图表周期转换器
+	 * @param graphicCycleConverter
 	 */
-	private void registerDateCycleConverter(DateCycleConverter dateCycleConverter) {
-		DATE_CYCLE_CONVERTERS.put(dateCycleConverter.dateCycle(), dateCycleConverter);
+	private void registerGraphicCycleConverter(GraphicCycleConverter graphicCycleConverter) {
+		GRAPHIC_CYCLE_CONVERTERS.put(graphicCycleConverter.graphicCycle(), graphicCycleConverter);
 	}
 	
 	/**
@@ -311,19 +318,19 @@ public class ConverterAdapter {
 	
 	/**
 	 * 根据周期类型获取周期转换器
-	 * @param dateCycle
+	 * @param graphicCycle
 	 * @return
 	 */
-	public DateCycleConverter getDateCycleConverter(DateCycle dateCycle) {
+	public GraphicCycleConverter getGraphicCycleConverter(GraphicCycle graphicCycle) {
 		
-		Validators.notNull(dateCycle, "dateCycle 不能为空");
+		Validators.notNull(graphicCycle, "graphicCycle 不能为空");
 		
-		for (DateCycleConverter dateCycleConverter : DATE_CYCLE_CONVERTERS.values()) {
-			if (dateCycleConverter.dateCycle().equals(dateCycle)) {
-				return dateCycleConverter;
+		for (GraphicCycleConverter graphicCycleConverter : GRAPHIC_CYCLE_CONVERTERS.values()) {
+			if (graphicCycleConverter.graphicCycle().equals(graphicCycle)) {
+				return graphicCycleConverter;
 			}
 		}
-		throw new ConverterException(String.format("不支持的周期类型:%s", dateCycle.getMessage()));
+		throw new ConverterException(String.format("不支持的周期类型:%s", graphicCycle.getMessage()));
 	}
 	
 	/**
@@ -364,7 +371,7 @@ public class ConverterAdapter {
 			SelectSqlBuilderConverter selectSqlBuilderConverter = arguments ? constructor.newInstance(sqlScript) : constructor.newInstance();
 			selectSqlBuilderConverter.setAggregatesConverters(AGGREGATES_CONVERTERS);
 			selectSqlBuilderConverter.setOperatorsConverters(OPERATORS_CONVERTERS);
-			selectSqlBuilderConverter.setDateCycleConverters(DATE_CYCLE_CONVERTERS);
+			selectSqlBuilderConverter.setGraphicCycleConverters(GRAPHIC_CYCLE_CONVERTERS);
 			return selectSqlBuilderConverter;
 		} catch (Exception e) {
 			throw new ConverterException(String.format("%s select sql 转换器实例失败", sqlType), e);

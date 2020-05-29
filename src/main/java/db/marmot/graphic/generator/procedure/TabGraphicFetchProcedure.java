@@ -1,6 +1,6 @@
 package db.marmot.graphic.generator.procedure;
 
-import db.marmot.enums.TabGraphicType;
+import db.marmot.enums.GraphicLayout;
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.TabGraphic;
 import db.marmot.graphic.generator.TabGraphicData;
@@ -37,7 +37,7 @@ public class TabGraphicFetchProcedure extends GraphicFetchProcedure<TabGraphic, 
 	@Override
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		//-模型数据集tab明细强制走sql方式
-		if (dataVolume.getVolumeType() == VolumeType.model && graphic.getTabType() == TabGraphicType.detail){
+		if (dataVolume.getVolumeType() == VolumeType.model && graphic.getGraphicLayout() == GraphicLayout.detail){
 			graphicFetches.get(VolumeType.sql).metadataFetch(graphic, dataVolume, graphicData);
 			return;
 		}

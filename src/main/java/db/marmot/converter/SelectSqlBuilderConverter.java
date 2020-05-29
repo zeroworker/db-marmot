@@ -1,9 +1,9 @@
 package db.marmot.converter;
 
-import java.util.Map;
-
 import db.marmot.enums.*;
-import db.marmot.graphic.converter.DateCycleConverter;
+import db.marmot.graphic.converter.GraphicCycleConverter;
+
+import java.util.Map;
 
 /**
  * @author shaokang
@@ -24,9 +24,9 @@ public interface SelectSqlBuilderConverter {
 	
 	/**
 	 * 设置时间周期转换器
-	 * @param dateCycleConverters
+	 * @param graphicCycleConverters
 	 */
-	void setDateCycleConverters(Map<DateCycle, DateCycleConverter> dateCycleConverters);
+	void setGraphicCycleConverters(Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters);
 	
 	/**
 	 * 添加查询table
@@ -81,7 +81,7 @@ public interface SelectSqlBuilderConverter {
 	 * @param dateCycle 周期
 	 * @return
 	 */
-	SelectSqlBuilderConverter addSelectDateCycleItem(String columnCode, DateCycle dateCycle);
+	SelectSqlBuilderConverter addSelectDateCycleItem(String columnCode, GraphicCycle graphicCycle);
 	
 	/**
 	 * 添加数字字段
@@ -129,7 +129,7 @@ public interface SelectSqlBuilderConverter {
 	 * @param columnCode
 	 * @return
 	 */
-	SelectSqlBuilderConverter addDateCycleGroupBy(String columnCode, DateCycle dateCycle);
+	SelectSqlBuilderConverter addDateCycleGroupBy(String columnCode, GraphicCycle graphicCycle);
 	
 	/**
 	 * 分页分页

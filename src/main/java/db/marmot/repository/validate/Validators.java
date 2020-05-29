@@ -1,13 +1,15 @@
 package db.marmot.repository.validate;
 
-import java.util.Objects;
-import java.util.Set;
+import com.alibaba.druid.sql.parser.SQLParserUtils;
+import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.sql.parser.Token;
+import org.apache.commons.lang3.Validate;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author shaokang
@@ -43,6 +45,15 @@ public class Validators extends Validate {
 		}
 		if (exception != null) {
 			throw exception;
+		}
+	}
+	
+	public static void validateSqlSelect(String sqlType, String sql) {
+		notNull(sql, "sql 不能为空");
+		notNull(sqlType, "sqlType 不能为空");
+		SQLStatementParser sqlStatementParser = SQLParserUtils.createSQLStatementParser(sql, sqlType);
+		if (sqlStatementParser.getLexer().token() != Token.SELECT) {
+			throw new ValidateException("sql 必须为select sql");
 		}
 	}
 }

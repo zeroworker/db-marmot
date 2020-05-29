@@ -2,10 +2,11 @@ package db.marmot.graphic.generator.procedure;
 
 import com.google.common.collect.Maps;
 import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.GraphicCycle;
 import db.marmot.graphic.DimenColumn;
 import db.marmot.graphic.MeasureColumn;
 import db.marmot.graphic.TabGraphic;
-import db.marmot.graphic.converter.DateCycleConverter;
+import db.marmot.graphic.converter.GraphicCycleConverter;
 import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.volume.DataVolume;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -24,20 +25,22 @@ public class TabGraphicCycleProcedure extends GraphicCycleProcedure<TabGraphic, 
 	
 	@Override
 	public boolean match(TabGraphic graphic, DataVolume dataVolume) {
-		DimenColumn dimenColumn = graphic.getGraphicColumn().findDimenCycleColumn();
-		return dimenColumn != null && super.match(graphic, dataVolume);
+		DimenColumn dimenColumn = graphic.getGraphicColumn().findDateDimenColumn();
+		return dimenColumn != null
+				&& graphic.getGraphicCycle() != GraphicCycle.non
+				&& super.match(graphic, dataVolume);
 	}
 	
 	@Override
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
-		DimenColumn dimenColumn = graphic.getGraphicColumn().findDimenCycleColumn();
 		Map<String, Map<String, Object>> cycleData = Maps.newLinkedHashMap();
-		DateCycleConverter dateCycleConverter = converterAdapter.getDateCycleConverter(dimenColumn.getDateCycle());
-		for (Map<String, Object> rowData : graphicData.getTabData()) {
+		DimenColumn dimenColumn = graphic.getGraphicColumn().findDateDimenColumn();
+		GraphicCycleConverter dateCycleConverter = converterAdapter.getGraphicCycleConverter(graphic.getGraphicCycle());
+		for (Map<String, Object> rowData : graphicData.getData()) {
 			createRowCycleData(rowData, cycleData, dateCycleConverter, graphic, dimenColumn);
 		}
 	}
-
+	
 	/**
 	 * 行周期数据处理
 	 * @param rowData 行数据
@@ -46,9 +49,8 @@ public class TabGraphicCycleProcedure extends GraphicCycleProcedure<TabGraphic, 
 	 * @param graphic 图表
 	 * @param dimenColumn 周期维度字段
 	 */
-	private void createRowCycleData(Map<String, Object> rowData, Map<String, Map<String, Object>> cycleData, DateCycleConverter dateCycleConverter, TabGraphic graphic, DimenColumn dimenColumn) {
-		//-若数据不存在 无法做周期处理,该条数据排除掉
-		if (rowData.get(dimenColumn.getColumnCode()) != null) {
+	private void createRowCycleData(Map<String, Object> rowData, Map<String, Map<String, Object>> cycleData, GraphicCycleConverter dateCycleConverter, TabGraphic graphic, DimenColumn dimenColumn) {
+		if (!rowData.containsKey(dimenColumn.getColumnCode())) {
 			String cycleDate = dateCycleConverter.convertValue((Date) rowData.get(dimenColumn.getColumnCode()), dimenColumn.getDataFormat());
 			rowData.put(dimenColumn.getColumnCode(), cycleDate);
 			String cycleKey = createCycleKey(rowData, graphic);

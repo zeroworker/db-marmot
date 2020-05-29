@@ -78,7 +78,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, Map<String, Object> groupData) {
 		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
-		if (statisticalModel.getWindowUnit() != WindowUnit.NON) {
+		if (statisticalModel.getWindowUnit() != WindowUnit.non) {
 			throw new StatisticalException(String.format("模型%s非粒度模型", modelName));
 		}
 		

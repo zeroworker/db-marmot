@@ -4,7 +4,6 @@ import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.generator.ColumnEnum;
-import db.marmot.volume.parser.SqlSelectQueryParser;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
@@ -96,51 +95,24 @@ public class ColumnVolume {
 	
 	public void validateColumnVolume(Database database) {
 		Validators.assertJSR303(this);
-		
 		if (volumeType == VolumeType.model) {
 			throw new ValidateException("字段数据集不支持模型");
 		}
 		if (dataColumns == null || dataColumns.isEmpty()) {
 			throw new ValidateException("字段数据集数据字段不能为空");
 		}
-		
 		if (volumeType == VolumeType.sql) {
-			//-解析一次sql,针对模型sql必须存在一定规范
-			SqlSelectQueryParser sqlSelectQueryParser = new SqlSelectQueryParser(database.getDbType(), script).parse();
-			if (sqlSelectQueryParser.getSelectTables().size() != 1) {
-				throw new ValidateException("字段数据集sql必须为单表查询");
-			}
+			Validators.validateSqlSelect(database.getDbType(), this.script);
 		}
-		
 		if (volumeType == VolumeType.enums) {
-			Class enumClass;
 			try {
-				enumClass = Class.forName(script);
+				Class enumClass = Class.forName(script);
+				if (!enumClass.isEnum() || !ColumnEnum.class.isAssignableFrom(enumClass)) {
+					throw new ValidateException("class 必须是枚举并且必须实现 ColumnEnum");
+				}
 			} catch (ClassNotFoundException e) {
 				throw new ValidateException("枚举类不存在");
 			}
-			if (!enumClass.isEnum()) {
-				throw new ValidateException("该类非枚举类型");
-			}
-			if (!ColumnEnum.class.isAssignableFrom(enumClass)) {
-				throw new ValidateException("枚举必须实现 ColumnEnum");
-			}
 		}
-	}
-	
-	/**
-	 * 获取数据字段
-	 * @param columnCode
-	 * @return
-	 */
-	public DataColumn findDataColumn(String columnCode) {
-		DataColumn dataColumn = null;
-		for (DataColumn column : dataColumns) {
-			if (columnCode.equals(column.getColumnCode())) {
-				dataColumn = column;
-				break;
-			}
-		}
-		return dataColumn;
 	}
 }

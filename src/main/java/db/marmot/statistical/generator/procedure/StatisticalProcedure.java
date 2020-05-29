@@ -4,6 +4,7 @@ import org.springframework.core.Ordered;
 
 import db.marmot.statistical.StatisticalModel;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.volume.DataVolume;
 
 /**
  * @author shaokang
@@ -16,12 +17,12 @@ public interface StatisticalProcedure extends Ordered {
 	 * @param temporaryMemory
 	 * @return
 	 */
-	boolean match(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
+	boolean match(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
 	
 	/**
 	 * 处理
 	 * @param statisticalModel
 	 * @param temporaryMemory
 	 */
-	void processed(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
+	void processed(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
 }

@@ -113,19 +113,15 @@ public class DatabaseTemplate {
 				ResultSetMetaData resultVolumeMetaData = rs.getMetaData();
 				int columnCount = resultVolumeMetaData.getColumnCount();
 				for (int index = 1; index <= columnCount; index++) {
-					
-					//-构建数据集数据字段
 					DataColumn dataColumn = new DataColumn();
 					dataColumn.setVolumeCode(volumeCode);
 					dataColumn.setColumnOrder(index);
+					dataColumn.setColumnIndex(resultVolumeMetaData.isAutoIncrement(index));
 					dataColumn.setColumnCode(resultVolumeMetaData.getColumnLabel(index));
 					dataColumn.setScreenColumn(resultVolumeMetaData.getColumnLabel(index));
-					//-字段转换器转换字段类型以及默认格式化
 					ColumnConverter columnConverter = ConverterAdapter.getInstance().getColumnConverter(resultVolumeMetaData.getColumnType(index));
 					dataColumn.setColumnType(columnConverter.columnType());
 					dataColumn.setDataFormat(columnConverter.defaultDataFormat());
-					
-					//-获取字段对应的表中的字段描述以及字段名（字段名默认为描述）
 					List<TableColumn> tableColumns = getTableColumns(dbName, resultVolumeMetaData.getTableName(index));
 					for (TableColumn tableColumn : tableColumns) {
 						if (tableColumn.getColumnCode().equals(resultVolumeMetaData.getColumnName(index))) {
@@ -134,13 +130,10 @@ public class DatabaseTemplate {
 							break;
 						}
 					}
-					
-					//-不允许出现重复字段
 					if (!dataColumns.add(dataColumn)) {
 						throw new RepositoryException(String.format("存在相同的数据集字段：%s", dataColumn.getColumnCode()));
 					}
 				}
-				
 				return dataColumns;
 			}
 			

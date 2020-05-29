@@ -1,11 +1,5 @@
 package db.marmot.graphic.generator.procedure;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Maps;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.graphic.TabGraphic;
@@ -13,6 +7,12 @@ import db.marmot.graphic.converter.TotalConverter;
 import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.graphic.generator.TabGraphicDataColumn;
 import db.marmot.volume.DataVolume;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 表格数据表合计处理
@@ -29,15 +29,15 @@ public class TabGraphicTotalProcedure implements GraphicProcedure<TabGraphic, Ta
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		
 		//-1.获取所有需要列合计度量字段
-		List<TabGraphicDataColumn> measureTabColumns = graphicData.getTabColumns().stream().filter(TabGraphicDataColumn::isColumnTotal).collect(Collectors.toList());
+		List<TabGraphicDataColumn> measureTabColumns = graphicData.getGraphicDataColumns().stream().filter(TabGraphicDataColumn::isColumnTotal).collect(Collectors.toList());
 		
 		//-2.遍历表格数据做合计处理
 		GraphicTotal graphicTotal = new TabGraphicTotal(measureTabColumns);
-		graphicData.getTabData().forEach(rowData -> graphicTotal.columnTotalBuild(rowData));
+		graphicData.getData().forEach(rowData -> graphicTotal.columnTotalBuild(rowData));
 		
 		//-3.添加合计数据到表格数据中
 		Map<String, Object> columnTotalData = Maps.newLinkedHashMap();
-		graphicData.getTabColumns().forEach(tabGraphicColumn -> {
+		graphicData.getGraphicDataColumns().forEach(tabGraphicColumn -> {
 			if (tabGraphicColumn.isColumnTotal()) {
 				List<BigDecimal> columnTotalValues = graphicTotal.getColumnTotalData(tabGraphicColumn.getColumnCode());
 				TotalConverter totalConverter = ConverterAdapter.getInstance().getTotalConverter(tabGraphicColumn.getColumnTotalType());
@@ -46,7 +46,7 @@ public class TabGraphicTotalProcedure implements GraphicProcedure<TabGraphic, Ta
 			}
 			columnTotalData.put(tabGraphicColumn.getColumnCode(), "");
 		});
-		graphicData.getTabData().add(columnTotalData);
+		graphicData.getData().add(columnTotalData);
 	}
 	
 	@Override

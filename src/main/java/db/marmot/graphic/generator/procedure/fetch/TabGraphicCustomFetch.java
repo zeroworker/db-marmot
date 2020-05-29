@@ -20,6 +20,6 @@ public class TabGraphicCustomFetch extends GraphicCustomFetch<TabGraphic, TabGra
 	@Override
 	public void metadataFetch(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		List<FilterColumn> filterColumns = graphic.getGraphicColumn().getFilterColumns();
-		graphicData.setTabData(dataSourceRepository.queryCustomData(dataVolume, filterColumns, graphic.getGraphicPage(), graphic.getGraphicLimit()));
+		graphicData.setData(dataSourceRepository.queryCustomData(dataVolume.getVolumeCode(), filterColumns, graphic.getGraphicPage(), graphic.getGraphicLimit()));
 	}
 }

@@ -1,11 +1,11 @@
 package db.marmot.statistical.generator.convert;
 
+import db.marmot.enums.WindowUnit;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
-
-import db.marmot.enums.WindowUnit;
 
 /**
  * @author shaokang
@@ -14,7 +14,7 @@ public class MinuteWindowUnitConverter implements WindowUnitConverter {
 	
 	@Override
 	public WindowUnit windowUnit() {
-		return WindowUnit.MINUTE;
+		return WindowUnit.minute;
 	}
 	
 	@Override

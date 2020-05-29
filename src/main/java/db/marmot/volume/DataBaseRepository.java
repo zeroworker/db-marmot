@@ -16,12 +16,11 @@ import java.util.Map;
  * @author shaokang
  */
 public class DataBaseRepository extends VolumeRepository implements InitializingBean {
-
-
+	
 	public DataBaseRepository(DataSourceTemplate dataSourceTemplate) {
 		super(dataSourceTemplate);
 	}
-
+	
 	/**
 	 * 保存数据源配置
 	 * @param database

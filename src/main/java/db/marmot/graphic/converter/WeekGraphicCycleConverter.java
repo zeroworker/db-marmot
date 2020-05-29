@@ -8,16 +8,16 @@ import java.util.Date;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import db.marmot.enums.DateCycle;
+import db.marmot.enums.GraphicCycle;
 
 /**
  * @author shaokang
  */
-public class WeekDateCycleConverter implements DateCycleConverter {
+public class WeekGraphicCycleConverter implements GraphicCycleConverter {
 	
 	@Override
-	public DateCycle dateCycle() {
-		return DateCycle.week;
+	public GraphicCycle graphicCycle() {
+		return GraphicCycle.week;
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package db.marmot.graphic;
 
+import com.alibaba.fastjson.JSONObject;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.*;
@@ -144,7 +145,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 				ps.setString(2, graphicDesign.getGraphicCode());
 				ps.setLong(3, graphicDesign.getBoardId());
 				ps.setString(4, graphicDesign.getGraphicType().getCode());
-				ps.setString(5, graphicDesign.getGraphic().toJSONGraphic());
+				ps.setString(5, JSONObject.toJSONString(graphicDesign.getGraphic()));
 				return ps;
 			}
 		}, keyHolder);
@@ -164,7 +165,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 				ps.setLong(1, graphicDesign.getBoardId());
 				ps.setString(2, graphicDesign.getGraphicName());
 				ps.setString(3, graphicDesign.getGraphicType().getCode());
-				ps.setString(4, graphicDesign.getGraphic().toJSONGraphic());
+				ps.setString(4, JSONObject.toJSONString(graphicDesign.getGraphic()));
 				ps.setLong(5, graphicDesign.getGraphicId());
 			}
 		});
@@ -268,7 +269,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 				ps.setString(3, graphicDownload.getVolumeCode());
 				ps.setString(4, graphicDownload.getGraphicCode());
 				ps.setString(5, graphicDownload.getGraphicType().getCode());
-				ps.setString(6, graphicDownload.getGraphic().toJSONGraphic());
+				ps.setString(6, JSONObject.toJSONString(graphicDownload.getGraphic()));
 				ps.setString(7, graphicDownload.getFileUrl());
 				ps.setString(8, graphicDownload.getDownloadUrl());
 				ps.setString(9, graphicDownload.getStatus().getCode());

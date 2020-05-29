@@ -1,25 +1,17 @@
 package db.marmot.graphic;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.Operators;
-import db.marmot.repository.validate.ValidateException;
-import db.marmot.statistical.ConditionColumn;
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
-import db.marmot.volume.parser.SelectColumn;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author shaokang
@@ -77,26 +69,7 @@ public class FilterColumn implements Serializable {
 	}
 	
 	public void validateFilterColumn(DataVolume dataVolume) {
-		DataColumn dataColumn = dataVolume.findDataColumn(columnCode);
-		
-		if (dataColumn == null) {
-			throw new ValidateException(String.format("过滤字段%s在数据集字段中不存在", columnCode));
-		}
-		
-		if (columnType != dataColumn.getColumnType()) {
-			throw new ValidateException(String.format("过滤字段%s字段类型与数据集字段类型不匹配", columnCode));
-		}
-		
 		ConverterAdapter.getInstance().getOperatorsConverter(operators).validateValue(columnType, rightValue);
-	}
-	
-	/**
-	 * 添加条件字段
-	 * @param statisticalModel
-	 */
-	public void addConditionColumn(StatisticalModel statisticalModel, SelectColumn selectColumn) {
-		if (columnCode.equals(selectColumn.getColumnAlias())) {
-			statisticalModel.getConditionColumns().add(new ConditionColumn(columnCode, columnType, operators, rightValue));
-		}
+		dataVolume.findDataColumn(columnCode, columnType);
 	}
 }

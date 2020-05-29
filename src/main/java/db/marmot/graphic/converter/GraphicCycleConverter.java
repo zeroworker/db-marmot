@@ -1,21 +1,21 @@
 package db.marmot.graphic.converter;
 
-import java.util.Date;
-
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import db.marmot.enums.DateCycle;
+import db.marmot.enums.GraphicCycle;
+
+import java.util.Date;
 
 /**
  * @author shaokang
  */
-public interface DateCycleConverter {
+public interface GraphicCycleConverter {
 	
 	/**
-	 * 时间周期
+	 * 图表周期
 	 * @return
 	 */
-	DateCycle dateCycle();
+	GraphicCycle graphicCycle();
 	
 	/**
 	 * 添加查询字段

@@ -138,5 +138,4 @@ public class VolumeRepository extends StatisticalRepository {
 		}
 		return dataColumn;
 	}
-	
 }

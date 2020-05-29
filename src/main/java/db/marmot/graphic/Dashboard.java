@@ -1,14 +1,13 @@
 package db.marmot.graphic;
 
 import db.marmot.enums.BoardType;
-import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -68,20 +67,12 @@ public class Dashboard {
 	@Size(max = 512)
 	private String content;
 	
-	@Valid
 	private List<GraphicDesign> graphicDesigns;
 	
 	public void validateDashboard(DataVolume dataVolume) {
 		Validators.assertJSR303(this);
-		if (graphicDesigns != null && !graphicDesigns.isEmpty()) {
-			for (int graphicIndex = 0; graphicIndex < graphicDesigns.size(); graphicIndex++) {
-				GraphicDesign graphicDesign = graphicDesigns.get(graphicIndex);
-				try {
-					graphicDesign.validateGraphicDesign(dataVolume);
-				} catch (Exception e) {
-					throw new ValidateException(String.format("图表%s:%s", graphicDesign.getGraphicName(), e.getMessage()), e);
-				}
-			}
+		if (CollectionUtils.isNotEmpty(graphicDesigns)) {
+			graphicDesigns.forEach(graphicDesign -> graphicDesign.validateGraphicDesign(dataVolume));
 		}
 	}
 }

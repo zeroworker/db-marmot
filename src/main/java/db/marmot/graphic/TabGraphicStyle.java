@@ -1,26 +1,24 @@
 package db.marmot.graphic;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
+import db.marmot.enums.TotalType;
+import db.marmot.repository.validate.ValidateException;
+import db.marmot.repository.validate.Validators;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
-import db.marmot.enums.TotalType;
-import db.marmot.repository.validate.ValidateException;
-
-import lombok.Getter;
-import lombok.Setter;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shaokang
  */
 @Setter
 @Getter
-public class TabGraphicStyle implements GraphicStyle {
+public class TabGraphicStyle extends GraphicStyle {
 	
 	private static final long serialVersionUID = 1035090345660306256L;
 	
@@ -155,6 +153,7 @@ public class TabGraphicStyle implements GraphicStyle {
 	
 	@Override
 	public void validateGraphicStyle() {
+		Validators.assertJSR303(this);
 		if (columnSubtotal && StringUtils.isBlank(subtotalAlias)) {
 			throw new ValidateException("小计别名不能为空");
 		}

@@ -78,7 +78,7 @@ public class DataColumn {
 	/**
 	 * 字段过滤- 数据过滤时,字段是否可参与过滤
 	 */
-	private boolean columnFilter = true;
+	private boolean columnFilter = false;
 	
 	/**
 	 * 字段隐藏-在做数据仪表盘时不显示
@@ -132,6 +132,7 @@ public class DataColumn {
 		return Objects.hash(volumeCode, columnCode);
 	}
 	
+
 	public void validateDataColumn() {
 		Validators.assertJSR303(this);
 		if (columnIndex && columnType != ColumnType.number) {

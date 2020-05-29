@@ -18,4 +18,10 @@ public abstract class GraphicFormatProcedure<G extends Graphic, D extends Graphi
 	public int getOrder() {
 		return 8;
 	}
+	
+	@Override
+	public void processed(G graphic, DataVolume dataVolume, D graphicData) {
+		//-格式化数据值
+		graphicData.formatValueGraphicData();
+	}
 }

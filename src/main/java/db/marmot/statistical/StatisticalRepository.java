@@ -1,12 +1,10 @@
 package db.marmot.statistical;
 
-import com.alibaba.druid.sql.builder.SQLBuilderFactory;
-import com.alibaba.druid.sql.builder.SQLSelectBuilder;
 import db.marmot.graphic.GraphicRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
-import db.marmot.volume.Database;
+import db.marmot.volume.DataVolume;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
@@ -27,20 +25,11 @@ public class StatisticalRepository extends GraphicRepository {
 		if (statisticalModel == null) {
 			throw new RepositoryException("统计模型不能为空");
 		}
-		
-		Database database = dataSourceTemplate.findDatabase(statisticalModel.getDbName());
-		if (database == null) {
-			throw new RepositoryException(String.format("数据源%不存在", statisticalModel.getModelName()));
+		DataVolume dataVolume = dataSourceTemplate.findDataVolume(statisticalModel.getVolumeCode());
+		if (dataVolume == null) {
+			throw new RepositoryException(String.format("数据集%不存在", dataVolume.getVolumeCode()));
 		}
-		statisticalModel.validateStatisticalModel(database);
-		
-		try {
-			SQLSelectBuilder sqlSelectBuilder = SQLBuilderFactory.createSelectSQLBuilder(statisticalModel.getFetchSql(), database.getDbType()).limit(1);
-			dataSourceTemplate.queryData(statisticalModel.getDbName(), sqlSelectBuilder.toString());
-		} catch (Exception e) {
-			throw new RepositoryException(String.format("统计模型%s fetch sql 验证异常", statisticalModel.getModelName(), e));
-		}
-		
+		statisticalModel.validateStatisticalModel(dataVolume);
 		try {
 			dataSourceTemplate.storeStatisticalModel(statisticalModel);
 		} catch (DuplicateKeyException e) {

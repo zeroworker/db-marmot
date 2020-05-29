@@ -2,9 +2,6 @@ package db.marmot.statistical;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import db.marmot.converter.SelectSqlBuilderConverter;
-import db.marmot.enums.ColumnType;
-import db.marmot.enums.Operators;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
 import db.marmot.volume.VolumeTemplate;
@@ -27,12 +24,12 @@ import java.util.Set;
  * @author shaokang
  */
 public class StatisticalTemplate extends VolumeTemplate {
-
+	
 	public StatisticalTemplate(DataSource dataSource) {
 		super(dataSource);
 	}
-
-	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
+	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name, running, calculated, offset_expr,index_column, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保存统计模型
@@ -51,7 +48,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		statisticalModel.setModelId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,db_name=?,fetch_step=?,fetch_step=?,running=?,calculated=?,offset_expr=?,time_column=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
+	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,running=?,calculated=?,offset_expr=?,index_column=?,time_column=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
 	
 	/**
 	 * 更新统计模型
@@ -62,7 +59,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				setStatisticalModelPreparedStatement(ps, statisticalModel);
-				ps.setLong(19, statisticalModel.getModelId());
+				ps.setLong(15, statisticalModel.getModelId());
 			}
 		});
 	}
@@ -70,41 +67,21 @@ public class StatisticalTemplate extends VolumeTemplate {
 	private void setStatisticalModelPreparedStatement(PreparedStatement ps, StatisticalModel statisticalModel) throws SQLException {
 		ps.setString(1, statisticalModel.getVolumeCode());
 		ps.setString(2, statisticalModel.getModelName());
-		ps.setString(3, statisticalModel.getDbName());
-		ps.setString(4, statisticalModel.getFetchSql());
-		ps.setLong(5, statisticalModel.getFetchStep());
-		ps.setBoolean(6, statisticalModel.isRunning());
-		ps.setBoolean(7, statisticalModel.isCalculated());
-		ps.setString(8, JSONArray.toJSONString(statisticalModel.getOffsetExpr()));
-		ps.setString(9, statisticalModel.getTimeColumn());
-		ps.setInt(10, statisticalModel.getWindowLength());
-		ps.setString(11, statisticalModel.getWindowType().getCode());
-		ps.setString(12, statisticalModel.getWindowUnit().getCode());
-		ps.setString(13, JSONArray.toJSONString(statisticalModel.getAggregateColumns()));
-		ps.setString(14, JSONArray.toJSONString(statisticalModel.getConditionColumns()));
-		ps.setString(15, JSONArray.toJSONString(statisticalModel.getGroupColumns()));
-		ps.setString(16, JSONArray.toJSONString(statisticalModel.getDirectionColumns()));
-		ps.setString(17, statisticalModel.getMemo());
-		ps.setDate(18, new Date(new java.util.Date().getTime()));
+		ps.setBoolean(3, statisticalModel.isRunning());
+		ps.setBoolean(4, statisticalModel.isCalculated());
+		ps.setString(5, JSONArray.toJSONString(statisticalModel.getOffsetExpr()));
+		ps.setInt(6, statisticalModel.getWindowLength());
+		ps.setString(7, statisticalModel.getWindowType().getCode());
+		ps.setString(8, statisticalModel.getWindowUnit().getCode());
+		ps.setString(9, JSONArray.toJSONString(statisticalModel.getAggregateColumns()));
+		ps.setString(10, JSONArray.toJSONString(statisticalModel.getConditionColumns()));
+		ps.setString(11, JSONArray.toJSONString(statisticalModel.getGroupColumns()));
+		ps.setString(12, JSONArray.toJSONString(statisticalModel.getDirectionColumns()));
+		ps.setString(13, statisticalModel.getMemo());
+		ps.setDate(14, new Date(new java.util.Date().getTime()));
 	}
 	
-	private static final String STATISTICAL_MODEL_LOAD_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? for update ";
-	
-	/**
-	 * 根据模型名称加载统计模型
-	 * @param modelId
-	 * @return
-	 */
-	public StatisticalModel loadStatisticalModel(long modelId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_SQL, new Object[] { modelId }, new RowMapper<StatisticalModel>() {
-			@Override
-			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return buildStatisticalModel(rs);
-			}
-		}));
-	}
-	
-	private static final String STATISTICAL_MODEL_LOAD_CALCULATE_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? and calculated=? for update ";
+	private static final String STATISTICAL_MODEL_LOAD_CALCULATE_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_id=? and calculated=? for update ";
 	
 	/**
 	 * 根据模型名称加载统计模型
@@ -120,7 +97,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_MODEL_FIND_SQL = "select model_id, volume_code, model_name,db_name,fetch_sql,fetch_step, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_name=?";
+	private static final String STATISTICAL_MODEL_FIND_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where model_name=?";
 	
 	/**
 	 * 根据模型名称加载统计模型
@@ -128,7 +105,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalModel findStatisticalModel(String modelName) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_FIND_SQL, new RowMapper<StatisticalModel>() {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_FIND_SQL, new Object[] { modelName }, new RowMapper<StatisticalModel>() {
 			@Override
 			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalModel(rs);
@@ -136,7 +113,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,db_name, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
+	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
 	
 	/**
 	 * 获取统计模型
@@ -146,30 +123,6 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 */
 	public List<StatisticalModel> findStatisticalModelByStatus(boolean running, boolean calculated) {
 		return jdbcTemplate.query(STATISTICAL_MODEL_FIND_STATUS_SQL, new Object[] { running, calculated }, new RowMapper<StatisticalModel>() {
-			@Override
-			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
-				return buildStatisticalModel(rs);
-			}
-		});
-	}
-	
-	/**
-	 * 分页查询统计模型
-	 * @param volumeId
-	 * @param modelName
-	 * @param pageNum
-	 * @param pageSize
-	 * @return
-	 */
-	public List<StatisticalModel> queryPageStatisticalModel(long volumeId, String modelName, int pageNum, int pageSize) {
-		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"select model_id, volume_code, model_name,db_name, running, calculated, offset_expr, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model");
-		if (volumeId > 0) {
-			sqlBuilder.addCondition(Operators.equals, ColumnType.number, "volume_id", volumeId);
-		}
-		sqlBuilder.addCondition(Operators.equals, ColumnType.string, "model_name", modelName).addLimit(pageNum, pageSize);
-		
-		return jdbcTemplate.query(sqlBuilder.toSql(), new RowMapper<StatisticalModel>() {
 			@Override
 			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalModel(rs);
@@ -197,22 +150,18 @@ public class StatisticalTemplate extends VolumeTemplate {
 		statisticalModel.setModelId(rs.getLong(1));
 		statisticalModel.setVolumeCode(rs.getString(2));
 		statisticalModel.setModelName(rs.getString(3));
-		statisticalModel.setDbName(rs.getString(4));
-		statisticalModel.setFetchSql(rs.getString(5));
-		statisticalModel.setFetchStep(rs.getLong(6));
-		statisticalModel.setRunning(rs.getBoolean(7));
-		statisticalModel.setCalculated(rs.getBoolean(8));
-		statisticalModel.setOffsetExpr(JSONArray.parseArray(rs.getString(9), String.class));
-		statisticalModel.setTimeColumn(rs.getString(10));
-		statisticalModel.setWindowLength(rs.getInt(11));
-		statisticalModel.setWindowType(WindowType.getByCode(rs.getString(12)));
-		statisticalModel.setWindowUnit(WindowUnit.getByCode(rs.getString(13)));
-		statisticalModel.setAggregateColumns(JSONArray.parseArray(rs.getString(14), AggregateColumn.class));
-		statisticalModel.setConditionColumns(JSONArray.parseArray(rs.getString(15), ConditionColumn.class));
-		statisticalModel.setGroupColumns(JSONArray.parseArray(rs.getString(16), GroupColumn.class));
-		statisticalModel.setDirectionColumns(JSONArray.parseArray(rs.getString(17), DirectionColumn.class));
-		statisticalModel.setMemo(rs.getString(18));
-		statisticalModel.setRawUpdateTime(rs.getDate(19));
+		statisticalModel.setRunning(rs.getBoolean(4));
+		statisticalModel.setCalculated(rs.getBoolean(5));
+		statisticalModel.setOffsetExpr(JSONArray.parseArray(rs.getString(6), String.class));
+		statisticalModel.setWindowLength(rs.getInt(7));
+		statisticalModel.setWindowType(WindowType.getByCode(rs.getString(8)));
+		statisticalModel.setWindowUnit(WindowUnit.getByCode(rs.getString(9)));
+		statisticalModel.setAggregateColumns(JSONArray.parseArray(rs.getString(10), AggregateColumn.class));
+		statisticalModel.setConditionColumns(JSONArray.parseArray(rs.getString(11), ConditionColumn.class));
+		statisticalModel.setGroupColumns(JSONArray.parseArray(rs.getString(12), GroupColumn.class));
+		statisticalModel.setDirectionColumns(JSONArray.parseArray(rs.getString(13), DirectionColumn.class));
+		statisticalModel.setMemo(rs.getString(14));
+		statisticalModel.setRawUpdateTime(rs.getDate(15));
 		return statisticalModel;
 	}
 	

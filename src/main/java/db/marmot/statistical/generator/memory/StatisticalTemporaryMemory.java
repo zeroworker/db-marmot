@@ -1,11 +1,12 @@
 package db.marmot.statistical.generator.memory;
 
+import db.marmot.statistical.*;
+import db.marmot.volume.DataRange;
+import db.marmot.volume.DataVolume;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import db.marmot.statistical.*;
-import db.marmot.volume.DataRange;
 
 /**
  * @author shaokang
@@ -27,7 +28,7 @@ public class StatisticalTemporaryMemory implements TemporaryMemory {
 	}
 	
 	@Override
-	public void addNextTask(DataRange dataRange, StatisticalModel statisticalModel) {
+	public void addNextTask(DataRange dataRange, DataVolume dataVolume, StatisticalModel statisticalModel) {
 		if (this.nextTask != null) {
 			throw new StatisticalException("下次统计任务已经存在");
 		}
@@ -36,7 +37,7 @@ public class StatisticalTemporaryMemory implements TemporaryMemory {
 		statisticalTask.setScanned(false);
 		statisticalTask.setStartIndex(dataRange.getMinValue());
 		statisticalTask.setModelName(statisticalModel.getModelName());
-		statisticalTask.setEndIndex(dataRange.calculateEndIndex(statisticalModel.getFetchStep()));
+		statisticalTask.setEndIndex(dataRange.calculateEndIndex(dataVolume.getVolumeLimit()));
 		this.nextTask = statisticalTask;
 	}
 	

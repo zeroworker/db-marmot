@@ -20,11 +20,11 @@ public class ColumnDataGeneratorAdapter implements ColumnGeneratorAdapter, Initi
 	
 	private DataSourceRepository dataSourceRepository;
 	private Map<VolumeType, ColumnDataGenerator> columnDataGenerators = Maps.newHashMap();
-
+	
 	public ColumnDataGeneratorAdapter(DataSourceRepository dataSourceRepository) {
 		this.dataSourceRepository = dataSourceRepository;
 	}
-
+	
 	/**
 	 * 注册字段数据生成器
 	 * @param columnDataGenerator
@@ -54,6 +54,7 @@ public class ColumnDataGeneratorAdapter implements ColumnGeneratorAdapter, Initi
 	public void afterPropertiesSet() {
 		Validators.notNull(dataSourceRepository, "dataSourceRepository 不能为空");
 		registerColumnDataGenerator(new ColumnEnumDataGenerator());
+		registerColumnDataGenerator(new ColumnCustomDataGenerator(dataSourceRepository));
 		registerColumnDataGenerator(new ColumnSqlDataGenerator(dataSourceRepository));
 	}
 }
