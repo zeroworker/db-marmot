@@ -160,6 +160,18 @@ create table marmot_statistical_task
     unique key `statistical_task_model_name` (`model_name`)
 ) comment ='统计模型统计任务';
 
+drop table if exists `marmot_statistical_revise_task`;
+create table marmot_statistical_revise_task
+(
+    task_id     bigint(20) auto_increment not null comment '序列id',
+    volume_code varchar(128)              not null comment '数据集编码',
+    revise_status varchar(128)              not null comment '订正状态',
+    start_index long                      not null comment '开始角标',
+    end_index   long                      not null comment '结束角标',
+    constraint `primary` primary key (`task_id`),
+    unique key `statistical_revise_task_volume` (`volume_code`)
+) comment ='统计模型订正任务';
+
 drop table if exists `marmot_statistical_data`;
 create table marmot_statistical_data
 (

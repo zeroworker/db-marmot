@@ -8,11 +8,21 @@ import java.util.Map;
  * @author shaokang
  */
 public interface StatisticalGenerateAdapter {
-
+	
 	/**
-	 * 生成统计数据
+	 * 生成统计数据 定时任务执行 任务时间间隔根据实际业务场景定义
 	 */
 	void generateStatisticalData();
+	
+	/**
+	 * 回滚统计数据 存在元数据订正时,请先回滚统计数据 在执行元数据订正,可依托定时任务执行
+	 */
+	void rollbackStatisticalData();
+	
+	/**
+	 * 订正统计数据 元数据订正完成，执行统计数据订正 可依托定时任务执行
+	 */
+	void reviseStatisticalData();
 	
 	/**
 	 * 获取聚合数据

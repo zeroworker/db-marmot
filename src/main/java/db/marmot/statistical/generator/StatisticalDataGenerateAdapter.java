@@ -73,7 +73,17 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 			lock.unlock();
 		}
 	}
-	
+
+	@Override
+	public void rollbackStatisticalData() {
+
+	}
+
+	@Override
+	public void reviseStatisticalData() {
+
+	}
+
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, Map<String, Object> groupData) {
 		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);

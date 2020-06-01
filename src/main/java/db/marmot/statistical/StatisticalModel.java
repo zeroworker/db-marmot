@@ -9,6 +9,7 @@ import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,10 +26,12 @@ public class StatisticalModel {
 	 * 序列ID
 	 */
 	private long modelId;
-	
+
 	/**
 	 * 数据编码
 	 */
+	@NotBlank
+	@Size(max = 512)
 	private String volumeCode;
 	
 	/**

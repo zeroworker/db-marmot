@@ -2,6 +2,7 @@ package db.marmot.statistical;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import db.marmot.enums.ReviseStatus;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
 import db.marmot.volume.VolumeTemplate;
@@ -9,7 +10,6 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -232,7 +232,6 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public List<StatisticalData> findStatisticalData(String modelName, List<String> rowKeys) {
-		NamedParameterJdbcTemplate parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		Map<String, Object> params = new HashMap<>();
 		params.put("modelName", modelName);
 		params.put("rowKeys", rowKeys);
@@ -403,6 +402,76 @@ public class StatisticalTemplate extends VolumeTemplate {
 				statisticalDistinct.setDistinctColumn(rs.getString(4));
 				statisticalDistinct.setDistinctData(JSONArray.parseObject(rs.getString(5), Set.class));
 				return statisticalDistinct;
+			}
+		}));
+	}
+	
+	private static final String STATISTICAL_REVISE_TASK_STORE_SQL = "insert into marmot_statistical_revise_task(volume_code, revise_status,start_index, end_index) values (?,?,?,?)";
+	
+	/**
+	 * 保存统计订正任务
+	 * @param reviseTask
+	 */
+	public void storeStatisticalReviseTask(StatisticalReviseTask reviseTask) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcTemplate.update(new PreparedStatementCreator() {
+			
+			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+				PreparedStatement ps = con.prepareStatement(STATISTICAL_REVISE_TASK_STORE_SQL, Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, reviseTask.getVolumeCode());
+				ps.setString(2, reviseTask.getReviseStatus().getCode());
+				ps.setLong(3, reviseTask.getStartIndex());
+				ps.setLong(4, reviseTask.getEndIndex());
+				return ps;
+			}
+		}, keyHolder);
+		reviseTask.setTaskId(keyHolder.getKey().longValue());
+	}
+	
+	private static final String STATISTICAL_REVISE_TASK_UPDATE_SQL = "update marmot_statistical_revise_task set revise_status =? where task_id = ?";
+	
+	/**
+	 * 更新统计订正任务
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTask(StatisticalReviseTask reviseTask) {
+		jdbcTemplate.update(STATISTICAL_REVISE_TASK_UPDATE_SQL, new PreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setString(1, reviseTask.getReviseStatus().getCode());
+				ps.setLong(2, reviseTask.getTaskId());
+			}
+		});
+	}
+	
+	private static final String STATISTICAL_REVISE_TASK_DELETE_SQL = "delete from marmot_statistical_revise_task where task_id = ?";
+	
+	/**
+	 * 删除统计订正任务
+	 * @param taskId
+	 */
+	public void deleteStatisticalReviseTask(long taskId) {
+		jdbcTemplate.update(STATISTICAL_REVISE_TASK_DELETE_SQL, new Object[] { taskId });
+	}
+	
+	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
+	
+	/**
+	 * 加载统计订正任务
+	 * @param volumeCode
+	 * @return
+	 */
+	public StatisticalReviseTask loadStatisticalReviseTask(String volumeCode) {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_LOAD_SQL, new Object[] { volumeCode }, new RowMapper<StatisticalReviseTask>() {
+			@Override
+			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
+				StatisticalReviseTask statisticalReviseTask = new StatisticalReviseTask();
+				statisticalReviseTask.setTaskId(rs.getLong(1));
+				statisticalReviseTask.setVolumeCode(rs.getString(2));
+				statisticalReviseTask.setReviseStatus(ReviseStatus.getByCode(rs.getString(3)));
+				statisticalReviseTask.setStartIndex(rs.getLong(4));
+				statisticalReviseTask.setEndIndex(rs.getLong(5));
+				return statisticalReviseTask;
 			}
 		}));
 	}
