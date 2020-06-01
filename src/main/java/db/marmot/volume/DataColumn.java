@@ -28,6 +28,7 @@ public class DataColumn {
 	/**
 	 * 数据集ID
 	 */
+	@NotNull
 	private String volumeCode;
 	
 	/**
