@@ -230,9 +230,7 @@ public class GraphicDataDownloadAdapter implements GraphicDownloadAdapter, Appli
 	 */
 	private GraphicDownloader newInstanceGraphicDownloader(GraphicType graphicType) {
 		Class graphicDownloaderClass = graphicDownloaderClasses.get(graphicType);
-		if (graphicDownloaderClass == null) {
-			throw new GraphicDownloadException(String.format("图表%s下载器未实现", graphicType.getCode()));
-		}
+		Validators.notNull(graphicDownloaderClass,"图表%s下载器未实现",graphicType.getCode());
 		try {
 			Constructor<GraphicDownloader> constructor = graphicDownloaderClass.getConstructor(GraphicGeneratorAdapter.class);
 			return constructor.newInstance(graphicGeneratorAdapter);
