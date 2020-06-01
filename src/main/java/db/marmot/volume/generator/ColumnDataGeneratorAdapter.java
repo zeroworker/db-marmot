@@ -8,6 +8,7 @@ import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.ColumnVolume;
 import db.marmot.volume.DataColumn;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
@@ -37,9 +38,7 @@ public class ColumnDataGeneratorAdapter implements ColumnGeneratorAdapter, Initi
 	public ColumnData generateColumnData(String volumeCode, String columnCode, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
 		
 		Validators.notNull(columnCode, "columnCode 不能为空");
-		if (filterColumns != null && filterColumns.size() > 0) {
-			filterColumns.forEach(filterColumn -> Validators.assertJSR303(filterColumn));
-		}
+		Validators.isTrue(CollectionUtils.isNotEmpty(filterColumns),()-> filterColumns.forEach(filterColumn -> Validators.assertJSR303(filterColumn)));
 		
 		DataColumn dataColumn = dataSourceRepository.findDataColumn(volumeCode, columnCode);
 		ColumnVolume columnVolume = dataSourceRepository.findColumnVolume(dataColumn.getScreenColumn());

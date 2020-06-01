@@ -2,7 +2,6 @@ package db.marmot.graphic;
 
 import db.marmot.enums.*;
 import db.marmot.repository.DataSourceTemplate;
-import db.marmot.repository.RepositoryException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalModelBuilder;
 import db.marmot.volume.DataVolume;
@@ -69,11 +68,9 @@ public class GraphicRepository {
 						dataSourceTemplate.storeStatisticalModel(graphicDesign.getGraphic().configurationModel(builder));
 					}
 				} catch (DuplicateKeyException keyException) {
-					Validators.isFalse(dataVolume.getVolumeType() == VolumeType.model, "模型统计数据源图表不支持更新");
+					Validators.isTrue(dataVolume.getVolumeType() != VolumeType.model, "模型统计数据源图表不支持更新");
 					GraphicDesign originalGraphicDesign = dataSourceTemplate.findGraphicDesign(graphicDesign.getGraphicId());
-					if (originalGraphicDesign == null) {
-						throw new RepositoryException(String.format("重复图表 %s", graphicDesign.getGraphicName()));
-					}
+					Validators.notNull(originalGraphicDesign,"重复图表 %s",graphicDesign.getGraphicName());
 					if (dataVolume.getVolumeType() == VolumeType.sql) {
 						dataSourceTemplate.updateGraphicDesign(graphicDesign);
 					}

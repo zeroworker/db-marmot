@@ -153,9 +153,9 @@ public class TabGraphicStyle extends GraphicStyle {
 	@Override
 	public void validateGraphicStyle() {
 		Validators.assertJSR303(this);
-		Validators.isFalse(rowTotal && rowTotalType == null, "行合计方式不能为空");
-		Validators.isFalse(columnSubtotal && StringUtils.isBlank(subtotalAlias), "小计别名不能为空");
-		Validators.isFalse(rowTotal && StringUtils.isBlank(rowTotalAlias), "行合计方式不能为空");
-		Validators.isFalse(columnTotal && StringUtils.isBlank(columnTotalAlias), "列合计别名不能为空");
+		Validators.isTrue(rowTotal, () -> Validators.notNull(rowTotalType, "行合计方式不能为空"));
+		Validators.isTrue(rowTotal, () -> Validators.isTrue(StringUtils.isNotBlank(rowTotalAlias), "行合计方式不能为空"));
+		Validators.isTrue(columnSubtotal, () -> Validators.isTrue(StringUtils.isNotBlank(subtotalAlias), "小计别名不能为空"));
+		Validators.isTrue(columnTotal, () -> Validators.isTrue(StringUtils.isNotBlank(columnTotalAlias), "列合计别名不能为空"));
 	}
 }

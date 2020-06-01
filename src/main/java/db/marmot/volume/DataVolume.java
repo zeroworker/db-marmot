@@ -81,7 +81,7 @@ public class DataVolume {
 	private List<DataColumn> dataColumns = new ArrayList<>();
 	
 	public void validateVolumeLimit(int validateLimit) {
-		Validators.isFalse(validateLimit > this.volumeLimit, "支持最大数据行为:%s", this.volumeLimit);
+		Validators.isTrue(validateLimit <= this.volumeLimit, "支持最大数据行为:%s", this.volumeLimit);
 	}
 	
 	public void validateDataVolume(Database database) {
@@ -104,7 +104,9 @@ public class DataVolume {
 			}
 		}
 		Validators.notNull(dataColumn, "字段%s在数据集字段中不存在", columnCode);
-		Validators.isFalse(columnType != null && columnType != dataColumn.getColumnType(), "字段%s字段类型与数据集字段类型不匹配", columnCode);
+		if (columnType != null) {
+			Validators.isTrue(columnType == dataColumn.getColumnType(), "字段%s字段类型与数据集字段类型不匹配", columnCode);
+		}
 		return dataColumn;
 	}
 	

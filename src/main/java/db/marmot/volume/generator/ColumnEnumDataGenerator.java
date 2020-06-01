@@ -3,6 +3,7 @@ package db.marmot.volume.generator;
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.FilterColumn;
 import db.marmot.graphic.generator.GraphicGeneratorException;
+import db.marmot.repository.validate.Validators;
 import db.marmot.volume.ColumnVolume;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.Map;
 public class ColumnEnumDataGenerator extends AbstractColumnDataGenerator {
 	
 	private Map<String, Class> enumClassCache = new HashMap<>();
-
+	
 	@Override
 	protected ColumnData generateData(ColumnVolume columnVolume, List<FilterColumn> filterColumns, int pageNum, int pageSize) {
 		ColumnData columnData = new ColumnData(columnVolume.getColumnValueCode(), columnVolume.getColumnShowCode());
@@ -33,17 +34,12 @@ public class ColumnEnumDataGenerator extends AbstractColumnDataGenerator {
 		columnData.setData(enumData);
 		return columnData;
 	}
-
+	
 	@Override
 	public VolumeType volumeType() {
 		return VolumeType.enums;
 	}
 	
-	/**
-	 * 加载枚举类
-	 * @param enumClassPath
-	 * @return
-	 */
 	private Class loadEnumClass(String enumClassPath) {
 		Class enumClass = enumClassCache.get(enumClassPath);
 		if (enumClass != null) {
@@ -51,15 +47,10 @@ public class ColumnEnumDataGenerator extends AbstractColumnDataGenerator {
 		}
 		try {
 			enumClass = Class.forName(enumClassPath);
-			if (!enumClass.isEnum()) {
-				throw new GraphicGeneratorException("该类非枚举类型");
-			}
-			if (!ColumnEnum.class.isAssignableFrom(enumClass)) {
-				throw new GraphicGeneratorException("枚举必须实现 ColumnEnum");
-			}
+			Validators.isTrue(enumClass.isEnum() && ColumnEnum.class.isAssignableFrom(enumClass), "class 必须是枚举并且必须实现 ColumnEnum");
 			enumClassCache.put(enumClassPath, enumClass);
 			return enumClass;
-		} catch (Exception e) {
+		} catch (ClassNotFoundException e) {
 			throw new GraphicGeneratorException("加载枚举类异常", e);
 		}
 	}

@@ -4,6 +4,7 @@ import db.marmot.enums.VolumeType;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
@@ -52,7 +53,7 @@ public class VolumeRepository extends StatisticalRepository {
 		DataVolume dataVolume = dataSourceTemplate.findDataVolume(volumeCode);
 		Validators.notNull(dataVolume, "数据集存在");
 		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(dataVolume.getVolumeCode());
-		Validators.isFalse(dataColumns == null || dataColumns.isEmpty(), String.format("数据集%s数据字段不存在", dataVolume.getVolumeCode()));
+		Validators.isTrue(CollectionUtils.isNotEmpty(dataColumns), String.format("数据集%s数据字段不存在", dataVolume.getVolumeCode()));
 		dataVolume.setDataColumns(dataColumns);
 		return dataVolume;
 	}
@@ -104,7 +105,7 @@ public class VolumeRepository extends StatisticalRepository {
 		ColumnVolume columnVolume = dataSourceTemplate.findColumnVolume(columnCode);
 		Validators.notNull(columnVolume, "字段数据集不存在");
 		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(columnVolume.getVolumeCode());
-		Validators.isFalse(dataColumns == null || dataColumns.isEmpty(), String.format("数据集%s数据字段不存在", columnVolume.getVolumeCode()));
+		Validators.isTrue(CollectionUtils.isNotEmpty(dataColumns), String.format("数据集%s数据字段不存在", columnVolume.getVolumeCode()));
 		columnVolume.setDataColumns(dataColumns);
 		return columnVolume;
 	}

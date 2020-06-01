@@ -4,7 +4,6 @@ import db.marmot.converter.ConverterAdapter;
 import db.marmot.converter.SelectSqlBuilderConverter;
 import db.marmot.enums.VolumeType;
 import db.marmot.graphic.FilterColumn;
-import db.marmot.graphic.generator.GraphicGeneratorException;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.volume.ColumnVolume;
@@ -34,12 +33,8 @@ public class ColumnSqlDataGenerator extends AbstractColumnDataGenerator {
 		if (filterColumns != null && !filterColumns.isEmpty()) {
 			for (FilterColumn filterColumn : filterColumns) {
 				DataColumn dataColumn = columnData.findDataColumn(filterColumn.getColumnCode());
-				if (dataColumn == null) {
-					throw new GraphicGeneratorException(String.format("过滤字段%s在字段数据集字段集合中不存在", filterColumn.getColumnCode()));
-				}
-				if (filterColumn.getColumnType() != dataColumn.getColumnType()) {
-					throw new GraphicGeneratorException(String.format("过滤字段类型与数据集字段类型不匹配", filterColumn.getColumnCode()));
-				}
+				Validators.notNull(dataColumn, "过滤字段%s在字段数据集字段集合中不存在", filterColumn.getColumnCode());
+				Validators.isTrue(filterColumn.getColumnType() == dataColumn.getColumnType(), "过滤字段%s类型与数据集字段类型不匹配", filterColumn.getColumnCode());
 				sqlBuilder.addCondition(filterColumn.getOperators(), filterColumn.getColumnType(), dataColumn.getScreenColumn(), filterColumn.getRightValue());
 			}
 		}

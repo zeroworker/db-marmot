@@ -63,10 +63,6 @@ public class Validators extends Validate {
 		}
 	}
 	
-	public static void isFalse(boolean expression, String message, Object... values) {
-		isTrue(!expression, message, values);
-	}
-	
 	public interface ValidateCallBack {
 		void validate();
 	}
