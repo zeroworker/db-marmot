@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class TabGraphic extends Graphic {
 	
 	private static final long serialVersionUID = 5362635861125108894L;
-
+	
 	/**
 	 * 表格样式
 	 */

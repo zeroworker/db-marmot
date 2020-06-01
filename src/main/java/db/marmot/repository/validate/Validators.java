@@ -56,4 +56,18 @@ public class Validators extends Validate {
 			throw new ValidateException("sql 必须为select sql");
 		}
 	}
+	
+	public static void isTrue(boolean expression, ValidateCallBack callBack) {
+		if (expression) {
+			callBack.validate();
+		}
+	}
+	
+	public static void isFalse(boolean expression, String message, Object... values) {
+		isTrue(!expression, message, values);
+	}
+	
+	public interface ValidateCallBack {
+		void validate();
+	}
 }

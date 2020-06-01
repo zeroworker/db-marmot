@@ -3,6 +3,7 @@ package db.marmot.volume;
 import com.alibaba.druid.pool.DruidDataSource;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
+import db.marmot.repository.validate.Validators;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,9 +27,7 @@ public class DataBaseRepository extends VolumeRepository implements Initializing
 	 * @param database
 	 */
 	public void storeDatabase(Database database) {
-		if (database == null) {
-			throw new RepositoryException("数据源不能为空");
-		}
+		Validators.notNull(database, "数据源不能为空");
 		database.validateDatabase();
 		DruidDataSource dataSource = buildDruidDataSource(database);
 		try {
@@ -50,9 +49,7 @@ public class DataBaseRepository extends VolumeRepository implements Initializing
 	 */
 	public Database findDatabase(String name) {
 		Database database = getDatabase(name);
-		if (database == null) {
-			throw new RepositoryException(String.format("数据源%s配置不存在", name));
-		}
+		Validators.notNull(database, String.format("数据源%s配置不存在", name));
 		return database;
 	}
 	

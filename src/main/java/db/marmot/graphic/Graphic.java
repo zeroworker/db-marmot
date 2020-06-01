@@ -4,7 +4,6 @@ import db.marmot.enums.ColumnType;
 import db.marmot.enums.GraphicCycle;
 import db.marmot.enums.GraphicLayout;
 import db.marmot.enums.VolumeType;
-import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalModel;
 import db.marmot.statistical.StatisticalModelBuilder;
@@ -99,26 +98,18 @@ public abstract class Graphic implements Serializable {
 
 	private void validateModelGraphic(DataVolume dataVolume) {
 		List<DimenColumn> dimenColumns = graphicColumn.getDimenColumns();
-		if (graphicLayout == GraphicLayout.aggregate
+		Validators.isTrue(graphicLayout == GraphicLayout.aggregate
 				&& graphicCycle == GraphicCycle.non
-				&& dataVolume.getVolumeType() == VolumeType.model) {
-			if (dimenColumns
-					.stream()
-					.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
-					.count() > 0) {
-				throw new ValidateException("无周期模型聚合图表不允许存在时间维度字段");
-			}
-			if (graphicLayout == GraphicLayout.aggregate
-					&& graphicCycle != GraphicCycle.non
-					&& dataVolume.getVolumeType() == VolumeType.model) {
-				List<FilterColumn> filterColumns = graphicColumn.getFilterColumns();
-				if (filterColumns
-						.stream()
-						.filter(filterColumn -> filterColumn.getColumnType() == ColumnType.date)
-						.count() !=2) {
-					throw new ValidateException("周期模型聚合图表必须存在唯一时间区间过滤条件");
-				}
-			}
-		}
+				&& dataVolume.getVolumeType() == VolumeType.model,()-> Validators.isTrue(dimenColumns
+				.stream()
+				.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
+				.count() == 0,"无周期模型聚合图表不允许存在时间维度字段"));
+
+		Validators.isTrue(graphicLayout == GraphicLayout.aggregate
+				&& graphicCycle != GraphicCycle.non
+				&& dataVolume.getVolumeType() == VolumeType.model,()->
+				Validators.isTrue(dimenColumns.stream()
+						.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
+						.count() == 2,"周期模型聚合图表必须存在唯一时间区间过滤条件"));
 	}
 }

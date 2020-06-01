@@ -2,7 +2,7 @@ package db.marmot.volume;
 
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.DataSourceTemplate;
-import db.marmot.repository.RepositoryException;
+import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.StatisticalRepository;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -22,13 +22,9 @@ public class VolumeRepository extends StatisticalRepository {
 	 * @param dataVolume 数据集配置
 	 */
 	public void storeDataVolume(DataVolume dataVolume) {
-		if (dataVolume == null) {
-			throw new RepositoryException("数据集不能为空");
-		}
+		Validators.notNull(dataVolume, "数据集不能为空");
 		Database database = dataSourceTemplate.findDatabase(dataVolume.getDbName());
-		if (database == null) {
-			throw new RepositoryException(String.format("数据源%s不存在", dataVolume.getDbName()));
-		}
+		Validators.notNull(dataVolume, String.format("数据源%s不存在", dataVolume.getDbName()));
 		try {
 			dataSourceTemplate.storeDataVolume(dataVolume);
 		} catch (DuplicateKeyException keyException) {
@@ -54,13 +50,9 @@ public class VolumeRepository extends StatisticalRepository {
 	 */
 	public DataVolume findDataVolume(String volumeCode) {
 		DataVolume dataVolume = dataSourceTemplate.findDataVolume(volumeCode);
-		if (dataVolume == null) {
-			throw new RepositoryException("数据集不存在");
-		}
+		Validators.notNull(dataVolume, "数据集存在");
 		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(dataVolume.getVolumeCode());
-		if (dataColumns == null || dataColumns.isEmpty()) {
-			throw new RepositoryException(String.format("数据集%s数据字段不存在", dataVolume.getVolumeCode()));
-		}
+		Validators.isFalse(dataColumns == null || dataColumns.isEmpty(), String.format("数据集%s数据字段不存在", dataVolume.getVolumeCode()));
 		dataVolume.setDataColumns(dataColumns);
 		return dataVolume;
 	}
@@ -81,13 +73,9 @@ public class VolumeRepository extends StatisticalRepository {
 	 * @param columnVolume 数据集配置
 	 */
 	public void storeColumnVolume(ColumnVolume columnVolume) {
-		if (columnVolume == null) {
-			throw new RepositoryException("字段数据集不能为空");
-		}
+		Validators.notNull(columnVolume, "字段数据集不能为空");
 		Database database = dataSourceTemplate.findDatabase(columnVolume.getDbName());
-		if (database == null) {
-			throw new RepositoryException(String.format("数据源%s不存在", columnVolume.getDbName()));
-		}
+		Validators.notNull(database, String.format("数据源%s不存在", columnVolume.getDbName()));
 		try {
 			dataSourceTemplate.storeColumnVolume(columnVolume);
 		} catch (DuplicateKeyException keyException) {
@@ -114,13 +102,9 @@ public class VolumeRepository extends StatisticalRepository {
 	 */
 	public ColumnVolume findColumnVolume(String columnCode) {
 		ColumnVolume columnVolume = dataSourceTemplate.findColumnVolume(columnCode);
-		if (columnVolume == null) {
-			throw new RepositoryException(String.format("字段数据集不存在,字段编码:%s", columnCode));
-		}
+		Validators.notNull(columnVolume, "字段数据集不存在");
 		List<DataColumn> dataColumns = dataSourceTemplate.queryDataColumn(columnVolume.getVolumeCode());
-		if (dataColumns == null || dataColumns.isEmpty()) {
-			throw new RepositoryException(String.format("数据集%s数据字段不存在", columnVolume.getVolumeCode()));
-		}
+		Validators.isFalse(dataColumns == null || dataColumns.isEmpty(), String.format("数据集%s数据字段不存在", columnVolume.getVolumeCode()));
 		columnVolume.setDataColumns(dataColumns);
 		return columnVolume;
 	}
@@ -133,9 +117,7 @@ public class VolumeRepository extends StatisticalRepository {
 	 */
 	public DataColumn findDataColumn(String volumeCode, String columnCode) {
 		DataColumn dataColumn = dataSourceTemplate.findDataColumn(volumeCode, columnCode);
-		if (dataColumn == null) {
-			throw new RepositoryException("数据字段不存在");
-		}
+		Validators.notNull(dataColumn, "数据集字段不存在");
 		return dataColumn;
 	}
 }

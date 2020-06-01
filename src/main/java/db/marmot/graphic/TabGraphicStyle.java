@@ -1,7 +1,6 @@
 package db.marmot.graphic;
 
 import db.marmot.enums.TotalType;
-import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import lombok.Getter;
 import lombok.Setter;
@@ -154,19 +153,9 @@ public class TabGraphicStyle extends GraphicStyle {
 	@Override
 	public void validateGraphicStyle() {
 		Validators.assertJSR303(this);
-		if (columnSubtotal && StringUtils.isBlank(subtotalAlias)) {
-			throw new ValidateException("小计别名不能为空");
-		}
-		if (rowTotal) {
-			if (rowTotalType == null) {
-				throw new ValidateException("行合计方式不能为空");
-			}
-			if (StringUtils.isBlank(rowTotalAlias)) {
-				throw new ValidateException("行合计别名不能为空");
-			}
-		}
-		if (columnTotal && StringUtils.isBlank(columnTotalAlias)) {
-			throw new ValidateException("列合计别名不能为空");
-		}
+		Validators.isFalse(rowTotal && rowTotalType == null, "行合计方式不能为空");
+		Validators.isFalse(columnSubtotal && StringUtils.isBlank(subtotalAlias), "小计别名不能为空");
+		Validators.isFalse(rowTotal && StringUtils.isBlank(rowTotalAlias), "行合计方式不能为空");
+		Validators.isFalse(columnTotal && StringUtils.isBlank(columnTotalAlias), "列合计别名不能为空");
 	}
 }

@@ -95,21 +95,15 @@ public class ColumnVolume {
 	
 	public void validateColumnVolume(Database database) {
 		Validators.assertJSR303(this);
-		if (volumeType == VolumeType.model) {
-			throw new ValidateException("字段数据集不支持模型");
-		}
-		if (dataColumns == null || dataColumns.isEmpty()) {
-			throw new ValidateException("字段数据集数据字段不能为空");
-		}
+		Validators.notNull(dataColumns, "字段数据集数据字段不能为空");
+		Validators.isTrue(volumeType != VolumeType.model, "字段数据集不支持模型");
 		if (volumeType == VolumeType.sql) {
 			Validators.validateSqlSelect(database.getDbType(), this.script);
 		}
 		if (volumeType == VolumeType.enums) {
 			try {
 				Class enumClass = Class.forName(script);
-				if (!enumClass.isEnum() || !ColumnEnum.class.isAssignableFrom(enumClass)) {
-					throw new ValidateException("class 必须是枚举并且必须实现 ColumnEnum");
-				}
+				Validators.isTrue(enumClass.isEnum() && ColumnEnum.class.isAssignableFrom(enumClass), "class 必须是枚举并且必须实现 ColumnEnum");
 			} catch (ClassNotFoundException e) {
 				throw new ValidateException("枚举类不存在");
 			}

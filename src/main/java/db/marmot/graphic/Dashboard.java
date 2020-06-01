@@ -71,8 +71,6 @@ public class Dashboard {
 	
 	public void validateDashboard(DataVolume dataVolume) {
 		Validators.assertJSR303(this);
-		if (CollectionUtils.isNotEmpty(graphicDesigns)) {
-			graphicDesigns.forEach(graphicDesign -> graphicDesign.validateGraphicDesign(dataVolume));
-		}
+		Validators.isTrue(CollectionUtils.isNotEmpty(graphicDesigns), () -> graphicDesigns.forEach(graphicDesign -> graphicDesign.validateGraphicDesign(dataVolume)));
 	}
 }

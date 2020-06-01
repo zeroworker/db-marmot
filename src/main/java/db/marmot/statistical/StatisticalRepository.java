@@ -3,6 +3,7 @@ package db.marmot.statistical;
 import db.marmot.graphic.GraphicRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
+import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.volume.DataVolume;
 import org.springframework.dao.DuplicateKeyException;
@@ -22,13 +23,9 @@ public class StatisticalRepository extends GraphicRepository {
 	 * 保存统计模型
 	 */
 	public void storeStatisticalModel(StatisticalModel statisticalModel) {
-		if (statisticalModel == null) {
-			throw new RepositoryException("统计模型不能为空");
-		}
+		Validators.notNull(statisticalModel, "统计模型不能为空");
 		DataVolume dataVolume = dataSourceTemplate.findDataVolume(statisticalModel.getVolumeCode());
-		if (dataVolume == null) {
-			throw new RepositoryException(String.format("数据集%不存在", dataVolume.getVolumeCode()));
-		}
+		Validators.notNull(dataVolume, "数据集%不存在", dataVolume.getVolumeCode());
 		statisticalModel.validateStatisticalModel(dataVolume);
 		try {
 			dataSourceTemplate.storeStatisticalModel(statisticalModel);
@@ -44,9 +41,7 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public StatisticalModel findStatisticalModel(String modelName) {
 		StatisticalModel statisticalModel = dataSourceTemplate.findStatisticalModel(modelName);
-		if (statisticalModel == null) {
-			throw new RepositoryException(String.format("统计模型%s不存在", statisticalModel.getModelName()));
-		}
+		Validators.notNull(statisticalModel, "统计模型%s不存在", modelName);
 		return statisticalModel;
 	}
 	
@@ -64,9 +59,7 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public void updateStatisticalModelCalculateIng(StatisticalModel statisticalModel) {
 		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), true);
-		if (originalStatisticalModel == null) {
-			throw new RepositoryException(String.format("统计模型%s不存在或者未计算完成", statisticalModel.getModelName()));
-		}
+		Validators.notNull(originalStatisticalModel, "统计模型%s不存在或者未计算完成", statisticalModel.getModelName());
 		statisticalModel.setCalculated(false);
 		dataSourceTemplate.updateStatisticalModel(statisticalModel);
 	}
@@ -77,14 +70,10 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public void updateStatisticalModelCalculated(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
-		if (originalStatisticalModel == null) {
-			throw new RepositoryException(String.format("未获取到计算中模型%s", statisticalModel.getModelName()));
-		}
-		
+		Validators.notNull(originalStatisticalModel, "未获取到计算中模型%s", statisticalModel.getModelName());
 		if (!originalStatisticalModel.isCalculated()) {
 			statisticalModel.setCalculated(true);
 			dataSourceTemplate.updateStatisticalModel(statisticalModel);
-			
 		}
 		if (temporaryMemory.hashMemoryStatistics()) {
 			temporaryMemory.getMemoryStatistics().values().forEach(data -> {
@@ -95,7 +84,6 @@ public class StatisticalRepository extends GraphicRepository {
 				dataSourceTemplate.updateStatisticalData(data);
 			});
 		}
-		
 		if (temporaryMemory.hashMemoryDistinct()) {
 			temporaryMemory.getMemoryDistinct().values().forEach(distinct -> {
 				if (dataSourceTemplate.findStatisticalDistinct(distinct.getRowKey(), distinct.getDistinctColumn()) == null) {
@@ -105,7 +93,6 @@ public class StatisticalRepository extends GraphicRepository {
 				dataSourceTemplate.updateStatisticalDistinct(distinct);
 			});
 		}
-		
 		if (temporaryMemory.hashThisTask()) {
 			StatisticalTask statisticalTask = dataSourceTemplate.findStatisticalTask(temporaryMemory.getThisTask().getModelName());
 			if (temporaryMemory.hashNextTask()) {
@@ -115,7 +102,6 @@ public class StatisticalRepository extends GraphicRepository {
 				dataSourceTemplate.updateStatisticalTask(statisticalTask);
 			}
 		}
-		
 		if (temporaryMemory.hashNextTask()) {
 			dataSourceTemplate.storeStatisticalTask(temporaryMemory.getNextTask());
 		}

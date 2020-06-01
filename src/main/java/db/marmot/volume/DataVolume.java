@@ -2,7 +2,6 @@ package db.marmot.volume;
 
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.VolumeType;
-import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import lombok.Getter;
 import lombok.Setter;
@@ -82,20 +81,18 @@ public class DataVolume {
 	private List<DataColumn> dataColumns = new ArrayList<>();
 	
 	public void validateVolumeLimit(int validateLimit) {
-		if (validateLimit > this.volumeLimit) {
-			throw new ValidateException(String.format("支持最大数据行为:%s", this.volumeLimit));
-		}
+		Validators.isFalse(validateLimit > this.volumeLimit, "支持最大数据行为:%s", this.volumeLimit);
 	}
 	
 	public void validateDataVolume(Database database) {
 		Validators.assertJSR303(this);
-		if (volumeType == VolumeType.model){
-			findDateDataColumn();
-			findIndexDataColumn();
-		}
 		dataColumns.forEach(DataColumn::validateDataColumn);
 		Validators.validateSqlSelect(database.getDbType(), this.sqlScript);
 		Validators.isTrue(volumeType != VolumeType.enums, "数据集不支持枚举");
+		Validators.isTrue(volumeType == VolumeType.model, () -> {
+			findDateDataColumn();
+			findIndexDataColumn();
+		});
 	}
 	
 	public DataColumn findDataColumn(String columnCode, ColumnType columnType) {
@@ -106,12 +103,8 @@ public class DataVolume {
 				break;
 			}
 		}
-		if (dataColumn == null) {
-			throw new ValidateException(String.format("字段%s在数据集字段中不存在", columnCode));
-		}
-		if (columnType != null && columnType != dataColumn.getColumnType()) {
-			throw new ValidateException(String.format("字段%s字段类型与数据集字段类型不匹配", columnCode));
-		}
+		Validators.notNull(dataColumn, "字段%s在数据集字段中不存在", columnCode);
+		Validators.isFalse(columnType != null && columnType != dataColumn.getColumnType(), "字段%s字段类型与数据集字段类型不匹配", columnCode);
 		return dataColumn;
 	}
 	
@@ -121,17 +114,13 @@ public class DataVolume {
 	
 	public DataColumn findIndexDataColumn() {
 		Stream<DataColumn> stream = dataColumns.stream().filter(DataColumn::isColumnIndex);
-		if (stream.count() != 1) {
-			throw new ValidateException("数据集必须存在唯一的角标字段");
-		}
+		Validators.isTrue(stream.count() == 1, "数据集必须存在唯一的角标字段");
 		return stream.findFirst().get();
 	}
 	
 	public DataColumn findDateDataColumn() {
 		Stream<DataColumn> stream = dataColumns.stream().filter(dataColumn -> dataColumn.getColumnType() == ColumnType.date);
-		if (stream.count() != 1) {
-			throw new ValidateException("数据集必须存在唯一的时间字段");
-		}
+		Validators.isTrue(stream.count() == 1, "数据集必须存在唯一的时间字段");
 		return stream.findFirst().get();
 	}
 	
