@@ -48,7 +48,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		statisticalModel.setModelId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,running=?,calculated=?,offset_expr=?,index_column=?,time_column=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
+	private static final String STATISTICAL_MODEL_UPDATE_SQL = "update marmot_statistical_model set volume_code =?,model_name=?,running=?,calculated=?,offset_expr=?,window_length=?,window_type=?,window_unit=?,aggregate_columns=?,condition_columns=?,group_columns=?,direction_columns=?,memo=?,raw_update_time=? where model_id = ?";
 	
 	/**
 	 * 更新统计模型
@@ -406,7 +406,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_STORE_SQL = "insert into marmot_statistical_revise_task(volume_code, revise_status,start_index, end_index) values (?,?,?,?)";
+	private static final String STATISTICAL_REVISE_TASK_STORE_SQL = "insert into marmot_statistical_revise_task(volume_code, revise_status,start_index,offset_index, end_index) values (?,?,?,?,?)";
 	
 	/**
 	 * 保存统计订正任务
@@ -421,14 +421,15 @@ public class StatisticalTemplate extends VolumeTemplate {
 				ps.setString(1, reviseTask.getVolumeCode());
 				ps.setString(2, reviseTask.getReviseStatus().getCode());
 				ps.setLong(3, reviseTask.getStartIndex());
-				ps.setLong(4, reviseTask.getEndIndex());
+				ps.setLong(4, reviseTask.getOffsetIndex());
+				ps.setLong(5, reviseTask.getEndIndex());
 				return ps;
 			}
 		}, keyHolder);
 		reviseTask.setTaskId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_UPDATE_SQL = "update marmot_statistical_revise_task set revise_status =? where task_id = ?";
+	private static final String STATISTICAL_REVISE_TASK_UPDATE_SQL = "update marmot_statistical_revise_task set revise_status =?,offset_index=? where task_id = ?";
 	
 	/**
 	 * 更新统计订正任务
@@ -439,6 +440,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				ps.setString(1, reviseTask.getReviseStatus().getCode());
+				ps.setLong(2, reviseTask.getOffsetIndex());
 				ps.setLong(2, reviseTask.getTaskId());
 			}
 		});
@@ -454,7 +456,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		jdbcTemplate.update(STATISTICAL_REVISE_TASK_DELETE_SQL, new Object[] { taskId });
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
+	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
 	
 	/**
 	 * 加载统计订正任务
@@ -470,7 +472,8 @@ public class StatisticalTemplate extends VolumeTemplate {
 				statisticalReviseTask.setVolumeCode(rs.getString(2));
 				statisticalReviseTask.setReviseStatus(ReviseStatus.getByCode(rs.getString(3)));
 				statisticalReviseTask.setStartIndex(rs.getLong(4));
-				statisticalReviseTask.setEndIndex(rs.getLong(5));
+				statisticalReviseTask.setOffsetIndex(rs.getLong(5));
+				statisticalReviseTask.setEndIndex(rs.getLong(6));
 				return statisticalReviseTask;
 			}
 		}));

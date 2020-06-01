@@ -75,12 +75,12 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	}
 
 	@Override
-	public void rollbackStatisticalData() {
+	public void rollbackStatisticalData(String volumeCode, long startIndex, long endIndex) {
 
 	}
 
 	@Override
-	public void reviseStatisticalData() {
+	public void reviseStatisticalData(long taskId) {
 
 	}
 

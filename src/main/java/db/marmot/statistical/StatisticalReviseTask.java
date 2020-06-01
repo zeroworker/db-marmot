@@ -9,8 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 元数据出现数据错误处理步骤:
- * 1.指定元数据数据范围以及数据集->2.添加订正任务->3.指定统计回滚->4.订正元数据->5.执行统计订正
+ * 元数据出现数据错误处理步骤: 1.指定元数据数据范围以及数据集->2.添加订正任务->3.指定统计回滚->4.订正元数据->5.执行统计订正
  * @author shaokang
  */
 @Setter
@@ -33,12 +32,17 @@ public class StatisticalReviseTask {
 	 * 订正状态
 	 */
 	@NotNull
-	private ReviseStatus reviseStatus = ReviseStatus.non_execute;
+	private ReviseStatus reviseStatus = ReviseStatus.roll_backing;
 	
 	/**
 	 * 开始角标
 	 */
 	private long startIndex;
+	
+	/**
+	 * 偏移角标
+	 */
+	private long offsetIndex;
 	
 	/**
 	 * 结束角标
