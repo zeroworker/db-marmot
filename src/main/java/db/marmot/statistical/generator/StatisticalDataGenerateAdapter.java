@@ -6,7 +6,6 @@ import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.AggregateColumn;
 import db.marmot.statistical.StatisticalData;
-import db.marmot.statistical.StatisticalException;
 import db.marmot.statistical.StatisticalModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -78,10 +77,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, Map<String, Object> groupData) {
 		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
-		if (statisticalModel.getWindowUnit() != WindowUnit.non) {
-			throw new StatisticalException(String.format("模型%s非粒度模型", modelName));
-		}
-		
+		Validators.isTrue(statisticalModel.getWindowUnit() == WindowUnit.non,"模型%s非粒度模型",modelName);
 		String rowKey = statisticalModel.createRowKey(groupData, null, 0);
 		StatisticalData statisticalData = dataSourceRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
 		return getAggregateData(statisticalModel, statisticalData);
@@ -212,7 +208,6 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	private List<Integer> calculateThreadModelNum(int modelNum) {
 		int threadNum = maxPoolSize = statisticalThreadPool.getActiveCount();
 		List<Integer> threadsModelNum = new ArrayList<>();
-		
 		for (int i = 0; i < threadNum; i++) {
 			int seqNo = i;
 			int max = modelNum * (seqNo + 1) / threadNum;
@@ -222,7 +217,6 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 				threadsModelNum.add(threadModelNum);
 			}
 		}
-		
 		return threadsModelNum;
 	}
 	
@@ -233,15 +227,12 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	 * @return
 	 */
 	private List<StatisticalModel> createThreadModels(Integer modelNum, Iterator<StatisticalModel> iterator) {
-		
 		List<StatisticalModel> threadModels = new ArrayList<>();
-		
 		for (int i = 0; i < modelNum; i++) {
 			if (iterator.hasNext()) {
 				threadModels.add(iterator.next());
 			}
 		}
-		
 		return threadModels;
 	}
 }

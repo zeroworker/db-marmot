@@ -2,8 +2,12 @@ package db.marmot.statistical;
 
 import com.google.common.base.Splitter;
 
+import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.GraphicCycle;
 import db.marmot.enums.WindowType;
 import db.marmot.enums.WindowUnit;
+import db.marmot.graphic.Graphic;
+import db.marmot.graphic.converter.GraphicCycleConverter;
 import db.marmot.volume.DataVolume;
 
 /**
@@ -67,6 +71,19 @@ public class StatisticalModelBuilder {
 	public StatisticalModelBuilder addDataVolume(DataVolume dataVolume) {
 		this.dataVolume = dataVolume;
 		statisticalModel.setVolumeCode(dataVolume.getVolumeCode());
+		return this;
+	}
+	
+	public StatisticalModelBuilder addGraphic(Graphic graphic) {
+		statisticalModel.setWindowType(WindowType.sliding_time);
+		statisticalModel.setModelName(graphic.getGraphicModel().getModelName());
+		statisticalModel.setOffsetExpr(Splitter.on(",").splitToList(graphic.getGraphicModel().getOffsetExpr()));
+		if (graphic.getGraphicCycle() != GraphicCycle.non) {
+			GraphicCycleConverter graphicCycleConverter = ConverterAdapter.getInstance().getGraphicCycleConverter(graphic.getGraphicCycle());
+			statisticalModel.setWindowUnit(graphicCycleConverter.windowUnit());
+			return this;
+		}
+		statisticalModel.setWindowUnit(WindowUnit.non);
 		return this;
 	}
 	

@@ -5,8 +5,6 @@ import db.marmot.enums.GraphicCycle;
 import db.marmot.enums.GraphicLayout;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.statistical.StatisticalModelBuilder;
 import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,18 +72,7 @@ public abstract class Graphic implements Serializable {
 	public void nextGraphicPage() {
 		this.graphicPage = this.graphicPage + 1;
 	}
-	
-	public String getModelName() {
-		return graphicModel.getModelName();
-	}
-	
-	public StatisticalModel configurationModel(StatisticalModelBuilder builder) {
-		builder.addOffsetExpr(graphicModel.getModelName());
-		StatisticalModel statisticalModel = builder.builder();
-		graphicModel.setModelName(statisticalModel.getModelName());
-		return statisticalModel;
-	}
-	
+
 	public void validateGraphic(DataVolume dataVolume) {
 		Validators.assertJSR303(this);
 		validateModelGraphic(dataVolume);
@@ -95,21 +82,25 @@ public abstract class Graphic implements Serializable {
 		graphicColumn.validateFilterColumn(dataVolume);
 		graphicColumn.validateMeasureColumn(dataVolume);
 	}
-
+	
 	private void validateModelGraphic(DataVolume dataVolume) {
 		List<DimenColumn> dimenColumns = graphicColumn.getDimenColumns();
 		Validators.isTrue(graphicLayout == GraphicLayout.aggregate
-				&& graphicCycle == GraphicCycle.non
-				&& dataVolume.getVolumeType() == VolumeType.model,()-> Validators.isTrue(dimenColumns
-				.stream()
-				.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
-				.count() == 0,"无周期模型聚合图表不允许存在时间维度字段"));
-
+						&& graphicCycle == GraphicCycle.non
+						&& dataVolume.getVolumeType() == VolumeType.model,
+				() -> Validators.isTrue(
+						dimenColumns
+								.stream()
+								.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
+								.count() == 0, "无周期模型聚合图表不允许存在时间维度字段"));
+		
 		Validators.isTrue(graphicLayout == GraphicLayout.aggregate
-				&& graphicCycle != GraphicCycle.non
-				&& dataVolume.getVolumeType() == VolumeType.model,()->
-				Validators.isTrue(dimenColumns.stream()
-						.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
-						.count() == 2,"周期模型聚合图表必须存在唯一时间区间过滤条件"));
+						&& graphicCycle != GraphicCycle.non
+						&& dataVolume.getVolumeType() == VolumeType.model,
+				() -> Validators.isTrue(
+						dimenColumns
+								.stream()
+								.filter(dimenColumn -> dimenColumn.getColumnType() == ColumnType.date)
+								.count() == 2, "周期模型聚合图表必须存在唯一时间区间过滤条件"));
 	}
 }

@@ -1,6 +1,5 @@
 package db.marmot.converter;
 
-import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import db.marmot.enums.*;
 import db.marmot.graphic.converter.*;
 import db.marmot.repository.validate.Validators;
@@ -282,24 +281,6 @@ public class ConverterAdapter {
 	}
 	
 	/**
-	 * 根据运算符获取运算符转换器
-	 * @param operators
-	 * @return
-	 */
-	public OperatorsConverter getOperatorsConverter(SQLBinaryOperator operators) {
-		
-		Validators.notNull(operators, "operators 不能为空");
-		
-		for (OperatorsConverter operatorsConverter : OPERATORS_CONVERTERS.values()) {
-			SQLBinaryOperator sqlBinaryOperator = operatorsConverter.sqlBinaryOperator();
-			if (sqlBinaryOperator != null && sqlBinaryOperator.equals(operators)) {
-				return operatorsConverter;
-			}
-		}
-		throw new ConverterException(String.format("不支持的运算符:%s", operators));
-	}
-	
-	/**
 	 * 根据图表类型获取图表转换器
 	 * @param graphicType
 	 * @return
@@ -356,16 +337,10 @@ public class ConverterAdapter {
 	 * @return
 	 */
 	public SelectSqlBuilderConverter newInstanceSqlBuilder(String sqlType, String sqlScript) {
-		
 		Validators.notNull(sqlType, "sqlType 不能为空");
-		
 		Class sqlBuilderConverterClasses = SELECT_SQL_CONVERTERS.get(sqlType);
-		if (sqlBuilderConverterClasses == null) {
-			throw new ConverterException(String.format("%s select sql 转换器未实现", sqlType));
-		}
-		
+		Validators.notNull(sqlBuilderConverterClasses, "%s select sql 转换器未实现", sqlType);
 		boolean arguments = StringUtils.isNotBlank(sqlScript);
-		
 		try {
 			Constructor<SelectSqlBuilderConverter> constructor = arguments ? sqlBuilderConverterClasses.getConstructor(String.class) : sqlBuilderConverterClasses.getConstructor();
 			SelectSqlBuilderConverter selectSqlBuilderConverter = arguments ? constructor.newInstance(sqlScript) : constructor.newInstance();

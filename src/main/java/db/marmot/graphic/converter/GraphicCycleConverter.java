@@ -3,6 +3,7 @@ package db.marmot.graphic.converter;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import db.marmot.enums.GraphicCycle;
+import db.marmot.enums.WindowUnit;
 
 import java.util.Date;
 
@@ -16,6 +17,12 @@ public interface GraphicCycleConverter {
 	 * @return
 	 */
 	GraphicCycle graphicCycle();
+	
+	/**
+	 * 窗口粒度
+	 * @return
+	 */
+	WindowUnit windowUnit();
 	
 	/**
 	 * 添加查询字段

@@ -4,6 +4,7 @@ import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import db.marmot.enums.GraphicCycle;
+import db.marmot.enums.WindowUnit;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,7 +20,12 @@ public class YearGraphicCycleConverter implements GraphicCycleConverter {
 	public GraphicCycle graphicCycle() {
 		return GraphicCycle.year;
 	}
-	
+
+	@Override
+	public WindowUnit windowUnit() {
+		return WindowUnit.day;
+	}
+
 	@Override
 	public void addSelectItem(MySqlSelectQueryBlock queryBlock, String columnCode) {
 		queryBlock.addSelectItem(new SQLIdentifierExpr("date_format(" + columnCode + ", \"%Y\")"), columnCode);

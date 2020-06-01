@@ -104,7 +104,7 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 		}
 		
 		int offset = Integer.valueOf(converterAdapter.eval(graphic.getGraphicModel().getOffsetExpr()).toString());
-		List<Map<String, Object>> aggregateData = statisticalGenerateAdapter.getAggregateData(graphic.getModelName(), offset, timeGroupData);
+		List<Map<String, Object>> aggregateData = statisticalGenerateAdapter.getAggregateData(graphic.getGraphicModel().getModelName(), offset, timeGroupData);
 		
 		for (int i = 0; i < dimenData.size(); i++) {
 			Map<String, Object> aggregateRowData = aggregateData.get(i);
@@ -132,11 +132,11 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 				.forEach(filterColumn -> timeValue.add((Date)filterColumn.getRightValue()));
 		timeValue.stream().sorted(Date::compareTo).sorted(Comparator.reverseOrder());
 
-		int offset = Integer.valueOf(converterAdapter.eval(graphic.getModelName()).toString());
+		int offset = Integer.valueOf(converterAdapter.eval(graphic.getGraphicModel().getModelName()).toString());
 		//-维度数据循环,补全维度数据统计值
 		for (Map<String, Object> dimenRowData : dimenData) {
 			//获取所有模型维度行度量数据
-			Map<String, Object> aggregateRowData = statisticalGenerateAdapter.getAggregateData(graphic.getModelName(), offset, timeValue.get(1), timeValue.get(0), dimenRowData);
+			Map<String, Object> aggregateRowData = statisticalGenerateAdapter.getAggregateData(graphic.getGraphicModel().getModelName(), offset, timeValue.get(1), timeValue.get(0), dimenRowData);
 			addMeasureData(graphic, dimenRowData, aggregateRowData);
 		}
 		return dimenData;

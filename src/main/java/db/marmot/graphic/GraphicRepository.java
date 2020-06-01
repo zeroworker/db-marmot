@@ -47,9 +47,7 @@ public class GraphicRepository {
 				if (originalDataVolume.getVolumeType() == VolumeType.model) {
 					List<GraphicDesign> graphicDesigns = dataSourceTemplate.queryGraphicDesign(dashboard.getBoardId());
 					if (graphicDesigns != null && graphicDesigns.size() > 0) {
-						graphicDesigns.forEach(graphicDesign -> {
-							dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
-						});
+						graphicDesigns.forEach(graphicDesign -> dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getGraphicModel().getModelName()));
 					}
 				}
 				dataSourceTemplate.deleteGraphicDesignByBoardId(dashboard.getBoardId());
@@ -61,16 +59,21 @@ public class GraphicRepository {
 				try {
 					graphicDesign.setBoardId(dashboard.getBoardId());
 					graphicDesign.setGraphicCode(StringUtils.join(dashboard.getBoardId() + "_" + seqGen.incrementAndGet()));
-					dataSourceTemplate.storeGraphicDesign(graphicDesign);
 					if (dataVolume.getVolumeType() == VolumeType.model) {
-						StatisticalModelBuilder builder = new StatisticalModelBuilder().addMemo(graphicDesign.getGraphicName()).addWindowUnit(WindowUnit.day).addWindowLength(0)
-							.addWindowType(WindowType.simple_time).addModelName(graphicDesign.getGraphicCode()).addDataVolume(dataVolume);
-						dataSourceTemplate.storeStatisticalModel(graphicDesign.getGraphic().configurationModel(builder));
+						graphicDesign.getGraphic().getGraphicModel().setModelName(graphicDesign.getGraphicCode());
+						dataSourceTemplate.storeStatisticalModel(
+								new StatisticalModelBuilder()
+										.addDataVolume(dataVolume)
+										.addGraphic(graphicDesign.getGraphic())
+										.addMemo(graphicDesign.getGraphicName())
+										.builder()
+						);
 					}
+					dataSourceTemplate.storeGraphicDesign(graphicDesign);
 				} catch (DuplicateKeyException keyException) {
 					Validators.isTrue(dataVolume.getVolumeType() != VolumeType.model, "模型统计数据源图表不支持更新");
 					GraphicDesign originalGraphicDesign = dataSourceTemplate.findGraphicDesign(graphicDesign.getGraphicId());
-					Validators.notNull(originalGraphicDesign,"重复图表 %s",graphicDesign.getGraphicName());
+					Validators.notNull(originalGraphicDesign, "重复图表 %s", graphicDesign.getGraphicName());
 					if (dataVolume.getVolumeType() == VolumeType.sql) {
 						dataSourceTemplate.updateGraphicDesign(graphicDesign);
 					}
@@ -89,7 +92,7 @@ public class GraphicRepository {
 			if (deleteGraphicDesign) {
 				dataSourceTemplate.deleteGraphicDesignByGraphicId(graphicDesign.getGraphicId());
 				if (dataVolume.getVolumeType() == VolumeType.model) {
-					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
+					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getGraphicModel().getModelName());
 				}
 			}
 		}
@@ -108,7 +111,7 @@ public class GraphicRepository {
 			List<GraphicDesign> graphicDesigns = dataSourceTemplate.queryGraphicDesign(dashboard.getBoardId());
 			if (graphicDesigns != null && graphicDesigns.size() > 0) {
 				for (GraphicDesign graphicDesign : graphicDesigns) {
-					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getModelName());
+					dataSourceTemplate.deleteStatisticalModel(graphicDesign.getGraphic().getGraphicModel().getModelName());
 				}
 			}
 		}
@@ -170,7 +173,7 @@ public class GraphicRepository {
 	public void updateGraphicDownloadIng(GraphicDownload graphicDownload) {
 		GraphicDownload originalGraphicDownload = dataSourceTemplate.loadGraphicDownload(graphicDownload.getDownloadId());
 		Validators.notNull(graphicDownload, "图表下载任务不存在");
-		Validators.isTrue(originalGraphicDownload.getStatus() == DownloadStatus.download_wait,"图表下载任务非下载等待状态[%s]",originalGraphicDownload.getStatus().getMessage());
+		Validators.isTrue(originalGraphicDownload.getStatus() == DownloadStatus.download_wait, "图表下载任务非下载等待状态[%s]", originalGraphicDownload.getStatus().getMessage());
 		dataSourceTemplate.updateGraphicDownload(graphicDownload.downloadIng());
 	}
 	
