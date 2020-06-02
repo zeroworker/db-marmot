@@ -72,7 +72,8 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public void updateStatisticalModelCalculateIng(StatisticalModel statisticalModel) {
 		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), true);
-		Validators.notNull(originalStatisticalModel, "统计模型%s不存在或者未计算完成", statisticalModel.getModelName());
+		Validators.notNull(originalStatisticalModel, "统计模型%s不存在", statisticalModel.getModelName());
+		Validators.isTrue(originalStatisticalModel.isCalculated(), "统计模型%s未计算完成", statisticalModel.getModelName());
 		statisticalModel.setCalculated(false);
 		dataSourceTemplate.updateStatisticalModel(statisticalModel);
 	}
@@ -81,13 +82,21 @@ public class StatisticalRepository extends GraphicRepository {
 	 * 更新统计模型为计算中状态
 	 * @param statisticalModel
 	 */
-	public void updateStatisticalModelCalculated(StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
+	public void updateStatisticalModelCalculated(StatisticalModel statisticalModel) {
 		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
-		Validators.notNull(originalStatisticalModel, "未获取到计算中模型%s", statisticalModel.getModelName());
+		Validators.notNull(originalStatisticalModel != null, "统计模型%s不存在", statisticalModel.getModelName());
+		Validators.isTrue(!originalStatisticalModel.isCalculated(), "统计模型%s非计算中", statisticalModel.getModelName());
 		if (!originalStatisticalModel.isCalculated()) {
 			statisticalModel.setCalculated(true);
 			dataSourceTemplate.updateStatisticalModel(statisticalModel);
 		}
+	}
+	
+	/**
+	 * 更新统计缓存数据
+	 * @param temporaryMemory
+	 */
+	public void updateStatisticalTemporaryMemory(TemporaryMemory temporaryMemory) {
 		if (temporaryMemory.hashMemoryStatistics()) {
 			temporaryMemory.getMemoryStatistics().values().forEach(data -> {
 				if (dataSourceTemplate.findStatisticalData(data.getModelName(), data.getRowKey()) == null) {
@@ -180,13 +189,13 @@ public class StatisticalRepository extends GraphicRepository {
 		}
 		return statisticalReviseTask;
 	}
-
-	public StatisticalReviseTask findStatisticalReviseTask(long taskId){
+	
+	public StatisticalReviseTask findStatisticalReviseTask(long taskId) {
 		StatisticalReviseTask statisticalReviseTask = dataSourceTemplate.findStatisticalReviseTask(taskId);
-		Validators.notNull(statisticalReviseTask,"统计订正任务不存在");
+		Validators.notNull(statisticalReviseTask, "统计订正任务不存在");
 		return statisticalReviseTask;
 	}
-
+	
 	/**
 	 * 分页查询统计订正任务
 	 * @param volumeCode
@@ -197,5 +206,53 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode, ReviseStatus reviseStatus, int pageNum, int pageSize) {
 		return dataSourceTemplate.queryPageStatisticalReviseTasks(volumeCode, reviseStatus == null ? null : reviseStatus.getCode(), pageNum, pageSize);
+	}
+	
+	/**
+	 * 更新统计订正任务为回滚中
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTaskRollBacking(StatisticalReviseTask reviseTask) {
+		StatisticalReviseTask originalReviseTask = dataSourceTemplate.loadStatisticalReviseTask(reviseTask.getVolumeCode());
+		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
+		Validators.isTrue(originalReviseTask.getReviseStatus() == ReviseStatus.non_execute, "统计订正任务%s非未执行状态", reviseTask.getVolumeCode());
+		reviseTask.setReviseStatus(ReviseStatus.roll_backing);
+		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
+	}
+	
+	/**
+	 * 更新统计订正任务未回滚完成
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTaskRolledBack(StatisticalReviseTask reviseTask) {
+		StatisticalReviseTask originalReviseTask = dataSourceTemplate.loadStatisticalReviseTask(reviseTask.getVolumeCode());
+		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
+		Validators.isTrue(originalReviseTask.getReviseStatus() == ReviseStatus.roll_backing, "统计订正任务%s非回滚中状态", reviseTask.getVolumeCode());
+		reviseTask.setReviseStatus(ReviseStatus.rolled_back);
+		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
+	}
+	
+	/**
+	 * 更新统计订正任务为订正中状态
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTaskRevising(StatisticalReviseTask reviseTask) {
+		StatisticalReviseTask originalReviseTask = dataSourceTemplate.loadStatisticalReviseTask(reviseTask.getVolumeCode());
+		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
+		Validators.isTrue(originalReviseTask.getReviseStatus() == ReviseStatus.rolled_back, "统计订正任务%s非回滚完成状态", reviseTask.getVolumeCode());
+		reviseTask.setReviseStatus(ReviseStatus.revising);
+		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
+	}
+	
+	/**
+	 * 更新统计订正任务为订正完成状态
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTaskRevised(StatisticalReviseTask reviseTask) {
+		StatisticalReviseTask originalReviseTask = dataSourceTemplate.loadStatisticalReviseTask(reviseTask.getVolumeCode());
+		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
+		Validators.isTrue(originalReviseTask.getReviseStatus() == ReviseStatus.revising, "统计订正任务%s非订正中状态", reviseTask.getVolumeCode());
+		reviseTask.setReviseStatus(ReviseStatus.revised);
+		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
 	}
 }

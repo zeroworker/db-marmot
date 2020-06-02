@@ -19,19 +19,18 @@ public class StatisticalDataMergeProcedure implements StatisticalProcedure {
 	
 	private DataSourceRepository dataSourceRepository;
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
-
+	
 	public StatisticalDataMergeProcedure(DataSourceRepository dataSourceRepository) {
 		this.dataSourceRepository = dataSourceRepository;
 	}
-
+	
 	@Override
 	public boolean match(DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		return true;
 	}
 	
 	@Override
-	public void processed(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
-		
+	public void processed(DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		if (temporaryMemory.hashMemoryDistinct()) {
 			Set<String> rowKeys = temporaryMemory.getMemoryDistinct().keySet();
 			for (String rowKey : rowKeys) {
@@ -42,7 +41,6 @@ public class StatisticalDataMergeProcedure implements StatisticalProcedure {
 				}
 			}
 		}
-		
 		if (temporaryMemory.hashMemoryStatistics()) {
 			Set<String> rowKeys = temporaryMemory.getMemoryStatistics().keySet();
 			for (String rowKey : rowKeys) {
@@ -55,6 +53,7 @@ public class StatisticalDataMergeProcedure implements StatisticalProcedure {
 				}
 			}
 		}
+		dataSourceRepository.updateStatisticalTemporaryMemory(temporaryMemory);
 	}
 	
 	@Override

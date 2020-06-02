@@ -23,10 +23,10 @@ import java.util.List;
  */
 @Slf4j
 public class StatisticalDataGenerator implements StatisticalGenerator {
-
+	
 	private DataSourceRepository dataSourceRepository;
 	private List<StatisticalProcedure> statisticalProcedures = new ArrayList<>();
-
+	
 	public StatisticalDataGenerator(DataSourceRepository dataSourceRepository) {
 		this.dataSourceRepository = dataSourceRepository;
 		statisticalProcedures.add(new StatisticalDataFetchProcedure(dataSourceRepository));
@@ -37,37 +37,39 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 	
 	@Override
 	public void execute(List<StatisticalModel> statisticalModels) {
-		for (StatisticalModel statisticalModel : statisticalModels) {
-			if (statisticalModel.isRunning() && !statisticalModel.isCalculated()) {
-				Iterator<StatisticalProcedure> procedures = statisticalProcedures.iterator();
-				TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
+		statisticalModels.forEach(this::execute);
+	}
+	
+	private void execute(StatisticalModel statisticalModel) {
+		try {
+			if (statisticalModel.isRunning() && statisticalModel.isCalculated()) {
+				DataVolume dataVolume = dataSourceRepository.findDataVolume(statisticalModel.getVolumeCode());
+				dataSourceRepository.updateStatisticalModelCalculateIng(statisticalModel);
 				try {
-					dataSourceRepository.updateStatisticalModelCalculateIng(statisticalModel);
-					DataVolume dataVolume = dataSourceRepository.findDataVolume(statisticalModel.getVolumeCode());
-					processedProcedure(procedures, dataVolume,statisticalModel,temporaryMemory);
-				} catch (Exception e) {
-					log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
+					TemporaryMemory temporaryMemory = new StatisticalTemporaryMemory();
+					Iterator<StatisticalProcedure> procedures = statisticalProcedures.iterator();
+					processedProcedure(procedures, dataVolume, statisticalModel, temporaryMemory);
 				} finally {
 					try {
-						dataSourceRepository.updateStatisticalModelCalculated(statisticalModel, temporaryMemory);
+						dataSourceRepository.updateStatisticalModelCalculated(statisticalModel);
 					} catch (Exception e) {
 						log.error("更新模型{}计算完成异常", statisticalModel.getModelName(), e);
 					}
 				}
 			}
+		} catch (Exception e) {
+			log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
 		}
 	}
-
+	
 	@Override
 	public void rollBack(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
-
 	}
-
+	
 	@Override
 	public void revise(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
-
 	}
-
+	
 	/**
 	 * 执行模型统计
 	 * @param iterator
@@ -75,13 +77,13 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 	 * @param statisticalModel
 	 * @param temporaryMemory
 	 */
-	private void processedProcedure(Iterator<StatisticalProcedure> iterator,DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
+	private void processedProcedure(Iterator<StatisticalProcedure> iterator, DataVolume dataVolume, StatisticalModel statisticalModel, TemporaryMemory temporaryMemory) {
 		if (iterator.hasNext()) {
 			StatisticalProcedure procedure = iterator.next();
-			if (procedure.match(dataVolume,statisticalModel, temporaryMemory)) {
-				procedure.processed(dataVolume,statisticalModel, temporaryMemory);
+			if (procedure.match(dataVolume, statisticalModel, temporaryMemory)) {
+				procedure.processed(dataVolume, statisticalModel, temporaryMemory);
 			}
-			processedProcedure(iterator,dataVolume, statisticalModel, temporaryMemory);
+			processedProcedure(iterator, dataVolume, statisticalModel, temporaryMemory);
 		}
 	}
 }
