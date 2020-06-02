@@ -420,7 +420,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_STORE_SQL = "insert into marmot_statistical_revise_task(volume_code, revise_status,start_index,offset_index, end_index) values (?,?,?,?,?)";
+	private static final String STATISTICAL_REVISE_TASK_STORE_SQL = "insert into marmot_statistical_revise_task(volume_code, revise_status,start_index,end_index) values (?,?,?,?)";
 	
 	/**
 	 * 保存统计订正任务
@@ -435,15 +435,14 @@ public class StatisticalTemplate extends VolumeTemplate {
 				ps.setString(1, reviseTask.getVolumeCode());
 				ps.setString(2, reviseTask.getReviseStatus().getCode());
 				ps.setLong(3, reviseTask.getStartIndex());
-				ps.setLong(4, reviseTask.getOffsetIndex());
-				ps.setLong(5, reviseTask.getEndIndex());
+				ps.setLong(4, reviseTask.getEndIndex());
 				return ps;
 			}
 		}, keyHolder);
 		reviseTask.setTaskId(keyHolder.getKey().longValue());
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_UPDATE_SQL = "update marmot_statistical_revise_task set revise_status =?,offset_index=? where task_id = ?";
+	private static final String STATISTICAL_REVISE_TASK_UPDATE_SQL = "update marmot_statistical_revise_task set revise_status =? where task_id = ?";
 	
 	/**
 	 * 更新统计订正任务
@@ -454,7 +453,6 @@ public class StatisticalTemplate extends VolumeTemplate {
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				ps.setString(1, reviseTask.getReviseStatus().getCode());
-				ps.setLong(2, reviseTask.getOffsetIndex());
 				ps.setLong(2, reviseTask.getTaskId());
 			}
 		});
@@ -470,7 +468,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		jdbcTemplate.update(STATISTICAL_REVISE_TASK_DELETE_SQL, new Object[] { taskId });
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_FIND_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where task_id=? ";
+	private static final String STATISTICAL_REVISE_TASK_FIND_SQL = "select task_id, volume_code, revise_status, start_index, end_index from marmot_statistical_revise_task where task_id=? ";
 	
 	/**
 	 * 获取统计订正任务
@@ -486,7 +484,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 
-	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
+	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
 
 	/**
 	 * 加载统计订正任务
@@ -513,7 +511,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode,String reviseStatus,int pageNum, int pageSize){
 		SelectSqlBuilderConverter sqlBuilder =
 				converterAdapter.newInstanceSqlBuilder(dbType,
-						"select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task")
+						"select task_id, volume_code, revise_status, start_index, end_index from marmot_statistical_revise_task")
 		.addCondition(Operators.equals,ColumnType.string,"volume_code",volumeCode)
 		.addCondition(Operators.equals,ColumnType.string,"revise_status",reviseStatus)
 		.addLimit(pageNum,pageSize);
@@ -531,8 +529,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		statisticalReviseTask.setVolumeCode(rs.getString(2));
 		statisticalReviseTask.setReviseStatus(ReviseStatus.getByCode(rs.getString(3)));
 		statisticalReviseTask.setStartIndex(rs.getLong(4));
-		statisticalReviseTask.setOffsetIndex(rs.getLong(5));
-		statisticalReviseTask.setEndIndex(rs.getLong(6));
+		statisticalReviseTask.setEndIndex(rs.getLong(5));
 		return statisticalReviseTask;
 	}
 }

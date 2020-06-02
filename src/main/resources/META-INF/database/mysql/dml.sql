@@ -167,7 +167,6 @@ create table marmot_statistical_revise_task
     volume_code varchar(128)              not null comment '数据集编码',
     revise_status varchar(128)              not null comment '订正状态',
     start_index long                      not null comment '开始角标',
-    offset_index long                      not null comment '偏移角标',
     end_index   long                      not null comment '结束角标',
     constraint `primary` primary key (`task_id`),
     unique key `statistical_revise_task_volume` (`volume_code`)

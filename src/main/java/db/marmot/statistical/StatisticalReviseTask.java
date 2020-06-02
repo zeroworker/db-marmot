@@ -39,12 +39,7 @@ public class StatisticalReviseTask {
 	 * 开始角标
 	 */
 	private long startIndex;
-	
-	/**
-	 * 偏移角标
-	 */
-	private long offsetIndex;
-	
+
 	/**
 	 * 结束角标
 	 */
@@ -52,8 +47,8 @@ public class StatisticalReviseTask {
 	
 	public void validateStatisticalReviseTask() {
 		Validators.assertJSR303(this);
-		Validators.isTrue(offsetIndex == 0, "offsetIndex必须为零");
-		Validators.isTrue(startIndex <= endIndex, "startIndex <= endIndex");
+		Validators.isTrue(startIndex <= endIndex, "startIndex 不能大于 endIndex");
+		Validators.isTrue(endIndex - startIndex <= 10000, "角标范围不大于10000");
 		Validators.isTrue(reviseStatus == ReviseStatus.non_execute, "订正状态必须为:non_execute");
 	}
 }
