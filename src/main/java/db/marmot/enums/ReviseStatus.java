@@ -5,6 +5,8 @@ package db.marmot.enums;
  */
 public enum ReviseStatus {
 		
+		non_execute("non_execute", "未执行"),
+
 		roll_backing("roll_backing", "回滚中"),
 		
 		rolled_back("rolled_back", "已回滚"),

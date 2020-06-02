@@ -15,15 +15,12 @@ public interface StatisticalGenerateAdapter {
 	void generateStatisticalData();
 	
 	/**
-	 * 回滚统计数据 存在元数据订正时,请先回滚统计数据 在执行元数据订正
-	 * @param volumeCode
-	 * @param startIndex
-	 * @param endIndex
+	 * 回滚统计数据 存在元数据订正任务时 定时任务执行
 	 */
-	void rollbackStatisticalData(String volumeCode, long startIndex, long endIndex);
+	void rollbackStatisticalData();
 	
 	/**
-	 * 订正统计数据 元数据订正完成，执行统计数据订正
+	 * 订正统计数据 元数据订正完成,根据指定的任务ID执行数据订正处理
 	 * @param taskId
 	 */
 	void reviseStatisticalData(long taskId);

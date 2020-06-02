@@ -31,14 +31,12 @@ public class DatabaseTemplate {
 	protected String dbType;
 	protected JdbcTemplate jdbcTemplate;
 	protected ConverterAdapter converterAdapter;
-	protected NamedParameterJdbcTemplate parameterJdbcTemplate;
 	private Map<String, JdbcTemplate> jdbcTemplates = new HashMap<>();//数据源
 	
 	public DatabaseTemplate(DataSource dataSource) {
 		Validators.notNull(dataSource, "dataSource 不能为空");
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.converterAdapter = ConverterAdapter.getInstance();
-		this.parameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		Database database = new Database(dataSource);
 		this.dbType = database.getDbType();
 		addJdbcTemplate(database.getName(), this.jdbcTemplate);

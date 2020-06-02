@@ -4,13 +4,17 @@ import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
+import db.marmot.statistical.DirectionColumn;
 import db.marmot.volume.DataVolume;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shaokang
@@ -31,6 +35,12 @@ public class GraphicModel implements Serializable {
 	@NotBlank
 	private String offsetExpr = "0*60*60*1000+0*60*1000+0*1000";
 	
+	/**
+	 * 统计方向
+	 */
+	@NotNull
+	private List<DirectionColumn> directionColumns = new ArrayList<>();
+	
 	public void validateGraphicModel(DataVolume dataVolume) {
 		if (dataVolume.getVolumeType() == VolumeType.model) {
 			Validators.assertJSR303(this);
@@ -41,6 +51,7 @@ public class GraphicModel implements Serializable {
 					throw new ValidateException(String.format("无法解析偏移量表达式:%s", offsetExpr));
 				}
 			}
+			directionColumns.forEach(directionColumn -> directionColumn.validateDirectionColumn(dataVolume));
 		}
 	}
 }

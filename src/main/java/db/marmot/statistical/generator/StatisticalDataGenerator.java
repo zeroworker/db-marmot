@@ -2,6 +2,7 @@ package db.marmot.statistical.generator;
 
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.StatisticalModel;
+import db.marmot.statistical.StatisticalReviseTask;
 import db.marmot.statistical.generator.memory.StatisticalTemporaryMemory;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.statistical.generator.procedure.StatisticalDataCalculateProcedure;
@@ -56,7 +57,17 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 			}
 		}
 	}
-	
+
+	@Override
+	public void rollBack(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
+
+	}
+
+	@Override
+	public void revise(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
+
+	}
+
 	/**
 	 * 执行模型统计
 	 * @param iterator

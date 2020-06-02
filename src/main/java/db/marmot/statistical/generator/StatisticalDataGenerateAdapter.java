@@ -40,15 +40,15 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	private ThreadPoolTaskExecutor statisticalThreadPool;
 	private final ReentrantLock lock = new ReentrantLock();
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
-
+	
 	public StatisticalDataGenerateAdapter(int maxPoolSize, DataSourceRepository dataSourceRepository) {
 		this.maxPoolSize = maxPoolSize;
 		this.dataSourceRepository = dataSourceRepository;
 	}
-
+	
 	@Override
 	public void generateStatisticalData() {
-		if (lock.isLocked()){
+		if (lock.isLocked()) {
 			return;
 		}
 		lock.lock();
@@ -73,21 +73,21 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 			lock.unlock();
 		}
 	}
-
+	
 	@Override
-	public void rollbackStatisticalData(String volumeCode, long startIndex, long endIndex) {
-
+	public void rollbackStatisticalData() {
+		
 	}
-
+	
 	@Override
 	public void reviseStatisticalData(long taskId) {
-
+		
 	}
-
+	
 	@Override
 	public Map<String, Object> getAggregateData(String modelName, Map<String, Object> groupData) {
 		StatisticalModel statisticalModel = dataSourceRepository.findStatisticalModel(modelName);
-		Validators.isTrue(statisticalModel.getWindowUnit() == WindowUnit.non,"模型%s非粒度模型",modelName);
+		Validators.isTrue(statisticalModel.getWindowUnit() == WindowUnit.non, "模型%s非粒度模型", modelName);
 		String rowKey = statisticalModel.createRowKey(groupData, null, 0);
 		StatisticalData statisticalData = dataSourceRepository.findStatisticalData(statisticalModel.getModelName(), rowKey);
 		return getAggregateData(statisticalModel, statisticalData);

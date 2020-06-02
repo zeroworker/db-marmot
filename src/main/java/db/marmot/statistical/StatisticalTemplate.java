@@ -2,9 +2,8 @@ package db.marmot.statistical;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import db.marmot.enums.ReviseStatus;
-import db.marmot.enums.WindowType;
-import db.marmot.enums.WindowUnit;
+import db.marmot.converter.SelectSqlBuilderConverter;
+import db.marmot.enums.*;
 import db.marmot.volume.VolumeTemplate;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -15,7 +14,6 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +27,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 		super(dataSource);
 	}
 	
-	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name, running, calculated, offset_expr,index_column, time_column, window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String STATISTICAL_MODEL_STORE_SQL = "insert into marmot_statistical_model(volume_code, model_name, running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	/**
 	 * 保存统计模型
@@ -111,6 +109,22 @@ public class StatisticalTemplate extends VolumeTemplate {
 				return buildStatisticalModel(rs);
 			}
 		}));
+	}
+	
+	private static final String STATISTICAL_MODEL_FIND_VOLUME_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where volume_code=?";
+	
+	/**
+	 * 根据数据集编码称加载统计模型
+	 * @param volumeCode
+	 * @return
+	 */
+	public List<StatisticalModel> findStatisticalModels(String volumeCode) {
+		return jdbcTemplate.query(STATISTICAL_MODEL_FIND_VOLUME_SQL, new Object[] { volumeCode }, new RowMapper<StatisticalModel>() {
+			@Override
+			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return buildStatisticalModel(rs);
+			}
+		});
 	}
 	
 	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
@@ -223,8 +237,6 @@ public class StatisticalTemplate extends VolumeTemplate {
 		}));
 	}
 	
-	private static final String STATISTICAL_DATA_FIND_IN_SQL = "select data_id, model_name, row_key, aggregate_data, group_columns, time_unit, raw_update_time from marmot_statistical_data where model_name= :modelName and row_key in (:rowKeys)";
-	
 	/**
 	 * 获取统计数据
 	 * @param modelName
@@ -232,10 +244,12 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public List<StatisticalData> findStatisticalData(String modelName, List<String> rowKeys) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("modelName", modelName);
-		params.put("rowKeys", rowKeys);
-		return parameterJdbcTemplate.query(STATISTICAL_DATA_FIND_IN_SQL, params, new RowMapper<StatisticalData>() {
+		SelectSqlBuilderConverter sqlBuilder =
+				converterAdapter.newInstanceSqlBuilder(dbType,
+						"select data_id, model_name, row_key, aggregate_data, group_columns, time_unit, raw_update_time from marmot_statistical_data")
+				.addCondition(Operators.equals, ColumnType.string,"model_name",modelName)
+				.addCondition(Operators.in,ColumnType.string,"row_key",rowKeys);
+		return jdbcTemplate.query(sqlBuilder.toSql(), new RowMapper<StatisticalData>() {
 			@Override
 			public StatisticalData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalData(rs);
@@ -467,15 +481,42 @@ public class StatisticalTemplate extends VolumeTemplate {
 		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_LOAD_SQL, new Object[] { volumeCode }, new RowMapper<StatisticalReviseTask>() {
 			@Override
 			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
-				StatisticalReviseTask statisticalReviseTask = new StatisticalReviseTask();
-				statisticalReviseTask.setTaskId(rs.getLong(1));
-				statisticalReviseTask.setVolumeCode(rs.getString(2));
-				statisticalReviseTask.setReviseStatus(ReviseStatus.getByCode(rs.getString(3)));
-				statisticalReviseTask.setStartIndex(rs.getLong(4));
-				statisticalReviseTask.setOffsetIndex(rs.getLong(5));
-				statisticalReviseTask.setEndIndex(rs.getLong(6));
-				return statisticalReviseTask;
+				return buildStatisticalReviseTask(rs);
 			}
 		}));
+	}
+
+	/**
+	 * 分页查询统计订正任务
+	 * @param volumeCode
+	 * @param reviseStatus
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode,String reviseStatus,int pageNum, int pageSize){
+		SelectSqlBuilderConverter sqlBuilder =
+				converterAdapter.newInstanceSqlBuilder(dbType,
+						"select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task")
+		.addCondition(Operators.equals,ColumnType.string,"volume_code",volumeCode)
+		.addCondition(Operators.equals,ColumnType.string,"revise_status",reviseStatus)
+		.addLimit(pageNum,pageSize);
+		return jdbcTemplate.query(sqlBuilder.toSql(), new RowMapper<StatisticalReviseTask>() {
+			@Override
+			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return buildStatisticalReviseTask(rs);
+			}
+		});
+	}
+
+	private StatisticalReviseTask buildStatisticalReviseTask(ResultSet rs)throws SQLException{
+		StatisticalReviseTask statisticalReviseTask = new StatisticalReviseTask();
+		statisticalReviseTask.setTaskId(rs.getLong(1));
+		statisticalReviseTask.setVolumeCode(rs.getString(2));
+		statisticalReviseTask.setReviseStatus(ReviseStatus.getByCode(rs.getString(3)));
+		statisticalReviseTask.setStartIndex(rs.getLong(4));
+		statisticalReviseTask.setOffsetIndex(rs.getLong(5));
+		statisticalReviseTask.setEndIndex(rs.getLong(6));
+		return statisticalReviseTask;
 	}
 }

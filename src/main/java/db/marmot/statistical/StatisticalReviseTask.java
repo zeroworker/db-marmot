@@ -1,6 +1,7 @@
 package db.marmot.statistical;
 
 import db.marmot.enums.ReviseStatus;
+import db.marmot.repository.validate.Validators;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
@@ -32,7 +33,7 @@ public class StatisticalReviseTask {
 	 * 订正状态
 	 */
 	@NotNull
-	private ReviseStatus reviseStatus = ReviseStatus.roll_backing;
+	private ReviseStatus reviseStatus = ReviseStatus.non_execute;
 	
 	/**
 	 * 开始角标
@@ -48,4 +49,11 @@ public class StatisticalReviseTask {
 	 * 结束角标
 	 */
 	private long endIndex;
+	
+	public void validateStatisticalReviseTask() {
+		Validators.assertJSR303(this);
+		Validators.isTrue(offsetIndex == 0, "offsetIndex必须为零");
+		Validators.isTrue(startIndex <= endIndex, "startIndex <= endIndex");
+		Validators.isTrue(reviseStatus == ReviseStatus.non_execute, "订正状态必须为:non_execute");
+	}
 }

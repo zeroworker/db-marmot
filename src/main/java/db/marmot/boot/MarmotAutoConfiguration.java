@@ -9,6 +9,7 @@ import db.marmot.graphic.generator.GraphicDataGeneratorAdapter;
 import db.marmot.graphic.generator.GraphicGeneratorAdapter;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.DataSourceRepositoryFactoryBean;
+import db.marmot.statistical.contorller.StatisticalControllerAdapter;
 import db.marmot.statistical.generator.StatisticalDataGenerateAdapter;
 import db.marmot.statistical.generator.StatisticalGenerateAdapter;
 import db.marmot.volume.controller.VolumeControllerAdapter;
@@ -83,4 +84,10 @@ public class MarmotAutoConfiguration {
 	public GraphicDownloadControllerAdapter graphicDownloadControllerAdapter(DataSourceRepository dataSourceRepository) {
 		return new GraphicDownloadControllerAdapter(dataSourceRepository);
 	}
+	
+	@Bean
+	public StatisticalControllerAdapter statisticalControllerAdapter(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
+		return new StatisticalControllerAdapter(dataSourceRepository, statisticalGenerateAdapter);
+	}
+	
 }

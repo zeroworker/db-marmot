@@ -84,6 +84,7 @@ public class StatisticalModelBuilder {
 			return this;
 		}
 		statisticalModel.setWindowUnit(WindowUnit.non);
+		statisticalModel.setDirectionColumns(graphic.getGraphicModel().getDirectionColumns());
 		return this;
 	}
 	

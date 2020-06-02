@@ -1,11 +1,13 @@
 package db.marmot.statistical;
 
+import db.marmot.enums.ReviseStatus;
 import db.marmot.graphic.GraphicRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.generator.memory.TemporaryMemory;
 import db.marmot.volume.DataVolume;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
@@ -43,6 +45,17 @@ public class StatisticalRepository extends GraphicRepository {
 		StatisticalModel statisticalModel = dataSourceTemplate.findStatisticalModel(modelName);
 		Validators.notNull(statisticalModel, "统计模型%s不存在", modelName);
 		return statisticalModel;
+	}
+	
+	/**
+	 * 获取模型
+	 * @param volumeCode
+	 * @return
+	 */
+	public List<StatisticalModel> findStatisticalModels(String volumeCode) {
+		List<StatisticalModel> statisticalModels = dataSourceTemplate.findStatisticalModels(volumeCode);
+		Validators.isTrue(CollectionUtils.isNotEmpty(statisticalModels), "数据集%s未配置模型", volumeCode);
+		return statisticalModels;
 	}
 	
 	/**
@@ -144,5 +157,39 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public StatisticalDistinct findStatisticalDistinct(String rowKey, String distinctColumn) {
 		return dataSourceTemplate.findStatisticalDistinct(rowKey, distinctColumn);
+	}
+	
+	/**
+	 * 存储统计订正任务
+	 * @param statisticalReviseTask
+	 * @return
+	 */
+	public StatisticalReviseTask storeStatisticalReviseTask(StatisticalReviseTask statisticalReviseTask) {
+		Validators.notNull(statisticalReviseTask, "统计订正任务不为空");
+		statisticalReviseTask.validateStatisticalReviseTask();
+		DataVolume dataVolume = dataSourceTemplate.findDataVolume(statisticalReviseTask.getVolumeCode());
+		Validators.notNull(dataVolume, "数据集%s不存在", statisticalReviseTask.getVolumeCode());
+		try {
+			dataSourceTemplate.storeStatisticalReviseTask(statisticalReviseTask);
+		} catch (DuplicateKeyException e) {
+			StatisticalReviseTask reviseTask = dataSourceTemplate.loadStatisticalReviseTask(statisticalReviseTask.getVolumeCode());
+			Validators.notNull(reviseTask, "数据集%s对应的统计订正任务不存在", reviseTask);
+			Validators.isTrue(reviseTask.getReviseStatus() == ReviseStatus.revised, "存在数据集%s未完成的统计订正任务", statisticalReviseTask.getVolumeCode());
+			dataSourceTemplate.deleteStatisticalReviseTask(reviseTask.getTaskId());
+			dataSourceTemplate.storeStatisticalReviseTask(statisticalReviseTask);
+		}
+		return statisticalReviseTask;
+	}
+	
+	/**
+	 * 分页查询统计订正任务
+	 * @param volumeCode
+	 * @param reviseStatus
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode, ReviseStatus reviseStatus, int pageNum, int pageSize) {
+		return dataSourceTemplate.queryPageStatisticalReviseTasks(volumeCode, reviseStatus == null ? null : reviseStatus.getCode(), pageNum, pageSize);
 	}
 }
