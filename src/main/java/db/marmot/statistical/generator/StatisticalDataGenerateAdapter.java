@@ -1,13 +1,16 @@
 package db.marmot.statistical.generator;
 
 import db.marmot.converter.ConverterAdapter;
+import db.marmot.enums.ReviseStatus;
 import db.marmot.enums.WindowUnit;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.AggregateColumn;
 import db.marmot.statistical.StatisticalData;
 import db.marmot.statistical.StatisticalModel;
+import db.marmot.statistical.StatisticalReviseTask;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.InitializingBean;
@@ -76,12 +79,31 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public void rollbackStatisticalData() {
-		
+		List<StatisticalReviseTask> statisticalReviseTasks = dataSourceRepository.queryPageStatisticalReviseTasks(null, ReviseStatus.non_execute, 0, 1);
+		if (CollectionUtils.isNotEmpty(statisticalReviseTasks)) {
+			StatisticalReviseTask statisticalReviseTask = statisticalReviseTasks.stream().findFirst().get();
+			List<StatisticalModel> statisticalModels = dataSourceRepository.findStatisticalModels(statisticalReviseTask.getVolumeCode());
+			if (CollectionUtils.isNotEmpty(statisticalModels)) {
+				try {
+					statisticalThreadPool.execute(() -> statisticalGenerator.rollBack(statisticalModels, statisticalReviseTask));
+				} catch (TaskRejectedException taskRejectedException) {
+					log.warn("当前任务繁忙,无可用线程执行统计回滚任务");
+				}
+			}
+		}
 	}
 	
 	@Override
 	public void reviseStatisticalData(long taskId) {
-		
+		StatisticalReviseTask statisticalReviseTask = dataSourceRepository.findStatisticalReviseTask(taskId);
+		List<StatisticalModel> statisticalModels = dataSourceRepository.findStatisticalModels(statisticalReviseTask.getVolumeCode());
+		if (CollectionUtils.isNotEmpty(statisticalModels)) {
+			try {
+				statisticalThreadPool.execute(() -> statisticalGenerator.revise(statisticalModels, statisticalReviseTask));
+			} catch (TaskRejectedException taskRejectedException) {
+				log.warn("当前任务繁忙,无可用线程执行统计订正任务");
+			}
+		}
 	}
 	
 	@Override

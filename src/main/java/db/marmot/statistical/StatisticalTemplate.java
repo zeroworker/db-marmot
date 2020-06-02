@@ -470,8 +470,24 @@ public class StatisticalTemplate extends VolumeTemplate {
 		jdbcTemplate.update(STATISTICAL_REVISE_TASK_DELETE_SQL, new Object[] { taskId });
 	}
 	
-	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
+	private static final String STATISTICAL_REVISE_TASK_FIND_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where task_id=? ";
 	
+	/**
+	 * 获取统计订正任务
+	 * @param taskId
+	 * @return
+	 */
+	public StatisticalReviseTask findStatisticalReviseTask(long taskId) {
+		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_FIND_SQL, new Object[] { taskId }, new RowMapper<StatisticalReviseTask>() {
+			@Override
+			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return buildStatisticalReviseTask(rs);
+			}
+		}));
+	}
+
+	private static final String STATISTICAL_REVISE_TASK_LOAD_SQL = "select task_id, volume_code, revise_status, start_index,offset_index, end_index from marmot_statistical_revise_task where volume_code=? for update";
+
 	/**
 	 * 加载统计订正任务
 	 * @param volumeCode

@@ -180,7 +180,13 @@ public class StatisticalRepository extends GraphicRepository {
 		}
 		return statisticalReviseTask;
 	}
-	
+
+	public StatisticalReviseTask findStatisticalReviseTask(long taskId){
+		StatisticalReviseTask statisticalReviseTask = dataSourceTemplate.findStatisticalReviseTask(taskId);
+		Validators.notNull(statisticalReviseTask,"统计订正任务不存在");
+		return statisticalReviseTask;
+	}
+
 	/**
 	 * 分页查询统计订正任务
 	 * @param volumeCode
