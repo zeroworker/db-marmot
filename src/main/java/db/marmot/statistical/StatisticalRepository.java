@@ -220,7 +220,17 @@ public class StatisticalRepository extends GraphicRepository {
 	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode, ReviseStatus reviseStatus, int pageNum, int pageSize) {
 		return dataSourceTemplate.queryPageStatisticalReviseTasks(volumeCode, reviseStatus == null ? null : reviseStatus.getCode(), pageNum, pageSize);
 	}
-	
+
+	/**
+	 * 更新统计订正任务
+	 * @param reviseTask
+	 */
+	public void updateStatisticalReviseTask(StatisticalReviseTask reviseTask) {
+		StatisticalReviseTask originalReviseTask = dataSourceTemplate.loadStatisticalReviseTask(reviseTask.getVolumeCode());
+		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
+		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
+	}
+
 	/**
 	 * 更新统计订正任务为回滚中
 	 * @param reviseTask

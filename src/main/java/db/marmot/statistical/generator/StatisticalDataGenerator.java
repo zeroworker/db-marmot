@@ -1,5 +1,6 @@
 package db.marmot.statistical.generator;
 
+import db.marmot.enums.ReviseStatus;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.statistical.StatisticalModel;
 import db.marmot.statistical.StatisticalReviseTask;
@@ -58,16 +59,48 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				}
 			}
 		} catch (Exception e) {
-			log.error("执行模型[%s]数据统计异常", statisticalModel.getModelName(), e);
+			log.error("执行模型{}数据统计异常", statisticalModel.getModelName(), e);
 		}
 	}
 	
 	@Override
 	public void rollBack(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
+		try {
+			dataSourceRepository.updateStatisticalReviseTaskRollBacking(reviseTask);
+			try {
+				
+				dataSourceRepository.updateStatisticalReviseTaskRolledBack(reviseTask);
+			} finally {
+				try {
+					reviseTask.setReviseStatus(ReviseStatus.non_execute);
+					dataSourceRepository.updateStatisticalReviseTask(reviseTask);
+				} catch (Exception e) {
+					log.error("更新统计订正任务{}为non_execute异常", reviseTask.getVolumeCode(), e);
+				}
+			}
+		} catch (Exception e) {
+			log.error("统计订正任务{}-执行回滚异常", reviseTask.getVolumeCode());
+		}
 	}
 	
 	@Override
 	public void revise(List<StatisticalModel> statisticalModels, StatisticalReviseTask reviseTask) {
+		try {
+			dataSourceRepository.updateStatisticalReviseTaskRevising(reviseTask);
+			try {
+				
+				dataSourceRepository.updateStatisticalReviseTaskRevised(reviseTask);
+			} finally {
+				try {
+					reviseTask.setReviseStatus(ReviseStatus.rolled_back);
+					dataSourceRepository.updateStatisticalReviseTask(reviseTask);
+				} catch (Exception e) {
+					log.error("更新统计订正任务{}为rolled_back异常", reviseTask.getVolumeCode(), e);
+				}
+			}
+		} catch (Exception e) {
+			log.error("统计订正任务{}-执行订正异常", reviseTask.getVolumeCode());
+		}
 	}
 	
 	/**
