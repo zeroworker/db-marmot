@@ -15,6 +15,11 @@ public interface StatisticalGenerateAdapter {
 	void generateStatisticalData();
 	
 	/**
+	 * 订正统计模型,因出现未知异常导致模型计算状态无法更新，订正计算状态 定时任务执行
+	 */
+	void reviseStatisticalModel();
+	
+	/**
 	 * 回滚统计数据 存在元数据订正任务时 定时任务执行
 	 */
 	void rollbackStatisticalData();

@@ -13,6 +13,8 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -26,7 +28,7 @@ public class StatisticalModel {
 	 * 序列ID
 	 */
 	private long modelId;
-
+	
 	/**
 	 * 数据编码
 	 */
@@ -142,6 +144,12 @@ public class StatisticalModel {
 		}
 		
 		return DigestUtils.md5Hex(rowKeyBuilder.toString());
+	}
+	
+	public boolean revise(LocalDateTime localDateTime, int reviseDelay) {
+		LocalDateTime modelLocalDateTime = rawUpdateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		modelLocalDateTime.plusMinutes(reviseDelay);
+		return modelLocalDateTime.isBefore(localDateTime);
 	}
 	
 	@Override

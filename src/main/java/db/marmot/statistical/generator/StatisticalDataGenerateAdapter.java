@@ -34,16 +34,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapter, ApplicationContextAware, InitializingBean, ApplicationListener<ContextClosedEvent> {
 	
 	private int maxPoolSize;
+	private int reviseDelay;
 	private DataSourceRepository dataSourceRepository;
 	private ApplicationContext applicationContext;
 	private StatisticalGenerator statisticalGenerator;
 	private ThreadPoolTaskExecutor statisticalThreadPool;
+	private final ReentrantLock reviseLock = new ReentrantLock();
 	private final ReentrantLock generateLock = new ReentrantLock();
 	private final ReentrantLock rollbackLock = new ReentrantLock();
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 	
-	public StatisticalDataGenerateAdapter(int maxPoolSize, DataSourceRepository dataSourceRepository) {
+	public StatisticalDataGenerateAdapter(int maxPoolSize, int reviseDelay, DataSourceRepository dataSourceRepository) {
 		this.maxPoolSize = maxPoolSize;
+		this.reviseDelay = reviseDelay;
 		this.dataSourceRepository = dataSourceRepository;
 	}
 	
@@ -68,6 +71,20 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 			log.error("统计数据生成异常", e);
 		}
 		generateLock.unlock();
+	}
+	
+	@Override
+	public void reviseStatisticalModel() {
+		reviseLock.lock();
+		try {
+			List<StatisticalModel> statisticalModels = dataSourceRepository.findReviseStatisticalModels(reviseDelay);
+			if (CollectionUtils.isNotEmpty(statisticalModels)) {
+				statisticalModels.forEach(statisticalModel -> dataSourceRepository.updateStatisticalModelCalculated(statisticalModel));
+			}
+		} catch (Exception e) {
+			log.error("订正统计模型计算状态异常", e);
+		}
+		reviseLock.unlock();
 	}
 	
 	@Override

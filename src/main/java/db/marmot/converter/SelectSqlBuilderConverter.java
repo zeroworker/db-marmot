@@ -27,18 +27,18 @@ public interface SelectSqlBuilderConverter {
 	 * @param graphicCycleConverters
 	 */
 	void setGraphicCycleConverters(Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters);
-	
+
 	/**
-	 * 添加查询table
+	 * 获取数据库时间
 	 * @return
 	 */
-	SelectSqlBuilderConverter addSelectTable(String table);
+	SelectSqlBuilderConverter dataSourceTime();
 
 	/**
 	 * 添加查询table
 	 * @return
 	 */
-	SelectSqlBuilderConverter addSelectTable(String table,String alias);
+	SelectSqlBuilderConverter addSelectTable(String table);
 
 	/**
 	 * 添加条件
@@ -137,7 +137,7 @@ public interface SelectSqlBuilderConverter {
 	 * @param pageSize 每页大小
 	 * @return
 	 */
-	MySqlSelectSqlBuilderConverter addLimit(int pageNum, int pageSize);
+	SelectSqlBuilderConverter addLimit(int pageNum, int pageSize);
 	
 	/**
 	 * 获取sql

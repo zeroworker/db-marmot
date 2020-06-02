@@ -47,7 +47,7 @@ public class MarmotAutoConfiguration {
 	
 	@Bean
 	public StatisticalGenerateAdapter statisticalGenerateAdapter(MarmotProperties properties, DataSourceRepository dataSourceRepository) {
-		return new StatisticalDataGenerateAdapter(properties.getModelThreadSize(), dataSourceRepository);
+		return new StatisticalDataGenerateAdapter(properties.getModelThreadSize(),properties.getModelReviseDelay(), dataSourceRepository);
 	}
 	
 	@Bean

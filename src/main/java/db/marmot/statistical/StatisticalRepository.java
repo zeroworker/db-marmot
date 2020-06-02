@@ -10,7 +10,11 @@ import db.marmot.volume.DataVolume;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.dao.DuplicateKeyException;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author shaokang
@@ -64,6 +68,17 @@ public class StatisticalRepository extends GraphicRepository {
 	 */
 	public List<StatisticalModel> findNormalStatisticalModels() {
 		return dataSourceTemplate.findStatisticalModelByStatus(true, false);
+	}
+	
+	/**
+	 * 获取订正模型模型
+	 * @return
+	 */
+	public List<StatisticalModel> findReviseStatisticalModels(int reviseDelay) {
+		Date dbTime = dataSourceTemplate.getDataSourceTime();
+		LocalDateTime dbLocalDateTime = dbTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		List<StatisticalModel> statisticalModels = dataSourceTemplate.findStatisticalModelByStatus(true, false);
+		return statisticalModels.stream().filter(statisticalModel -> statisticalModel.revise(dbLocalDateTime, reviseDelay)).collect(Collectors.toList());
 	}
 	
 	/**

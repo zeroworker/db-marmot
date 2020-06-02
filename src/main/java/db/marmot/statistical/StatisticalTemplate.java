@@ -87,7 +87,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalModel loadStatisticalModel(long modelId, boolean calculated) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_CALCULATE_SQL, new Object[] { modelId, calculated }, new RowMapper<StatisticalModel>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_MODEL_LOAD_CALCULATE_SQL, new Object[] { modelId, calculated }, new RowMapper<StatisticalModel>() {
 			@Override
 			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalModel(rs);
@@ -103,7 +103,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalModel findStatisticalModel(String modelName) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_MODEL_FIND_SQL, new Object[] { modelName }, new RowMapper<StatisticalModel>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_MODEL_FIND_SQL, new Object[] { modelName }, new RowMapper<StatisticalModel>() {
 			@Override
 			public StatisticalModel mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalModel(rs);
@@ -126,9 +126,9 @@ public class StatisticalTemplate extends VolumeTemplate {
 			}
 		});
 	}
-	
+
 	private static final String STATISTICAL_MODEL_FIND_STATUS_SQL = "select model_id, volume_code, model_name,running, calculated, offset_expr,window_length, window_type,window_unit, aggregate_columns, condition_columns, group_columns, direction_columns, memo, raw_update_time from marmot_statistical_model where running =? and calculated = ?";
-	
+
 	/**
 	 * 获取统计模型
 	 * @param running
@@ -143,7 +143,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 			}
 		});
 	}
-	
+
 	private static final String STATISTICAL_MODEL_DELETE_SQL = "delete from marmot_statistical_model where model_name = ?";
 	
 	/**
@@ -229,7 +229,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalData findStatisticalData(String modelName, String rowKey) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_DATA_FIND_SQL, new Object[] { modelName, rowKey }, new RowMapper<StatisticalData>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_DATA_FIND_SQL, new Object[] { modelName, rowKey }, new RowMapper<StatisticalData>() {
 			@Override
 			public StatisticalData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalData(rs);
@@ -326,7 +326,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalTask findStatisticalTask(String modelName) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_TASK_FIND_MODEL_NAME_SQL, new RowMapper<StatisticalTask>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_TASK_FIND_MODEL_NAME_SQL, new RowMapper<StatisticalTask>() {
 			@Override
 			public StatisticalTask mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalTask(rs);
@@ -342,7 +342,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalTask loadStatisticalTask(long taskId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_TASK_LOAD_SQL, new RowMapper<StatisticalTask>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_TASK_LOAD_SQL, new RowMapper<StatisticalTask>() {
 			@Override
 			public StatisticalTask mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalTask(rs);
@@ -406,7 +406,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalDistinct findStatisticalDistinct(String rowKey, String distinctColumn) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_DISTINCT_FIND_SQL, new Object[] { rowKey, distinctColumn }, new RowMapper<StatisticalDistinct>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_DISTINCT_FIND_SQL, new Object[] { rowKey, distinctColumn }, new RowMapper<StatisticalDistinct>() {
 			@Override
 			public StatisticalDistinct mapRow(ResultSet rs, int rowNum) throws SQLException {
 				StatisticalDistinct statisticalDistinct = new StatisticalDistinct();
@@ -478,7 +478,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalReviseTask findStatisticalReviseTask(long taskId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_FIND_SQL, new Object[] { taskId }, new RowMapper<StatisticalReviseTask>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_FIND_SQL, new Object[] { taskId }, new RowMapper<StatisticalReviseTask>() {
 			@Override
 			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalReviseTask(rs);
@@ -494,7 +494,7 @@ public class StatisticalTemplate extends VolumeTemplate {
 	 * @return
 	 */
 	public StatisticalReviseTask loadStatisticalReviseTask(String volumeCode) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_LOAD_SQL, new Object[] { volumeCode }, new RowMapper<StatisticalReviseTask>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(STATISTICAL_REVISE_TASK_LOAD_SQL, new Object[] { volumeCode }, new RowMapper<StatisticalReviseTask>() {
 			@Override
 			public StatisticalReviseTask mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildStatisticalReviseTask(rs);

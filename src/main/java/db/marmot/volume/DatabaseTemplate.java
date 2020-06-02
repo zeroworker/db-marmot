@@ -148,7 +148,7 @@ public class DatabaseTemplate {
 	 * @return
 	 */
 	public DataRange getDataRange(String dbName, String sqlScript) {
-		return DataAccessUtils.uniqueResult(getJdbcTemplate(dbName).query(sqlScript, new RowMapper<DataRange>() {
+		return DataAccessUtils.singleResult(getJdbcTemplate(dbName).query(sqlScript, new RowMapper<DataRange>() {
 			public DataRange mapRow(ResultSet rs, int rowNum) throws SQLException {
 				DataRange dataRange = new DataRange();
 				dataRange.setMinValue(rs.getLong(1));
@@ -240,7 +240,7 @@ public class DatabaseTemplate {
 	 * @return
 	 */
 	public Database findDatabase(String name) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DATABASE_FIND_NAME_SQL, new Object[] { name }, new RowMapper<Database>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DATABASE_FIND_NAME_SQL, new Object[] { name }, new RowMapper<Database>() {
 			@Override
 			public Database mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDatabase(rs);
@@ -256,7 +256,7 @@ public class DatabaseTemplate {
 	 * @return
 	 */
 	public Database findDatabase(long id) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DATABASE_FIND_ID_SQL, new Object[] { id }, new RowMapper<Database>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DATABASE_FIND_ID_SQL, new Object[] { id }, new RowMapper<Database>() {
 			@Override
 			public Database mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDatabase(rs);

@@ -87,7 +87,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 	 * @param boardId 仪表盘ID
 	 */
 	public Dashboard findDashboard(long boardId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DASH_BOARD_FIND_SQL, new Object[] { boardId }, new RowMapper<Dashboard>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DASH_BOARD_FIND_SQL, new Object[] { boardId }, new RowMapper<Dashboard>() {
 			
 			public Dashboard mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDashboard(rs);
@@ -199,7 +199,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 	 * @return
 	 */
 	public GraphicDesign findGraphicDesign(String graphicCode) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_NAME_SQL, new Object[] { graphicCode }, new RowMapper<GraphicDesign>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_NAME_SQL, new Object[] { graphicCode }, new RowMapper<GraphicDesign>() {
 			
 			public GraphicDesign mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildGraphicDesign(rs);
@@ -215,7 +215,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 	 * @return
 	 */
 	public GraphicDesign findGraphicDesign(long graphicId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_ID_SQL, new Object[] { graphicId }, new RowMapper<GraphicDesign>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(GRAPHIC_DESIGN_FIND_ID_SQL, new Object[] { graphicId }, new RowMapper<GraphicDesign>() {
 			
 			public GraphicDesign mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildGraphicDesign(rs);
@@ -315,7 +315,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 	 * @return
 	 */
 	public GraphicDownload findGraphicDownload(long downloadId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DOWNLOAD_FIND_SQL, new Object[] { downloadId }, new RowMapper<GraphicDownload>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(GRAPHIC_DOWNLOAD_FIND_SQL, new Object[] { downloadId }, new RowMapper<GraphicDownload>() {
 			
 			public GraphicDownload mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildGraphicDownload(rs);
@@ -331,7 +331,7 @@ public class GraphicTemplate extends StatisticalTemplate {
 	 * @return
 	 */
 	public GraphicDownload loadGraphicDownload(long downloadId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(GRAPHIC_DOWNLOAD_LOAD_SQL, new Object[] { downloadId }, new RowMapper<GraphicDownload>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(GRAPHIC_DOWNLOAD_LOAD_SQL, new Object[] { downloadId }, new RowMapper<GraphicDownload>() {
 			
 			public GraphicDownload mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildGraphicDownload(rs);

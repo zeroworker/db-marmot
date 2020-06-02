@@ -80,7 +80,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 * @return
 	 */
 	public DataVolume findDataVolume(String volumeCode) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DATA_VOLUME_FIND_CODE_SQL, new Object[] { volumeCode }, new RowMapper<DataVolume>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DATA_VOLUME_FIND_CODE_SQL, new Object[] { volumeCode }, new RowMapper<DataVolume>() {
 			
 			public DataVolume mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDataVolume(rs);
@@ -162,7 +162,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 * @return
 	 */
 	public DataColumn findDataColumn(long columnId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DATA_COLUMN_FIND_SQL, new Object[] { columnId }, new RowMapper<DataColumn>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DATA_COLUMN_FIND_SQL, new Object[] { columnId }, new RowMapper<DataColumn>() {
 			
 			public DataColumn mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDataColumn(rs);
@@ -179,7 +179,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 * @return
 	 */
 	public DataColumn findDataColumn(String volumeCode, String columnCode) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(DATA_COLUMN_VOLUME_ID_AND_COLUMN_CODE_FIND_SQL, new Object[] { volumeCode, columnCode }, new RowMapper<DataColumn>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(DATA_COLUMN_VOLUME_ID_AND_COLUMN_CODE_FIND_SQL, new Object[] { volumeCode, columnCode }, new RowMapper<DataColumn>() {
 			
 			public DataColumn mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildDataColumn(rs);
@@ -303,7 +303,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 * @return
 	 */
 	public ColumnVolume findColumnVolume(long volumeId) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(COLUMN_VOLUME_FIND_VOLUME_ID__SQL, new Object[] { volumeId }, new RowMapper<ColumnVolume>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(COLUMN_VOLUME_FIND_VOLUME_ID__SQL, new Object[] { volumeId }, new RowMapper<ColumnVolume>() {
 			
 			public ColumnVolume mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildColumnVolume(rs);
@@ -319,7 +319,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 * @return
 	 */
 	public ColumnVolume findColumnVolume(String columnCode) {
-		return DataAccessUtils.uniqueResult(jdbcTemplate.query(COLUMN_VOLUME_FIND_COLUMN_CODE_SQL, new Object[] { columnCode }, new RowMapper<ColumnVolume>() {
+		return DataAccessUtils.singleResult(jdbcTemplate.query(COLUMN_VOLUME_FIND_COLUMN_CODE_SQL, new Object[] { columnCode }, new RowMapper<ColumnVolume>() {
 			
 			public ColumnVolume mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return buildColumnVolume(rs);

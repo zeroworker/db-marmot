@@ -4,6 +4,7 @@ import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLLimit;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumberExpr;
 import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
@@ -17,22 +18,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shaokang
  */
-public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter {
+public class MySqlSelectSqlBuilderConverter extends AbstractSelectSqlBuilderConverter {
 	
 	private String tableAlias = "table_1";
 	private SQLSelect sqlSelect = new SQLSelect();
 	private MySqlSelectQueryBlock queryBlock = new MySqlSelectQueryBlock();
-	private Map<Operators, OperatorsConverter> operatorsConverters;
-	private Map<Aggregates, AggregatesConverter> aggregatesConverters;
-	private Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters;
 	private SQLSelectGroupByClause sqlSelectGroupByClause;
 	private SQLOrderBy sqlOrderBy;
-	
+
 	public MySqlSelectSqlBuilderConverter() {
 	}
 	
@@ -44,31 +41,16 @@ public class MySqlSelectSqlBuilderConverter implements SelectSqlBuilderConverter
 		queryBlock.setFrom(new SQLExprTableSource(new SQLIdentifierExpr("(" + sqlScript + ")"), tableAlias));
 	}
 
-
 	@Override
-	public void setOperatorsConverters(Map<Operators, OperatorsConverter> operatorsConverters) {
-		this.operatorsConverters = operatorsConverters;
-	}
-
-	@Override
-	public void setAggregatesConverters(Map<Aggregates, AggregatesConverter> aggregatesConverters) {
-		this.aggregatesConverters = aggregatesConverters;
-	}
-
-	@Override
-	public void setGraphicCycleConverters(Map<GraphicCycle, GraphicCycleConverter> graphicCycleConverters) {
-		this.graphicCycleConverters = graphicCycleConverters;
+	public SelectSqlBuilderConverter dataSourceTime() {
+		queryBlock.addSelectItem(new SQLMethodInvokeExpr("now()"));
+		queryBlock.setFrom(new SQLExprTableSource(new SQLIdentifierExpr("dual")));
+		return this;
 	}
 
 	@Override
 	public SelectSqlBuilderConverter addSelectTable(String table) {
 		queryBlock.setFrom(new SQLExprTableSource(new SQLIdentifierExpr(table)));
-		return this;
-	}
-
-	@Override
-	public SelectSqlBuilderConverter addSelectTable(String table, String alias) {
-		queryBlock.setFrom(new SQLExprTableSource(new SQLIdentifierExpr(table),alias));
 		return this;
 	}
 

@@ -29,7 +29,12 @@ public class MarmotProperties implements InitializingBean {
 	 * 模型数-统计模型线程最大线程数
 	 */
 	private int modelThreadSize = 50;
-	
+
+	/**
+	 * 模型延时订正时间-单位分钟
+	 */
+	private int modelReviseDelay = 60;
+
 	/**
 	 * 文件路径
 	 */
