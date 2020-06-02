@@ -5,10 +5,7 @@ import db.marmot.enums.ReviseStatus;
 import db.marmot.enums.WindowUnit;
 import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.AggregateColumn;
-import db.marmot.statistical.StatisticalData;
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.statistical.StatisticalReviseTask;
+import db.marmot.statistical.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeansException;
@@ -41,7 +38,8 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	private ApplicationContext applicationContext;
 	private StatisticalGenerator statisticalGenerator;
 	private ThreadPoolTaskExecutor statisticalThreadPool;
-	private final ReentrantLock lock = new ReentrantLock();
+	private final ReentrantLock generateLock = new ReentrantLock();
+	private final ReentrantLock rollbackLock = new ReentrantLock();
 	private ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 	
 	public StatisticalDataGenerateAdapter(int maxPoolSize, DataSourceRepository dataSourceRepository) {
@@ -51,10 +49,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	
 	@Override
 	public void generateStatisticalData() {
-		if (lock.isLocked()) {
-			return;
-		}
-		lock.lock();
+		generateLock.lock();
 		try {
 			List<StatisticalModel> statisticalModels = dataSourceRepository.findNormalStatisticalModels();
 			if (statisticalModels != null && !statisticalModels.isEmpty()) {
@@ -72,36 +67,41 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 		} catch (Exception e) {
 			log.error("统计数据生成异常", e);
 		}
-		if (lock.isLocked()) {
-			lock.unlock();
-		}
+		generateLock.unlock();
 	}
 	
 	@Override
 	public void rollbackStatisticalData() {
-		List<StatisticalReviseTask> statisticalReviseTasks = dataSourceRepository.queryPageStatisticalReviseTasks(null, ReviseStatus.non_execute, 0, 1);
-		if (CollectionUtils.isNotEmpty(statisticalReviseTasks)) {
-			StatisticalReviseTask statisticalReviseTask = statisticalReviseTasks.stream().findFirst().get();
-			List<StatisticalModel> statisticalModels = dataSourceRepository.findStatisticalModels(statisticalReviseTask.getVolumeCode());
-			if (CollectionUtils.isNotEmpty(statisticalModels)) {
-				try {
-					statisticalThreadPool.execute(() -> statisticalGenerator.rollBack(statisticalModels, statisticalReviseTask));
-				} catch (TaskRejectedException taskRejectedException) {
-					log.warn("当前任务繁忙,无可用线程执行统计回滚任务");
+		rollbackLock.lock();
+		try {
+			List<StatisticalReviseTask> statisticalReviseTasks = dataSourceRepository.queryPageStatisticalReviseTasks(null, ReviseStatus.non_execute, 0, 1);
+			if (CollectionUtils.isNotEmpty(statisticalReviseTasks)) {
+				StatisticalReviseTask statisticalReviseTask = statisticalReviseTasks.stream().findFirst().get();
+				List<StatisticalModel> statisticalModels = dataSourceRepository.findStatisticalModels(statisticalReviseTask.getVolumeCode());
+				if (CollectionUtils.isNotEmpty(statisticalModels)) {
+					try {
+						statisticalThreadPool.execute(() -> statisticalGenerator.rollBack(statisticalModels, statisticalReviseTask));
+					} catch (TaskRejectedException taskRejectedException) {
+						log.warn("当前任务繁忙,无可用线程执行统计回滚任务");
+					}
 				}
 			}
+		} catch (Exception e) {
+			log.error("统计订正任务-回滚异常", e);
 		}
+		rollbackLock.unlock();
 	}
 	
 	@Override
 	public void reviseStatisticalData(long taskId) {
 		StatisticalReviseTask statisticalReviseTask = dataSourceRepository.findStatisticalReviseTask(taskId);
+		Validators.isTrue(statisticalReviseTask.getReviseStatus() == ReviseStatus.rolled_back, "统计订正任务未回滚完成");
 		List<StatisticalModel> statisticalModels = dataSourceRepository.findStatisticalModels(statisticalReviseTask.getVolumeCode());
 		if (CollectionUtils.isNotEmpty(statisticalModels)) {
 			try {
 				statisticalThreadPool.execute(() -> statisticalGenerator.revise(statisticalModels, statisticalReviseTask));
 			} catch (TaskRejectedException taskRejectedException) {
-				log.warn("当前任务繁忙,无可用线程执行统计订正任务");
+				throw new StatisticalException("当前任务繁忙,无可用线程执行统计订正任务");
 			}
 		}
 	}

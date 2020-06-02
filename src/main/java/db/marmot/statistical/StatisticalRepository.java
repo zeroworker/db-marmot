@@ -86,10 +86,8 @@ public class StatisticalRepository extends GraphicRepository {
 		StatisticalModel originalStatisticalModel = dataSourceTemplate.loadStatisticalModel(statisticalModel.getModelId(), false);
 		Validators.notNull(originalStatisticalModel != null, "统计模型%s不存在", statisticalModel.getModelName());
 		Validators.isTrue(!originalStatisticalModel.isCalculated(), "统计模型%s非计算中", statisticalModel.getModelName());
-		if (!originalStatisticalModel.isCalculated()) {
-			statisticalModel.setCalculated(true);
-			dataSourceTemplate.updateStatisticalModel(statisticalModel);
-		}
+		statisticalModel.setCalculated(true);
+		dataSourceTemplate.updateStatisticalModel(statisticalModel);
 	}
 	
 	/**
