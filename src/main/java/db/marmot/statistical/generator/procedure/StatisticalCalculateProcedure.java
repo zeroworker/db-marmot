@@ -17,8 +17,12 @@ import java.util.Map;
  */
 public class StatisticalCalculateProcedure extends StatisticalProcedureWrapper {
 	
-	private boolean rollBack;
-	
+	private boolean rollBack = false;
+
+	public StatisticalCalculateProcedure(StatisticalProcedure statisticalProcedure) {
+		super(statisticalProcedure);
+	}
+
 	public StatisticalCalculateProcedure(StatisticalProcedure statisticalProcedure, boolean rollBack) {
 		super(statisticalProcedure);
 		this.rollBack = rollBack;

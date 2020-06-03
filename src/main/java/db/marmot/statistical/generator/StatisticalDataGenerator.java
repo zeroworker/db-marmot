@@ -37,8 +37,10 @@ public class StatisticalDataGenerator implements StatisticalGenerator {
 				try {
 					StatisticalProcedure procedure = new StatisticalDefaultProcedure(
 							new StatisticalCalculateProcedure(
-									new StatisticalMergeProcedure(new StatisticalDefaultStorage(dataVolume, statisticalModel),dataSourceRepository),false)
-							, dataSourceRepository
+									new StatisticalMergeProcedure(
+											new StatisticalDefaultStorage(dataVolume, statisticalModel)
+											,dataSourceRepository)
+							), dataSourceRepository
 					);
 					if (procedure.match()) {
 						procedure.processed();
