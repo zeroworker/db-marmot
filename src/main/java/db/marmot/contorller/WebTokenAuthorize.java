@@ -5,30 +5,16 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import db.marmot.repository.validate.Validators;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author shaokang
  */
 public class WebTokenAuthorize {
 	
-	private static final String audience;
-	private static final String secret;
-	
-	static {
-		audience = "marmot";
-		secret = DigestUtils.md5Hex(
-		        LocalDateTime
-                        .now().
-                        format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + RandomStringUtils.randomAscii(5)
-        );
-	}
-	
+	private static final String audience ="marmot";
+	private static final String secret = "6428d106f78a24743512d6c894881c5a";
+
 	public WebTokenAuthorize() {
 		throw new WebTokenException("WebTokenAuthorize 不允许实例化");
 	}
