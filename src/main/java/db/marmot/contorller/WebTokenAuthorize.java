@@ -37,7 +37,7 @@ public class WebTokenAuthorize {
 		try {
 			jwtVerifier.verify(token);
 		} catch (JWTVerificationException e) {
-			throw new WebTokenException("token 非法", e);
+			throw new WebTokenException("无权限访问", e);
 		}
 	}
 	
