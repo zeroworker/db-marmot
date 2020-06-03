@@ -11,7 +11,7 @@ import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
 import db.marmot.statistical.StatisticalData;
 import db.marmot.statistical.StatisticalDistinct;
-import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.statistical.generator.storage.StatisticalStorage;
 
 /**
  * @author shaokang
@@ -38,17 +38,17 @@ public class CountDistinctAggregatesConverter implements AggregatesConverter {
 	}
 	
 	@Override
-	public void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, Object rightValue, boolean direction) {
+	public void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, Object rightValue, boolean direction) {
 		
 		String aggregateKey = StringUtils.join(aggregates().getCode(), "@", columnCode);
 		
-		if (!temporaryMemory.hashStatisticalDistinct(rowKey)) {
-			temporaryMemory.addStatisticalDistinct(new StatisticalDistinct(rowKey, columnCode));
+		if (!statisticalStorage.hashStatisticalDistinct(rowKey)) {
+			statisticalStorage.addStatisticalDistinct(new StatisticalDistinct(rowKey, columnCode));
 		}
 		
-		StatisticalDistinct distinct = temporaryMemory.getStatisticalDistinct(rowKey);
+		StatisticalDistinct distinct = statisticalStorage.getStatisticalDistinct(rowKey);
 		if (distinct.addDistinctData(rightValue)) {
-			StatisticalData statisticalData = temporaryMemory.getStatisticalData(rowKey);
+			StatisticalData statisticalData = statisticalStorage.getStatisticalData(rowKey);
 			BigDecimal addValue = direction ? new BigDecimal("1") : new BigDecimal("-1");
 			BigDecimal leftValue = statisticalData.putIfPresent(aggregateKey, new BigDecimal(0));
 			statisticalData.addAggregateData(aggregateKey, leftValue.add(addValue));
@@ -56,13 +56,13 @@ public class CountDistinctAggregatesConverter implements AggregatesConverter {
 	}
 	
 	@Override
-	public void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, StatisticalData data) {
-		StatisticalData memoryData = temporaryMemory.getStatisticalData(rowKey);
+	public void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, StatisticalData data) {
+		StatisticalData memoryData = statisticalStorage.getStatisticalData(rowKey);
 		
 		String aggregateKey = StringUtils.join(aggregates().getCode(), "@", columnCode);
 		BigDecimal leftValue = memoryData.getIfPresent(aggregateKey, new BigDecimal(0));
-		if (temporaryMemory.hashStatisticalDistinct(rowKey)) {
-			leftValue = new BigDecimal(temporaryMemory.getStatisticalDistinct(rowKey).getDistinctData().size());
+		if (statisticalStorage.hashStatisticalDistinct(rowKey)) {
+			leftValue = new BigDecimal(statisticalStorage.getStatisticalDistinct(rowKey).getDistinctData().size());
 		}
 		
 		memoryData.addAggregateData(aggregateKey, leftValue);

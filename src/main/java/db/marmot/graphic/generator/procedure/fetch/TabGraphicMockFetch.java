@@ -2,7 +2,6 @@ package db.marmot.graphic.generator.procedure.fetch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
 import db.marmot.graphic.DimenColumn;
@@ -13,6 +12,7 @@ import db.marmot.graphic.generator.TabGraphicData;
 import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
 import org.apache.commons.lang3.StringUtils;
+import org.mvel2.MVEL;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -145,7 +145,7 @@ public class TabGraphicMockFetch extends GraphicMockFetch<TabGraphic, TabGraphic
 		measureColumns.forEach(measureColumn -> {
 			//-度量字段聚合计算处理
 			if (measureColumn.getAggregates() == Aggregates.calculate) {
-				rowData.put(measureColumn.getColumnCode(), ConverterAdapter.getInstance().eval(measureColumn.getCalExpr(), measureColumnsValues));
+				rowData.put(measureColumn.getColumnCode(), MVEL.eval(measureColumn.getCalExpr(), measureColumnsValues));
 				return;
 			}
 			rowData.put(measureColumn.getColumnCode(), measureColumnsValues.get(measureColumn.getColumnCode()));

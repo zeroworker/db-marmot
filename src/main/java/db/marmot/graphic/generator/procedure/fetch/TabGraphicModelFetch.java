@@ -14,6 +14,7 @@ import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.Database;
 import org.apache.commons.lang3.StringUtils;
+import org.mvel2.MVEL;
 
 import java.util.*;
 
@@ -103,7 +104,7 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 			timeGroupData.put((Date) dimenRowData.get(dateDimenColumn.getColumnCode()), dimenRowData);
 		}
 		
-		int offset = Integer.valueOf(converterAdapter.eval(graphic.getGraphicModel().getOffsetExpr()).toString());
+		int offset = Integer.valueOf(MVEL.eval(graphic.getGraphicModel().getOffsetExpr()).toString());
 		List<Map<String, Object>> aggregateData = statisticalGenerateAdapter.getAggregateData(graphic.getGraphicModel().getModelName(), offset, timeGroupData);
 		
 		for (int i = 0; i < dimenData.size(); i++) {
@@ -132,7 +133,7 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 				.forEach(filterColumn -> timeValue.add((Date)filterColumn.getRightValue()));
 		timeValue.stream().sorted(Date::compareTo).sorted(Comparator.reverseOrder());
 
-		int offset = Integer.valueOf(converterAdapter.eval(graphic.getGraphicModel().getModelName()).toString());
+		int offset = Integer.valueOf(MVEL.eval(graphic.getGraphicModel().getModelName()).toString());
 		//-维度数据循环,补全维度数据统计值
 		for (Map<String, Object> dimenRowData : dimenData) {
 			//获取所有模型维度行度量数据
@@ -149,7 +150,7 @@ public class TabGraphicModelFetch extends GraphicModelFetch<TabGraphic, TabGraph
 				dimenRowData.put(measureColumn.getColumnCode(), aggregateRowData.get(measureColumn.getColumnCode()));
 				continue;
 			}
-			dimenRowData.put(measureColumn.getColumnCode(), converterAdapter.eval(measureColumn.getCalExpr(), aggregateRowData));
+			dimenRowData.put(measureColumn.getColumnCode(), MVEL.eval(measureColumn.getCalExpr(), aggregateRowData));
 		}
 	}
 }

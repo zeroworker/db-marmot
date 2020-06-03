@@ -3,6 +3,7 @@ package db.marmot.graphic.generator.procedure;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import db.marmot.converter.ConverterAdapter;
+import db.marmot.converter.StringMark;
 import db.marmot.enums.ColumnType;
 import db.marmot.enums.DataColor;
 import db.marmot.enums.TotalType;
@@ -28,17 +29,17 @@ import java.util.stream.Collectors;
  */
 public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabGraphic, TabGraphicData> {
 	
-	public TabGraphicStructureProcedure(ColumnGeneratorAdapter columnGeneratorFactory) {
-		super(columnGeneratorFactory);
+	public TabGraphicStructureProcedure(ColumnGeneratorAdapter columnGeneratorAdapter) {
+		super(columnGeneratorAdapter);
 	}
 	
 	@Override
 	public void processed(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData) {
 		if (graphic.getGraphicColumn().getDimenColumns().stream().anyMatch(DimenColumn::isColumnToRow)) {
-			new ColumnToRowTabGraphicStructure(graphic, dataVolume, graphicData, columnGeneratorFactory).structureBuild();
+			new ColumnToRowTabGraphicStructure(graphic, dataVolume, graphicData, columnGeneratorAdapter).structureBuild();
 			return;
 		}
-		new NormalTabGraphicStructure(graphic, dataVolume, graphicData, columnGeneratorFactory).structureBuild();
+		new NormalTabGraphicStructure(graphic, dataVolume, graphicData, columnGeneratorAdapter).structureBuild();
 	}
 	
 	public abstract class TabGraphicStructure extends AbstractGraphicStructure<TabGraphic, TabGraphicData> {
@@ -65,7 +66,7 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 						rowData.put(dimenColumn.getColumnCode(), escapeValue);
 					}
 					if (dimenColumn.isColumnMask() && dimenColumn.getColumnType() == ColumnType.string) {
-						rowData.put(dimenColumn.getColumnCode(), ConverterAdapter.Mask.mask((String) value));
+						rowData.put(dimenColumn.getColumnCode(), StringMark.mask((String) value));
 					}
 				});
 			}
@@ -91,8 +92,8 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 	 */
 	public class NormalTabGraphicStructure extends TabGraphicStructure {
 		
-		public NormalTabGraphicStructure(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData, ColumnGeneratorAdapter columnGeneratorFactory) {
-			super(graphic, dataVolume, graphicData, columnGeneratorFactory);
+		public NormalTabGraphicStructure(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData, ColumnGeneratorAdapter columnGeneratorAdapter) {
+			super(graphic, dataVolume, graphicData, columnGeneratorAdapter);
 		}
 		
 		@Override
@@ -181,8 +182,8 @@ public class TabGraphicStructureProcedure extends GraphicStructureProcedure<TabG
 		 */
 		private List<Map<String, Map<String, Object>>> columnToRowData = new ArrayList<>();
 		
-		public ColumnToRowTabGraphicStructure(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData, ColumnGeneratorAdapter columnGeneratorFactory) {
-			super(graphic, dataVolume, graphicData, columnGeneratorFactory);
+		public ColumnToRowTabGraphicStructure(TabGraphic graphic, DataVolume dataVolume, TabGraphicData graphicData, ColumnGeneratorAdapter columnGeneratorAdapter) {
+			super(graphic, dataVolume, graphicData, columnGeneratorAdapter);
 			
 			//-拆分维度 转为正常维度和列转行维度
 			graphic.getGraphicColumn().getDimenColumns().forEach(dimenColumn -> {

@@ -1,28 +1,15 @@
 package db.marmot.statistical.generator.procedure;
 
-import org.springframework.core.Ordered;
-
-import db.marmot.statistical.StatisticalModel;
-import db.marmot.statistical.generator.memory.TemporaryMemory;
-import db.marmot.volume.DataVolume;
+import db.marmot.statistical.generator.storage.StatisticalStorage;
 
 /**
  * @author shaokang
  */
-public interface StatisticalProcedure extends Ordered {
+public interface StatisticalProcedure {
 	
-	/**
-	 * 匹配
-	 * @param statisticalModel
-	 * @param temporaryMemory
-	 * @return
-	 */
-	boolean match(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
+	boolean match();
 	
-	/**
-	 * 处理
-	 * @param statisticalModel
-	 * @param temporaryMemory
-	 */
-	void processed(DataVolume dataVolume,StatisticalModel statisticalModel, TemporaryMemory temporaryMemory);
+	void processed();
+	
+	<T extends StatisticalStorage> T statisticalStorage();
 }

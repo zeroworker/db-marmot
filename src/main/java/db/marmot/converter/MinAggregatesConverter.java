@@ -10,7 +10,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
 import db.marmot.statistical.StatisticalData;
-import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.statistical.generator.storage.StatisticalStorage;
 
 /**
  * @author shaokang
@@ -39,8 +39,8 @@ public class MinAggregatesConverter implements AggregatesConverter {
 	}
 	
 	@Override
-	public void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, Object rightValue, boolean direction) {
-		StatisticalData statisticalData = temporaryMemory.getStatisticalData(rowKey);
+	public void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, Object rightValue, boolean direction) {
+		StatisticalData statisticalData = statisticalStorage.getStatisticalData(rowKey);
 		
 		String aggregateKey = StringUtils.join(aggregates().getCode(), "@", columnCode);
 		BigDecimal compareValue = direction ? (BigDecimal) rightValue : ((BigDecimal) rightValue).negate();
@@ -49,8 +49,8 @@ public class MinAggregatesConverter implements AggregatesConverter {
 	}
 	
 	@Override
-	public void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, StatisticalData data) {
-		StatisticalData memoryData = temporaryMemory.getStatisticalData(rowKey);
+	public void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, StatisticalData data) {
+		StatisticalData memoryData = statisticalStorage.getStatisticalData(rowKey);
 		
 		String aggregateKey = StringUtils.join(aggregates().getCode(), "@", columnCode);
 		BigDecimal leftValue = memoryData.getIfPresent(aggregateKey, new BigDecimal(0));

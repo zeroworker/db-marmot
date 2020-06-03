@@ -255,7 +255,7 @@ public class StatisticalDataGenerateAdapter implements StatisticalGenerateAdapte
 	 * @return
 	 */
 	private List<Integer> calculateThreadModelNum(int modelNum) {
-		int threadNum = maxPoolSize = statisticalThreadPool.getActiveCount();
+		int threadNum = statisticalThreadPool.getActiveCount();
 		List<Integer> threadsModelNum = new ArrayList<>();
 		for (int i = 0; i < threadNum; i++) {
 			int seqNo = i;

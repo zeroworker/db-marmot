@@ -23,10 +23,10 @@ import java.util.Map;
 @Slf4j
 public abstract class GraphicStructureProcedure<G extends Graphic, D extends GraphicData> implements GraphicProcedure<G, D> {
 	
-	protected ColumnGeneratorAdapter columnGeneratorFactory;
+	protected ColumnGeneratorAdapter columnGeneratorAdapter;
 	
-	public GraphicStructureProcedure(ColumnGeneratorAdapter columnGeneratorFactory) {
-		this.columnGeneratorFactory = columnGeneratorFactory;
+	public GraphicStructureProcedure(ColumnGeneratorAdapter columnGeneratorAdapter) {
+		this.columnGeneratorAdapter = columnGeneratorAdapter;
 	}
 	
 	@Override
@@ -68,18 +68,18 @@ public abstract class GraphicStructureProcedure<G extends Graphic, D extends Gra
 		/**
 		 * 字段数据集数据生成适配器
 		 */
-		protected ColumnGeneratorAdapter columnGeneratorFactory;
+		protected ColumnGeneratorAdapter columnGeneratorAdapter;
 		
 		/**
 		 * 字段值转义缓存
 		 */
 		private Map<Object, Object> columnValueEscapeCache = new HashMap<>();
 		
-		public AbstractGraphicStructure(G graphic, DataVolume dataVolume, D graphicData, ColumnGeneratorAdapter columnGeneratorFactory) {
+		public AbstractGraphicStructure(G graphic, DataVolume dataVolume, D graphicData, ColumnGeneratorAdapter columnGeneratorAdapter) {
 			this.graphic = graphic;
 			this.dataVolume = dataVolume;
 			this.graphicData = graphicData;
-			this.columnGeneratorFactory = columnGeneratorFactory;
+			this.columnGeneratorAdapter = columnGeneratorAdapter;
 		}
 		
 		/**
@@ -98,7 +98,7 @@ public abstract class GraphicStructureProcedure<G extends Graphic, D extends Gra
 			
 			try {
 				FilterColumn filterColumn = new FilterColumn(columnCode, columnType, Operators.equals, originalValue);
-				ColumnData columnData = columnGeneratorFactory.generateColumnData(volumeCode, columnCode, Lists.newArrayList(filterColumn), 0, Integer.MAX_VALUE);
+				ColumnData columnData = columnGeneratorAdapter.generateColumnData(volumeCode, columnCode, Lists.newArrayList(filterColumn), 0, Integer.MAX_VALUE);
 				if (columnData.getData() != null && !columnData.getData().isEmpty()) {
 					for (Map<String, Object> rowData : columnData.getData()) {
 						Object columnValue = rowData.get(columnData.getColumnValueCode());

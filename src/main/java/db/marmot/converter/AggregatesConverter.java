@@ -1,12 +1,12 @@
 package db.marmot.converter;
 
-import java.util.List;
-
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import db.marmot.enums.Aggregates;
 import db.marmot.enums.ColumnType;
 import db.marmot.statistical.StatisticalData;
-import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.statistical.generator.storage.StatisticalStorage;
+
+import java.util.List;
 
 /**
  * @author shaokang
@@ -44,21 +44,21 @@ public interface AggregatesConverter {
 	
 	/**
 	 * 计算聚合值
-	 * @param temporaryMemory
+	 * @param statisticalStorage
 	 * @param columnCode
 	 * @param rightValue
 	 * @param direction
 	 */
-	void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, Object rightValue, boolean direction);
+	void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, Object rightValue, boolean direction);
 	
 	/**
 	 * 计算聚合值
-	 * @param temporaryMemory
+	 * @param statisticalStorage
 	 * @param rowKey
 	 * @param columnCode
 	 * @param data
 	 */
-	void calculate(TemporaryMemory temporaryMemory, String rowKey, String columnCode, StatisticalData data);
+	void calculate(StatisticalStorage statisticalStorage, String rowKey, String columnCode, StatisticalData data);
 	
 	/**
 	 * 获取统计值

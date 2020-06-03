@@ -1,6 +1,5 @@
 package db.marmot.graphic;
 
-import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.VolumeType;
 import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
@@ -10,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
+import org.mvel2.MVEL;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -46,7 +46,7 @@ public class GraphicModel implements Serializable {
 			Validators.assertJSR303(this);
 			if (StringUtils.isNotBlank(offsetExpr)) {
 				try {
-					Integer.valueOf(ConverterAdapter.getInstance().eval(offsetExpr).toString());
+					Integer.valueOf(MVEL.eval(offsetExpr).toString());
 				} catch (Exception e) {
 					throw new ValidateException(String.format("无法解析偏移量表达式:%s", offsetExpr));
 				}

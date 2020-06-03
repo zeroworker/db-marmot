@@ -5,7 +5,9 @@ import db.marmot.graphic.GraphicRepository;
 import db.marmot.repository.DataSourceTemplate;
 import db.marmot.repository.RepositoryException;
 import db.marmot.repository.validate.Validators;
-import db.marmot.statistical.generator.memory.TemporaryMemory;
+import db.marmot.statistical.generator.storage.StatisticalDefaultStorage;
+import db.marmot.statistical.generator.storage.StatisticalReviseStorage;
+import db.marmot.statistical.generator.storage.StatisticalStorage;
 import db.marmot.volume.DataVolume;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -94,6 +96,35 @@ public class StatisticalRepository extends GraphicRepository {
 	}
 	
 	/**
+	 * 更新统计模型以及统计内存数据
+	 * @param statisticalStorage
+	 */
+	public void updateStatisticalCountStorage(StatisticalDefaultStorage statisticalStorage) {
+		updateStatisticalModelCalculated(statisticalStorage.getStatisticalModel());
+		updateStatisticalStorage(statisticalStorage);
+		updateStatisticalModelTask(statisticalStorage);
+	}
+	
+	/**
+	 * 更新统计模型任务
+	 * @param statisticalStorage
+	 */
+	private void updateStatisticalModelTask(StatisticalDefaultStorage statisticalStorage) {
+		if (statisticalStorage.hashThisTask()) {
+			StatisticalTask statisticalTask = dataSourceTemplate.findStatisticalTask(statisticalStorage.getThisTask().getModelName());
+			if (statisticalStorage.hashNextTask()) {
+				dataSourceTemplate.deleteStatisticalTask(statisticalTask.getTaskId());
+			} else {
+				statisticalTask.setScanned(true);
+				dataSourceTemplate.updateStatisticalTask(statisticalTask);
+			}
+		}
+		if (statisticalStorage.hashNextTask()) {
+			dataSourceTemplate.storeStatisticalTask(statisticalStorage.getNextTask());
+		}
+	}
+	
+	/**
 	 * 更新统计模型为计算中状态
 	 * @param statisticalModel
 	 */
@@ -106,12 +137,12 @@ public class StatisticalRepository extends GraphicRepository {
 	}
 	
 	/**
-	 * 更新统计缓存数据
-	 * @param temporaryMemory
+	 * 更新统计内存数据
+	 * @param statisticalStorage
 	 */
-	public void updateStatisticalTemporaryMemory(TemporaryMemory temporaryMemory) {
-		if (temporaryMemory.hashMemoryStatistics()) {
-			temporaryMemory.getMemoryStatistics().values().forEach(data -> {
+	private void updateStatisticalStorage(StatisticalStorage statisticalStorage) {
+		if (statisticalStorage.hashMemoryStatistics()) {
+			statisticalStorage.getMemoryStatistics().values().forEach(data -> {
 				if (dataSourceTemplate.findStatisticalData(data.getModelName(), data.getRowKey()) == null) {
 					dataSourceTemplate.storeStatisticalData(data);
 					return;
@@ -119,26 +150,14 @@ public class StatisticalRepository extends GraphicRepository {
 				dataSourceTemplate.updateStatisticalData(data);
 			});
 		}
-		if (temporaryMemory.hashMemoryDistinct()) {
-			temporaryMemory.getMemoryDistinct().values().forEach(distinct -> {
+		if (statisticalStorage.hashMemoryDistinct()) {
+			statisticalStorage.getMemoryDistinct().values().forEach(distinct -> {
 				if (dataSourceTemplate.findStatisticalDistinct(distinct.getRowKey(), distinct.getDistinctColumn()) == null) {
 					dataSourceTemplate.storeStatisticalDistinct(distinct);
 					return;
 				}
 				dataSourceTemplate.updateStatisticalDistinct(distinct);
 			});
-		}
-		if (temporaryMemory.hashThisTask()) {
-			StatisticalTask statisticalTask = dataSourceTemplate.findStatisticalTask(temporaryMemory.getThisTask().getModelName());
-			if (temporaryMemory.hashNextTask()) {
-				dataSourceTemplate.deleteStatisticalTask(statisticalTask.getTaskId());
-			} else {
-				statisticalTask.setScanned(true);
-				dataSourceTemplate.updateStatisticalTask(statisticalTask);
-			}
-		}
-		if (temporaryMemory.hashNextTask()) {
-			dataSourceTemplate.storeStatisticalTask(temporaryMemory.getNextTask());
 		}
 	}
 	
@@ -220,7 +239,7 @@ public class StatisticalRepository extends GraphicRepository {
 	public List<StatisticalReviseTask> queryPageStatisticalReviseTasks(String volumeCode, ReviseStatus reviseStatus, int pageNum, int pageSize) {
 		return dataSourceTemplate.queryPageStatisticalReviseTasks(volumeCode, reviseStatus == null ? null : reviseStatus.getCode(), pageNum, pageSize);
 	}
-
+	
 	/**
 	 * 更新统计订正任务
 	 * @param reviseTask
@@ -230,7 +249,7 @@ public class StatisticalRepository extends GraphicRepository {
 		Validators.notNull(originalReviseTask, "统计订正任务%s不存在", reviseTask.getVolumeCode());
 		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
 	}
-
+	
 	/**
 	 * 更新统计订正任务为回滚中
 	 * @param reviseTask
@@ -277,5 +296,23 @@ public class StatisticalRepository extends GraphicRepository {
 		Validators.isTrue(originalReviseTask.getReviseStatus() == ReviseStatus.revising, "统计订正任务%s非订正中状态", reviseTask.getVolumeCode());
 		reviseTask.setReviseStatus(ReviseStatus.revised);
 		dataSourceTemplate.updateStatisticalReviseTask(reviseTask);
+	}
+	
+	/**
+	 * 更新统计订正任务以及统计内存数据
+	 * @param statisticalStorage
+	 */
+	public void updateRolledBackStatisticalReviseStorage(StatisticalReviseStorage statisticalStorage) {
+		updateStatisticalReviseTaskRolledBack(statisticalStorage.getReviseTask());
+		updateStatisticalStorage(statisticalStorage);
+	}
+	
+	/**
+	 * 更新统计订正任务以及统计内存数据
+	 * @param statisticalStorage
+	 */
+	public void updateRevisedStatisticalReviseStorage(StatisticalReviseStorage statisticalStorage) {
+		updateStatisticalReviseTaskRevised(statisticalStorage.getReviseTask());
+		updateStatisticalStorage(statisticalStorage);
 	}
 }

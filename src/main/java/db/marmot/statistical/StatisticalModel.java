@@ -133,7 +133,7 @@ public class StatisticalModel {
 			ConverterAdapter converterAdapter = ConverterAdapter.getInstance();
 			WindowUnitConverter windowUnitConverter = converterAdapter.getWindowUnitConverter(this.windowUnit);
 			
-			long ts = converterAdapter.getGMT8Timestamp(timeValue).getTime();
+			long ts = timeValue.getTime();
 			if (this.windowType == WindowType.simple_time) {
 				long granularity = this.windowLength * windowUnitConverter.getTimeMillis();
 				rowKeyBuilder.append("_").append(Long.MAX_VALUE - (ts - offset + (3600 * 1000 * 8)) / (granularity));

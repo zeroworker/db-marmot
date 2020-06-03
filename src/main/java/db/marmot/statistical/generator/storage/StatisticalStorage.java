@@ -1,7 +1,10 @@
-package db.marmot.statistical.generator.memory;
+package db.marmot.statistical.generator.storage;
 
-import db.marmot.statistical.*;
-import db.marmot.volume.DataRange;
+import db.marmot.repository.validate.Validators;
+import db.marmot.statistical.StatisticalData;
+import db.marmot.statistical.StatisticalDistinct;
+import db.marmot.statistical.StatisticalException;
+import db.marmot.statistical.StatisticalModel;
 import db.marmot.volume.DataVolume;
 
 import java.util.HashMap;
@@ -11,37 +14,18 @@ import java.util.Map;
 /**
  * @author shaokang
  */
-public class StatisticalTemporaryMemory implements TemporaryMemory {
+public abstract class StatisticalStorage {
 	
-	private StatisticalTask thisTask;
-	private StatisticalTask nextTask;
+	private DataVolume dataVolume;
 	private List<Map<String, Object>> metaData;
 	private Map<String, StatisticalData> memoryStatistics;
 	private Map<String, StatisticalDistinct> memoryDistinct;
-	
-	@Override
-	public void addThisTask(StatisticalTask statisticalTask) {
-		if (this.thisTask != null) {
-			throw new StatisticalException("本次统计任务已经存在");
-		}
-		this.thisTask = statisticalTask;
+
+	public StatisticalStorage(DataVolume dataVolume) {
+		Validators.notNull(dataVolume,"数据集不能为空");
+		this.dataVolume = dataVolume;
 	}
-	
-	@Override
-	public void addNextTask(DataRange dataRange, DataVolume dataVolume, StatisticalModel statisticalModel) {
-		if (this.nextTask != null) {
-			throw new StatisticalException("下次统计任务已经存在");
-		}
-		
-		StatisticalTask statisticalTask = new StatisticalTask();
-		statisticalTask.setScanned(false);
-		statisticalTask.setStartIndex(dataRange.getMinValue());
-		statisticalTask.setModelName(statisticalModel.getModelName());
-		statisticalTask.setEndIndex(dataRange.calculateEndIndex(dataVolume.getVolumeLimit()));
-		this.nextTask = statisticalTask;
-	}
-	
-	@Override
+
 	public void addMetaData(List<Map<String, Object>> metaData) {
 		if (this.metaData != null) {
 			throw new StatisticalException("源数据已经存在");
@@ -49,7 +33,6 @@ public class StatisticalTemporaryMemory implements TemporaryMemory {
 		this.metaData = metaData;
 	}
 	
-	@Override
 	public void addStatisticalData(StatisticalData statisticalData) {
 		if (memoryStatistics == null) {
 			memoryStatistics = new HashMap<>();
@@ -57,7 +40,6 @@ public class StatisticalTemporaryMemory implements TemporaryMemory {
 		memoryStatistics.put(statisticalData.getRowKey(), statisticalData);
 	}
 	
-	@Override
 	public void addStatisticalDistinct(StatisticalDistinct statisticalDistinct) {
 		if (memoryDistinct == null) {
 			memoryDistinct = new HashMap<>();
@@ -65,73 +47,49 @@ public class StatisticalTemporaryMemory implements TemporaryMemory {
 		memoryDistinct.put(statisticalDistinct.uniqueKey(), statisticalDistinct);
 	}
 	
-	@Override
-	public boolean hashThisTask() {
-		return this.thisTask != null && !this.thisTask.isScanned();
-	}
-	
-	@Override
-	public StatisticalTask getThisTask() {
-		return this.thisTask;
-	}
-	
-	@Override
-	public boolean hashNextTask() {
-		return this.nextTask != null;
-	}
-	
-	@Override
-	public StatisticalTask getNextTask() {
-		return this.nextTask;
-	}
-	
-	@Override
 	public boolean hashMetaData() {
 		return this.metaData != null && !this.metaData.isEmpty();
 	}
 	
-	@Override
 	public List<Map<String, Object>> getMetaData() {
 		return this.metaData;
 	}
 	
-	@Override
 	public boolean hashStatisticalData(String rowKey) {
 		return hashMemoryStatistics() && memoryStatistics.get(rowKey) != null;
 	}
 	
-	@Override
 	public boolean hashMemoryStatistics() {
 		return this.memoryStatistics != null && !this.memoryStatistics.isEmpty();
 	}
 	
-	@Override
 	public Map<String, StatisticalData> getMemoryStatistics() {
 		return this.memoryStatistics;
 	}
 	
-	@Override
 	public StatisticalData getStatisticalData(String rowKey) {
 		return memoryStatistics.get(rowKey);
 	}
 	
-	@Override
 	public boolean hashStatisticalDistinct(String rowKey) {
 		return hashMemoryDistinct() && memoryDistinct.get(rowKey) != null;
 	}
 	
-	@Override
 	public boolean hashMemoryDistinct() {
 		return this.memoryDistinct != null && !this.memoryDistinct.isEmpty();
 	}
 	
-	@Override
 	public Map<String, StatisticalDistinct> getMemoryDistinct() {
 		return this.memoryDistinct;
 	}
 	
-	@Override
 	public StatisticalDistinct getStatisticalDistinct(String rowKey) {
 		return memoryDistinct.get(rowKey);
 	}
+	
+	public DataVolume getDataVolume() {
+		return dataVolume;
+	}
+
+	public abstract List<StatisticalModel> getStatisticalModels();
 }
