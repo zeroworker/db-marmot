@@ -41,13 +41,12 @@ import javax.sql.DataSource;
 @AutoConfigureOrder(value = Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnProperty(value = "db.marmot.enable", matchIfMissing = true)
 public class MarmotAutoConfiguration extends WebMvcConfigurerAdapter {
-
+	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new WebTokenInterceptor())
-				.addPathPatterns("/marmot/**");
+		registry.addInterceptor(new WebTokenInterceptor()).addPathPatterns("/marmot/**");
 	}
-
+	
 	@Bean
 	public DataSourceRepositoryFactoryBean dataSourceRepositoryFactoryBean(MarmotProperties properties, DataSource dataSource) {
 		return new DataSourceRepositoryFactoryBean(properties.isSharding(), dataSource);
@@ -106,7 +105,12 @@ public class MarmotAutoConfiguration extends WebMvcConfigurerAdapter {
 	public class WebTokenInterceptor implements HandlerInterceptor {
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			WebTokenAuthorize.verify(request.getHeader("token"));
+			try {
+				WebTokenAuthorize.verify(request.getHeader("token"));
+			} catch (Exception e) {
+				response.sendError(401,e.getMessage());
+				return false;
+			}
 			return true;
 		}
 		
