@@ -49,7 +49,9 @@ public class MarmotProperties implements InitializingBean {
 	 * 下载文件地址
 	 */
 	private String downloadUrl;
-	
+
+
+
 	@Override
 	public void afterPropertiesSet() {
 		Validators.notBlank(this.fileUrl, "fileUrl 不能为空");

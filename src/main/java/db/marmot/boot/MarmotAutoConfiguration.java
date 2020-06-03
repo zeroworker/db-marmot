@@ -1,5 +1,6 @@
 package db.marmot.boot;
 
+import db.marmot.contorller.WebTokenAuthorize;
 import db.marmot.graphic.contorller.DashboardControllerAdapter;
 import db.marmot.graphic.contorller.GraphicDataControllerAdapter;
 import db.marmot.graphic.contorller.GraphicDownloadControllerAdapter;
@@ -22,7 +23,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 /**
@@ -33,8 +40,14 @@ import javax.sql.DataSource;
 @EnableConfigurationProperties(MarmotProperties.class)
 @AutoConfigureOrder(value = Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnProperty(value = "db.marmot.enable", matchIfMissing = true)
-public class MarmotAutoConfiguration {
-	
+public class MarmotAutoConfiguration extends WebMvcConfigurerAdapter {
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new WebTokenInterceptor())
+				.addPathPatterns("/marmot/**");
+	}
+
 	@Bean
 	public DataSourceRepositoryFactoryBean dataSourceRepositoryFactoryBean(MarmotProperties properties, DataSource dataSource) {
 		return new DataSourceRepositoryFactoryBean(properties.isSharding(), dataSource);
@@ -47,7 +60,7 @@ public class MarmotAutoConfiguration {
 	
 	@Bean
 	public StatisticalGenerateAdapter statisticalGenerateAdapter(MarmotProperties properties, DataSourceRepository dataSourceRepository) {
-		return new StatisticalDataGenerateAdapter(properties.getModelThreadSize(),properties.getModelReviseDelay(), dataSourceRepository);
+		return new StatisticalDataGenerateAdapter(properties.getModelThreadSize(), properties.getModelReviseDelay(), dataSourceRepository);
 	}
 	
 	@Bean
@@ -88,6 +101,22 @@ public class MarmotAutoConfiguration {
 	@Bean
 	public StatisticalControllerAdapter statisticalControllerAdapter(DataSourceRepository dataSourceRepository, StatisticalGenerateAdapter statisticalGenerateAdapter) {
 		return new StatisticalControllerAdapter(dataSourceRepository, statisticalGenerateAdapter);
+	}
+	
+	public class WebTokenInterceptor implements HandlerInterceptor {
+		@Override
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+			WebTokenAuthorize.verify(request.getHeader("token"));
+			return true;
+		}
+		
+		@Override
+		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+		}
+		
+		@Override
+		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+		}
 	}
 	
 }
