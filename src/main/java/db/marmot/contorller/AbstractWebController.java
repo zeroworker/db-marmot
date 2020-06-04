@@ -5,7 +5,6 @@ import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import db.marmot.contorller.response.WebResponse;
 import db.marmot.repository.validate.Validators;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
@@ -29,7 +28,6 @@ public abstract class AbstractWebController<R, D> extends AbstractController {
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 		WebResponse webResponse = new WebResponse();
-		
 		try {
 			String requestJson = getRequestJson(servletRequest);
 			R request = deserializeRequest(requestJson);
@@ -38,11 +36,9 @@ public abstract class AbstractWebController<R, D> extends AbstractController {
 			log.info("marmot post请求处理完成 response:{}", webResponse);
 		} catch (Exception e) {
 			log.error("marmot 解析请求json body 异常", e);
-			webResponse.setStatus(false).setMessage("解析请求数据异常");
+			webResponse.setStatus(false).setMessage("解析请求数据异常数据格式必须为json格式");
 		}
-		
 		ModelAndView modelAndView = new ModelAndView(new FastJsonJsonView());
-		modelAndView.setStatus(HttpStatus.OK);
 		modelAndView.addObject(webResponse);
 		return modelAndView;
 	}
@@ -55,6 +51,7 @@ public abstract class AbstractWebController<R, D> extends AbstractController {
 	 */
 	private void handleRequest(WebResponse webResponse, R request) {
 		try {
+			Validators.notNull(request, "request 为空");
 			Validators.assertJSR303(request);
 			Class responseDataClass = (Class<D>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
 			if (responseDataClass.equals(Void.class)) {
