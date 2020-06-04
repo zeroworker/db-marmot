@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import db.marmot.repository.validate.ValidateException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -56,7 +55,7 @@ public class WebTokenAuthorize extends WebMvcConfigurerAdapter {
 							.withSubject("marmot web token")
 							.build();
 					jwtVerifier.verify(token);
-				} catch (JWTVerificationException | ValidateException e) {
+				} catch (JWTVerificationException e) {
 					response.sendError(401,e.getMessage());
 					return false;
 				}catch (Exception e){
