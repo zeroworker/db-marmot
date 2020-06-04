@@ -5,6 +5,7 @@ import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import db.marmot.contorller.response.WebResponse;
 import db.marmot.repository.validate.Validators;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
@@ -41,6 +42,7 @@ public abstract class AbstractWebController<R, D> extends AbstractController {
 		}
 		
 		ModelAndView modelAndView = new ModelAndView(new FastJsonJsonView());
+		modelAndView.setStatus(HttpStatus.OK);
 		modelAndView.addObject(webResponse);
 		return modelAndView;
 	}

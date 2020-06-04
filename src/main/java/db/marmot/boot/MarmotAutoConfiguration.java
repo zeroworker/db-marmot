@@ -23,13 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 /**
@@ -40,12 +34,7 @@ import javax.sql.DataSource;
 @EnableConfigurationProperties(MarmotProperties.class)
 @AutoConfigureOrder(value = Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnProperty(value = "db.marmot.enable", matchIfMissing = true)
-public class MarmotAutoConfiguration extends WebMvcConfigurerAdapter {
-	
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new WebTokenInterceptor()).addPathPatterns("/marmot/**");
-	}
+public class MarmotAutoConfiguration {
 	
 	@Bean
 	public DataSourceRepositoryFactoryBean dataSourceRepositoryFactoryBean(MarmotProperties properties, DataSource dataSource) {
@@ -102,25 +91,8 @@ public class MarmotAutoConfiguration extends WebMvcConfigurerAdapter {
 		return new StatisticalControllerAdapter(dataSourceRepository, statisticalGenerateAdapter);
 	}
 	
-	public class WebTokenInterceptor implements HandlerInterceptor {
-		@Override
-		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-			try {
-				WebTokenAuthorize.verify(request.getHeader("token"));
-			} catch (Exception e) {
-				response.sendError(401,e.getMessage());
-				return false;
-			}
-			return true;
-		}
-		
-		@Override
-		public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		}
-		
-		@Override
-		public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		}
+	@Bean
+	public WebTokenAuthorize webTokenAuthorize() {
+		return new WebTokenAuthorize();
 	}
-	
 }

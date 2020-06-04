@@ -31,7 +31,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <jwt.version>3.4.0</jwt.version>
+        <jwt.version>3.10.3</jwt.version>
         <maven.jdoc.skip>true</maven.jdoc.skip>
         <file.encoding>UTF-8</file.encoding>
         <druid.version>1.1.5</druid.version>
