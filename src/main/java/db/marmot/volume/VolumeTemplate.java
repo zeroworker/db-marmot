@@ -97,7 +97,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 	 */
 	public List<DataVolume> queryPageDataVolume(String volumeName, int pageNum, int pageSize) {
 		SelectSqlBuilderConverter sqlBuilder = converterAdapter.newInstanceSqlBuilder(dbType,
-			"SELECT volume_code,volume_name, volume_code,volume_type,db_name,sql_script,content FROM marmot_data_volume");
+			"SELECT volume_id,volume_name, volume_code,volume_type,db_name,sql_script,content FROM marmot_data_volume");
 		sqlBuilder.addCondition(Operators.like, ColumnType.string, "volume_name", volumeName).addLimit(pageNum, pageSize);
 		return jdbcTemplate.query(sqlBuilder.toSql(), new RowMapper<DataVolume>() {
 			

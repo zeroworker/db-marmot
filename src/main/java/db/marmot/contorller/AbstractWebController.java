@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * @author shaokang
@@ -53,8 +54,13 @@ public abstract class AbstractWebController<R, D> extends AbstractController {
 		try {
 			Validators.notNull(request, "request 为空");
 			Validators.assertJSR303(request);
-			Class responseDataClass = (Class<D>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-			if (responseDataClass.equals(Void.class)) {
+			
+			Type responseType = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+			if (responseType instanceof Class && responseType.equals(Void.class)){
+				postHandle(request);
+				return;
+			}
+			if (responseType instanceof ParameterizedType && ((ParameterizedType) responseType).getRawType().equals(Void.class)){
 				postHandle(request);
 				return;
 			}
