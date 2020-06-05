@@ -6,6 +6,7 @@ import db.marmot.repository.DataSourceRepository;
 import db.marmot.repository.validate.Validators;
 import db.marmot.statistical.*;
 import db.marmot.volume.ColumnVolume;
+import db.marmot.volume.DataColumn;
 import db.marmot.volume.DataVolume;
 import db.marmot.volume.Database;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * spring 运行环境
@@ -254,9 +257,33 @@ public class XmlGenerateCoder {
 					dataVolume.setSqlScript(element.getAttribute("sqlScript"));
 					dataVolume.setVolumeLimit(Long.valueOf(element.getAttribute("volumeLimit")));
 					dataVolume.setContent(element.getAttribute("content"));
+					dataVolume.setDataColumns(buildDataColumns(dataVolume.getVolumeCode(),element));
 					return dataVolume;
 				}
-				
+
+				private List<DataColumn> buildDataColumns(String volumeCode, Element element){
+					Element nodeElement;
+					List<DataColumn> dataColumns = new ArrayList<>();
+					Iterator iterator = new Iterator(element.getChildNodes());
+					while ((nodeElement = iterator.nextElement()) != null){
+						DataColumn dataColumn = new DataColumn();
+						dataColumn.setVolumeCode(volumeCode);
+						dataColumn.setColumnName(nodeElement.getAttribute("columnName"));
+						dataColumn.setVolumeCode(nodeElement.getAttribute("columnCode"));
+						dataColumn.setColumnLabel(nodeElement.getAttribute("columnLabel"));
+						dataColumn.setScreenColumn(nodeElement.getAttribute("screenColumn"));
+						dataColumn.setColumnFilter(Boolean.valueOf(nodeElement.getAttribute("columnFilter")));
+						dataColumn.setColumnHidden(Boolean.valueOf(nodeElement.getAttribute("columnHidden")));
+						dataColumn.setColumnEscape(Boolean.valueOf(nodeElement.getAttribute("columnEscape")));
+						dataColumn.setColumnIndex(Boolean.valueOf(nodeElement.getAttribute("columnIndex")));
+						dataColumn.setColumnMask(Boolean.valueOf(nodeElement.getAttribute("columnMask")));
+						dataColumn.setUnitValue(Double.valueOf(nodeElement.getAttribute("unitValue")));
+						dataColumn.setContent(nodeElement.getAttribute("content"));
+						dataColumns.add(dataColumn);
+					}
+					return dataColumns;
+				}
+
 				@Override
 				public void store(DataVolume dataVolume) {
 					dataSourceRepository.storeDataVolume(dataVolume);
@@ -284,7 +311,7 @@ public class XmlGenerateCoder {
 					dataSourceRepository.storeColumnVolume(columnVolume);
 				}
 			});
-		
+
 		private String nodeName;
 		private Builder builder;
 		

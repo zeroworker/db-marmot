@@ -89,11 +89,103 @@
         </complexType>
     </element>
 
+    <element name="dataColumn">
+        <annotation>
+            <documentation><![CDATA[数据集 数据字段]]></documentation>
+        </annotation>
+        <complexType>
+            <attribute name="columnName" type="string">
+                <annotation>
+                    <documentation>
+                        <![CDATA[数据字段名称]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnCode" type="string" use="required">
+                <annotation>
+                    <documentation>
+                        <![CDATA[数据字段编码]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnLabel" type="string">
+                <annotation>
+                    <documentation>
+                        <![CDATA[
+	                        <li>字段标记 用于标记字段 使用场景：用户使用数据集字段生成数据时，根据用户识别的出该字段必须使用于过滤，分组。但无需用户选择时使用,业务逻辑处理。该标签自定义</li>
+	                        <li>字段标签若不存在,表示用户可以选择该字段,字段标签存在,于用户匹配的标签对应的字段无需用户选择,逻辑处理,也无需展示</li>
+	                        <li>根据具体业务场景,可自行穷举枚举</li>
+	                        <li>例：商户用户登陆，图表过滤、分组必须存在商户ID,merchant（商户标记）,department（部门标记）</li>
+	                    /]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="screenColumn" type="string">
+                <annotation>
+                    <documentation>
+                        <![CDATA[ 筛选字段 数据过滤时 显示字段和筛选字段非同一个字段时使用 该筛选字段必须在数据集对应sql中体现 默认和columnCode保持一致]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnFilter" type="boolean" default="false">
+                <annotation>
+                    <documentation>
+                        <![CDATA[ 字段过滤- 数据过滤时,字段是否可参与过滤]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnHidden" type="boolean" default="false">
+                <annotation>
+                    <documentation>
+                        <![CDATA[字段隐藏-在做数据仪表盘时不显示]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnEscape" type="boolean" default="false">
+                <annotation>
+                    <documentation>
+                        <![CDATA[是否需要字段转换 例如 字段值枚举code 需要转换成message]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnIndex" type="boolean" default="false">
+                <annotation>
+                    <documentation>
+                        <![CDATA[是否为角标字段,用于模型统计时抓取数据角标定位]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="columnMask" type="boolean" default="false">
+                <annotation>
+                    <documentation>
+                        <![CDATA[字段掩码-针对敏感字段掩码处理]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="unitValue" type="double" default="0">
+                <annotation>
+                    <documentation>
+                        <![CDATA[单位换算 - 乘法 为零 表示不参与计算]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+            <attribute name="content" type="string">
+                <annotation>
+                    <documentation>
+                        <![CDATA[描述]]>
+                    </documentation>
+                </annotation>
+            </attribute>
+        </complexType>
+    </element>
     <element name="dataVolume">
         <annotation>
             <documentation><![CDATA[数据集 配置数据集 用于做数据统计以及数据查询]]></documentation>
         </annotation>
         <complexType>
+            <sequence>
+                <element ref="lns:dataColumn" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
             <attribute name="volumeName" type="string" use="required">
                 <annotation>
                     <documentation>
@@ -145,7 +237,7 @@
                     </documentation>
                 </annotation>
             </attribute>
-            <attribute name="sqlScript" type="string" use="required">
+            <attribute name="sqlScript" type="string">
                 <annotation>
                     <documentation>
                         <![CDATA[sql脚本]]>

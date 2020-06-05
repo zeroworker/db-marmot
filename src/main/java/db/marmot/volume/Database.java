@@ -61,7 +61,7 @@ public class Database {
 			this.url = dataSource.getConnection().getMetaData().getURL();
 			this.dbType = JdbcUtils.getDbType(this.url, null);
 		} catch (SQLException e) {
-			new ValidateException("获取数据源链接异常", e);
+			throw new ValidateException("获取数据源链接异常", e);
 		}
 	}
 	

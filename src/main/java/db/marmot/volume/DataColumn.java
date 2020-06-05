@@ -5,6 +5,7 @@ import db.marmot.repository.validate.ValidateException;
 import db.marmot.repository.validate.Validators;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -72,7 +73,7 @@ public class DataColumn {
 	/**
 	 * 筛选字段 数据过滤时 显示字段和筛选字段非同一个字段时使用 该筛选字段必须在数据集对应sql中体现 默认和columnCode保持一致
 	 */
-	@NotNull
+	@NotBlank
 	@Size(max = 512)
 	private String screenColumn;
 	
@@ -119,6 +120,24 @@ public class DataColumn {
 	@Size(max = 512)
 	private String content;
 	
+	public void addColumnName(String columnName) {
+		if (StringUtils.isBlank(this.columnName)) {
+			this.columnName = columnName;
+		}
+	}
+	
+	public void addScreenColumn(String screenColumn) {
+		if (StringUtils.isBlank(this.screenColumn)) {
+			this.screenColumn = screenColumn;
+		}
+	}
+	
+	public void addContent(String content) {
+		if (StringUtils.isBlank(this.content)) {
+			this.content = content;
+		}
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) {
@@ -133,7 +152,6 @@ public class DataColumn {
 		return Objects.hash(volumeCode, columnCode);
 	}
 	
-
 	public void validateDataColumn() {
 		Validators.assertJSR303(this);
 		if (columnIndex && columnType != ColumnType.number) {

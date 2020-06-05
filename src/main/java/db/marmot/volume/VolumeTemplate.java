@@ -248,7 +248,7 @@ public class VolumeTemplate extends DatabaseTemplate {
 			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
 				PreparedStatement ps = con.prepareStatement(COLUMN_VOLUME_STORE_SQL, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, columnVolume.getVolumeName());
-				ps.setString(1, columnVolume.getVolumeCode());
+				ps.setString(2, columnVolume.getVolumeCode());
 				ps.setString(3, columnVolume.getVolumeType().getCode());
 				ps.setString(4, columnVolume.getColumnCode());
 				ps.setString(5, columnVolume.getDbName());

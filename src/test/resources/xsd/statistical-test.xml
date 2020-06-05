@@ -6,15 +6,8 @@
 
     <description>模型测试</description>
 
-    <model modelName="model1" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
-           windowType="slidingTime" windowUnit="hour" memo="">
-        <aggregateColumns>
-            <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
-        </aggregateColumns>
-    </model>
-
-    <model modelName="model2" dbName="master" fetchSql="" fetchStep="5000" offsetExpr="" timeColumn="" windowLength="0"
-           windowType="slidingTime" windowUnit="hour" memo="">
+    <model modelName="payment_sum" volumeCode="payment_order" offsetExpr="0" windowLength="0"
+           windowType="slidingTime" windowUnit="day" memo="">
         <aggregateColumns>
             <aggregateColumn columnCode="" columnType="string" aggregates="count"/>
         </aggregateColumns>

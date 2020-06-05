@@ -34,10 +34,27 @@ public class VolumeRepository extends StatisticalRepository {
 		} finally {
 			if (dataVolume.getVolumeType() == VolumeType.custom) {
 				CustomTemplate customTemplate = dataSourceTemplate.getCustomTemplate();
-				dataVolume.setDataColumns(customTemplate.getMetadataColumns(dataVolume.getVolumeCode()));
+				List<DataColumn> dataColumns = customTemplate.getMetadataColumns(dataVolume.getVolumeCode());
+				Validators.notEmpty(dataColumns, "数据集字段为空");
+				dataVolume.setDataColumns(dataColumns);
 			}
 			if (dataVolume.getVolumeType() == VolumeType.model || dataVolume.getVolumeType() == VolumeType.sql) {
-				dataVolume.setDataColumns(dataSourceTemplate.getDataColumns(dataVolume.getDbName(), dataVolume.getVolumeCode(), dataVolume.getSqlScript()));
+				List<DataColumn> dataColumns = dataSourceTemplate.getDataColumns(dataVolume.getDbName(), dataVolume.getVolumeCode(), dataVolume.getSqlScript());
+				Validators.notEmpty(dataColumns, "数据集字段为空");
+				if (CollectionUtils.isNotEmpty(dataVolume.getDataColumns())) {
+					for (int i = 0; i < dataColumns.size(); i++) {
+						DataColumn dataColumn = dataVolume.findDataColumn(dataColumns.get(i).getColumnCode(), null);
+						if (dataColumn != null) {
+							dataColumn.setColumnOrder(dataColumns.get(i).getColumnOrder());
+							dataColumn.setColumnType(dataColumns.get(i).getColumnType());
+							dataColumn.addColumnName(dataColumns.get(i).getColumnName());
+							dataColumn.addScreenColumn(dataColumns.get(i).getScreenColumn());
+							dataColumn.addContent(dataColumns.get(i).getContent());
+							dataColumns.add(i, dataColumn);
+						}
+					}
+				}
+				dataVolume.setDataColumns(dataColumns);
 			}
 			dataVolume.validateDataVolume(database);
 			dataSourceTemplate.storeDataColumn(dataVolume.getDataColumns());
