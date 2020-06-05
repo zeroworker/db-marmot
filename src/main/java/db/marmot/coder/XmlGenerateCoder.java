@@ -1,5 +1,6 @@
 package db.marmot.coder;
 
+import com.alibaba.druid.util.JdbcUtils;
 import db.marmot.converter.ConverterAdapter;
 import db.marmot.enums.*;
 import db.marmot.repository.DataSourceRepository;
@@ -118,9 +119,9 @@ public class XmlGenerateCoder {
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
 							AggregateColumn aggregateColumn = new AggregateColumn();
-							aggregateColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
-							aggregateColumn.setAggregates(Aggregates.getByCode(nodeElement.getAttribute("aggregates")));
-							aggregateColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
+							aggregateColumn.setColumnCode(Iterator.getValue(nodeElement,"columnCode"));
+							aggregateColumn.setAggregates(Aggregates.getByCode(Iterator.getValue(nodeElement,"aggregates")));
+							aggregateColumn.setColumnType(ColumnType.getByCode(Iterator.getValue(nodeElement,"columnType")));
 							builder.addAggregateColumn(aggregateColumn);
 						}
 					}
@@ -133,9 +134,9 @@ public class XmlGenerateCoder {
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
 							ConditionColumn conditionColumn = new ConditionColumn();
-							conditionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
-							conditionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
-							conditionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
+							conditionColumn.setColumnCode(Iterator.getValue(nodeElement,"columnCode"));
+							conditionColumn.setColumnType(ColumnType.getByCode(Iterator.getValue(nodeElement,"columnType")));
+							conditionColumn.setOperators(Operators.getByCode(Iterator.getValue(nodeElement,"operators")));
 							conditionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(conditionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							builder.addConditionColumn(conditionColumn);
 						}
@@ -149,8 +150,8 @@ public class XmlGenerateCoder {
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
 							GroupColumn groupColumn = new GroupColumn();
-							groupColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
-							groupColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
+							groupColumn.setColumnCode(Iterator.getValue(nodeElement,"columnCode"));
+							groupColumn.setColumnType(ColumnType.getByCode(Iterator.getValue(nodeElement,"columnType")));
 							builder.addGroupColumn(groupColumn);
 						}
 					}
@@ -163,9 +164,9 @@ public class XmlGenerateCoder {
 						Iterator iterator = new Iterator(element.getChildNodes());
 						while ((nodeElement = iterator.nextElement()) != null) {
 							DirectionColumn directionColumn = new DirectionColumn();
-							directionColumn.setColumnCode(nodeElement.getAttribute("columnCode"));
-							directionColumn.setColumnType(ColumnType.getByCode(nodeElement.getAttribute("columnType")));
-							directionColumn.setOperators(Operators.getByCode(nodeElement.getAttribute("operators")));
+							directionColumn.setColumnType(ColumnType.getByCode(Iterator.getValue(nodeElement,"columnType")));
+							directionColumn.setColumnCode(Iterator.getValue(nodeElement,"columnCode"));
+							directionColumn.setOperators(Operators.getByCode(Iterator.getValue(nodeElement,"operators")));
 							directionColumn.setRightValue(ConverterAdapter.getInstance().getColumnConverter(directionColumn.getColumnType()).columnValueConvert(nodeElement.getAttribute("rightValue")));
 							builder.addDirectionColumn(directionColumn);
 						}
@@ -186,13 +187,13 @@ public class XmlGenerateCoder {
 			
 			public static StatisticalModelBuilder createByAttribute(Element element) {
 				StatisticalModelBuilder builder = new StatisticalModelBuilder();
-				builder.addMemo(element.getAttribute("memo"))
-						.addModelName(element.getAttribute("modelName"))
-						.addOffsetExpr(element.getAttribute("offsetExpr"))
-						.addWindowLength(Integer.valueOf(element.getAttribute("windowLength")))
-						.addWindowType(WindowType.getByCode(element.getAttribute("windowType")))
-						.addWindowUnit(WindowUnit.getByCode(element.getAttribute("windowUnit")))
-						.addDataVolume(dataSourceRepository.findDataVolume(element.getAttribute("volumeCode")));
+				builder.addMemo(Iterator.getValue(element,"memo"))
+						.addModelName(Iterator.getValue(element,"modelName"))
+						.addOffsetExpr(Iterator.getValue(element,"offsetExpr"))
+						.addWindowLength(Integer.valueOf(Iterator.getValue(element,"windowLength")))
+						.addWindowType(WindowType.getByCode(Iterator.getValue(element,"windowType")))
+						.addWindowUnit(WindowUnit.getByCode(Iterator.getValue(element,"windowUnit")))
+						.addDataVolume(dataSourceRepository.findDataVolume(Iterator.getValue(element,"volumeCode")));
 				return builder;
 			}
 			
@@ -233,10 +234,11 @@ public class XmlGenerateCoder {
 				@Override
 				public Database build(Element element) {
 					Database database = new Database();
-					database.setName(element.getAttribute("name"));
-					database.setUrl(element.getAttribute("url"));
-					database.setUserName(element.getAttribute("userName"));
-					database.setPassword(element.getAttribute("password"));
+					database.setName(Iterator.getValue(element,"name"));
+					database.setUrl(Iterator.getValue(element,"url"));
+					database.setDbType(JdbcUtils.getDbType(Iterator.getValue(element,"url"), null));
+					database.setUserName(Iterator.getValue(element,"userName"));
+					database.setPassword(Iterator.getValue(element,"password"));
 					return database;
 				}
 				
@@ -250,40 +252,40 @@ public class XmlGenerateCoder {
 				@Override
 				public DataVolume build(Element element) {
 					DataVolume dataVolume = new DataVolume();
-					dataVolume.setVolumeName(element.getAttribute("volumeName"));
-					dataVolume.setVolumeCode(element.getAttribute("volumeCode"));
-					dataVolume.setVolumeType(VolumeType.getByCode(element.getAttribute("volumeType")));
-					dataVolume.setDbName(element.getAttribute("dbName"));
-					dataVolume.setSqlScript(element.getAttribute("sqlScript"));
-					dataVolume.setVolumeLimit(Long.valueOf(element.getAttribute("volumeLimit")));
-					dataVolume.setContent(element.getAttribute("content"));
-					dataVolume.setDataColumns(buildDataColumns(dataVolume.getVolumeCode(),element));
+					dataVolume.setVolumeName(Iterator.getValue(element,"volumeName"));
+					dataVolume.setVolumeCode(Iterator.getValue(element,"volumeCode"));
+					dataVolume.setVolumeType(VolumeType.getByCode(Iterator.getValue(element,"volumeType")));
+					dataVolume.setDbName(Iterator.getValue(element,"dbName"));
+					dataVolume.setSqlScript(Iterator.getValue(element,"sqlScript"));
+					dataVolume.setVolumeLimit(Long.valueOf(Iterator.getValue(element,"volumeLimit")));
+					dataVolume.setContent(Iterator.getValue(element,"content"));
+					dataVolume.setDataColumns(buildDataColumns(dataVolume.getVolumeCode(), element));
 					return dataVolume;
 				}
-
-				private List<DataColumn> buildDataColumns(String volumeCode, Element element){
+				
+				private List<DataColumn> buildDataColumns(String volumeCode, Element element) {
 					Element nodeElement;
 					List<DataColumn> dataColumns = new ArrayList<>();
 					Iterator iterator = new Iterator(element.getChildNodes());
-					while ((nodeElement = iterator.nextElement()) != null){
+					while ((nodeElement = iterator.nextElement()) != null) {
 						DataColumn dataColumn = new DataColumn();
 						dataColumn.setVolumeCode(volumeCode);
-						dataColumn.setColumnName(nodeElement.getAttribute("columnName"));
-						dataColumn.setVolumeCode(nodeElement.getAttribute("columnCode"));
-						dataColumn.setColumnLabel(nodeElement.getAttribute("columnLabel"));
-						dataColumn.setScreenColumn(nodeElement.getAttribute("screenColumn"));
-						dataColumn.setColumnFilter(Boolean.valueOf(nodeElement.getAttribute("columnFilter")));
-						dataColumn.setColumnHidden(Boolean.valueOf(nodeElement.getAttribute("columnHidden")));
-						dataColumn.setColumnEscape(Boolean.valueOf(nodeElement.getAttribute("columnEscape")));
-						dataColumn.setColumnIndex(Boolean.valueOf(nodeElement.getAttribute("columnIndex")));
-						dataColumn.setColumnMask(Boolean.valueOf(nodeElement.getAttribute("columnMask")));
-						dataColumn.setUnitValue(Double.valueOf(nodeElement.getAttribute("unitValue")));
-						dataColumn.setContent(nodeElement.getAttribute("content"));
+						dataColumn.setColumnName(Iterator.getValue(nodeElement,"columnName"));
+						dataColumn.setVolumeCode(Iterator.getValue(nodeElement,"columnCode"));
+						dataColumn.setColumnLabel(Iterator.getValue(nodeElement,"columnLabel"));
+						dataColumn.setScreenColumn(Iterator.getValue(nodeElement,"screenColumn"));
+						dataColumn.setColumnFilter(Boolean.valueOf(Iterator.getValue(nodeElement,"columnFilter")));
+						dataColumn.setColumnHidden(Boolean.valueOf(Iterator.getValue(nodeElement,"columnHidden")));
+						dataColumn.setColumnEscape(Boolean.valueOf(Iterator.getValue(nodeElement,"columnEscape")));
+						dataColumn.setColumnIndex(Boolean.valueOf(Iterator.getValue(nodeElement,"columnIndex")));
+						dataColumn.setColumnMask(Boolean.valueOf(Iterator.getValue(nodeElement,"columnMask")));
+						dataColumn.setUnitValue(Double.valueOf(Iterator.getValue(nodeElement,"unitValue","0")));
+						dataColumn.setContent(Iterator.getValue(nodeElement,"content"));
 						dataColumns.add(dataColumn);
 					}
 					return dataColumns;
 				}
-
+				
 				@Override
 				public void store(DataVolume dataVolume) {
 					dataSourceRepository.storeDataVolume(dataVolume);
@@ -294,15 +296,15 @@ public class XmlGenerateCoder {
 				@Override
 				public ColumnVolume build(Element element) {
 					ColumnVolume columnVolume = new ColumnVolume();
-					columnVolume.setVolumeName(element.getAttribute("volumeName"));
-					columnVolume.setVolumeCode(element.getAttribute("volumeCode"));
-					columnVolume.setVolumeType(VolumeType.getByCode(element.getAttribute("volumeType")));
-					columnVolume.setColumnCode(element.getAttribute("columnCode"));
-					columnVolume.setDbName(element.getAttribute("dbName"));
-					columnVolume.setColumnValueCode(element.getAttribute("columnValueCode"));
-					columnVolume.setColumnShowCode(element.getAttribute("columnShowCode"));
-					columnVolume.setScript(element.getAttribute("script"));
-					columnVolume.setContent(element.getAttribute("content"));
+					columnVolume.setVolumeName(Iterator.getValue(element,"volumeName"));
+					columnVolume.setVolumeCode(Iterator.getValue(element,"volumeCode"));
+					columnVolume.setVolumeType(VolumeType.getByCode(Iterator.getValue(element,"volumeType")));
+					columnVolume.setColumnCode(Iterator.getValue(element,"columnCode"));
+					columnVolume.setDbName(Iterator.getValue(element,"dbName"));
+					columnVolume.setColumnValueCode(Iterator.getValue(element,"columnValueCode"));
+					columnVolume.setColumnShowCode(Iterator.getValue(element,"columnShowCode"));
+					columnVolume.setScript(Iterator.getValue(element,"script"));
+					columnVolume.setContent(Iterator.getValue(element,"content"));
 					return columnVolume;
 				}
 				
@@ -311,7 +313,7 @@ public class XmlGenerateCoder {
 					dataSourceRepository.storeColumnVolume(columnVolume);
 				}
 			});
-
+		
 		private String nodeName;
 		private Builder builder;
 		
@@ -359,6 +361,20 @@ public class XmlGenerateCoder {
 				return nextElement();
 			}
 			return null;
+		}
+		
+		public static String getValue(Element element, String name) {
+			if (element.hasAttribute(name)){
+				return element.getAttribute(name);
+			}
+			return null;
+		}
+
+		public static String getValue(Element element, String name,String value) {
+			if (element.hasAttribute(name)){
+				return element.getAttribute(name);
+			}
+			return value;
 		}
 	}
 	

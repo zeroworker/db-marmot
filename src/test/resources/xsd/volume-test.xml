@@ -12,11 +12,11 @@
                 volumeType="sql" dbName="pay" volumeLimit="50000" content="消费订单数据"
                 sqlScript="select x.id,x.station_name as stationName,station_id as stationId,x.amount,x.finish_time from gas_trade_order x"
     >
+        <dataColumn columnCode="id" columnIndex="true"/>
     </dataVolume>
 
     <columnVolume volumeName="油站名称" volumeCode="stationName" volumeType="sql" columnCode="stationName" dbName="pay"
                   columnValueCode="stationId" columnShowCode="stationName" content="油站数据"
                   script="select x.station_name as stationName,x.station_id as stationId from gas_merchant_station x"
-    >
-    </columnVolume>
+    />
 </volume>
