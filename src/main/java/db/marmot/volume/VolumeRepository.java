@@ -43,13 +43,14 @@ public class VolumeRepository extends StatisticalRepository {
 				Validators.notEmpty(dataColumns, "数据集字段为空");
 				if (CollectionUtils.isNotEmpty(dataVolume.getDataColumns())) {
 					for (int i = 0; i < dataColumns.size(); i++) {
-						DataColumn dataColumn = dataVolume.findDataColumn(dataColumns.get(i).getColumnCode(), null);
-						if (dataColumn != null) {
-							dataColumn.setColumnOrder(dataColumns.get(i).getColumnOrder());
-							dataColumn.setColumnType(dataColumns.get(i).getColumnType());
-							dataColumn.addColumnName(dataColumns.get(i).getColumnName());
-							dataColumn.addScreenColumn(dataColumns.get(i).getScreenColumn());
-							dataColumn.addContent(dataColumns.get(i).getContent());
+						DataColumn dbDataColumn = dataColumns.get(i);
+						if (dataVolume.getDataColumns().contains(dbDataColumn)) {
+							DataColumn dataColumn = dataVolume.findDataColumn(dbDataColumn.getColumnCode(),null);
+							dataColumn.setColumnOrder(dbDataColumn.getColumnOrder());
+							dataColumn.setColumnType(dbDataColumn.getColumnType());
+							dataColumn.addColumnName(dbDataColumn.getColumnName());
+							dataColumn.addScreenColumn(dbDataColumn.getScreenColumn());
+							dataColumn.addContent(dbDataColumn.getContent());
 							dataColumns.add(i, dataColumn);
 						}
 					}
