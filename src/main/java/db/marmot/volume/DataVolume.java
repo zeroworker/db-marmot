@@ -85,24 +85,16 @@ public class DataVolume {
 	
 	public void validateDataVolume(Database database) {
 		Validators.assertJSR303(this);
-		Validators.isTrue(volumeType != VolumeType.enums
-				, "数据集不支持枚举");
-		Validators.isTrue(volumeType != VolumeType.custom,
-				() -> Validators.validateSqlSelect(database.getDbType()
-						, this.sqlScript));
-		Validators.isTrue(volumeType != VolumeType.custom,
-				() -> Validators.notBlank(this.sqlScript
-						, "sql不能为空"));
-		Validators.isTrue(volumeType == VolumeType.model
-				, () -> {
+		Validators.isTrue(volumeType != VolumeType.enums, "数据集不支持枚举");
+		Validators.isTrue(volumeType != VolumeType.custom, () -> Validators.validateSqlSelect(database.getDbType(), this.sqlScript));
+		Validators.isTrue(volumeType != VolumeType.custom, () -> Validators.notBlank(this.sqlScript, "sql不能为空"));
+		Validators.isTrue(volumeType == VolumeType.model, () -> {
 			findDateDataColumn();
 			findIndexDataColumn();
 		});
 		dataColumns.forEach(dataColumn -> {
 			dataColumn.validateDataColumn();
-			Validators.notNull(findDataColumn(dataColumn.getScreenColumn(), null)
-					, "筛选字段%s在数据集中不存在"
-					, dataColumn.getScreenColumn());
+			Validators.notNull(findDataColumn(dataColumn.getScreenColumn(), null), "筛选字段%s在数据集中不存在", dataColumn.getScreenColumn());
 		});
 	}
 	
