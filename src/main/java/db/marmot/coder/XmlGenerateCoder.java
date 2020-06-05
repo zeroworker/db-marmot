@@ -364,10 +364,7 @@ public class XmlGenerateCoder {
 		}
 		
 		public static String getValue(Element element, String name) {
-			if (element.hasAttribute(name)){
-				return element.getAttribute(name);
-			}
-			return null;
+			return getValue(element,name,null);
 		}
 
 		public static String getValue(Element element, String name,String value) {
