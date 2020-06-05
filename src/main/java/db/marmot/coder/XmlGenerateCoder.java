@@ -352,7 +352,7 @@ public class XmlGenerateCoder {
 		}
 		
 		public Element nextElement() {
-			if (index < nodeList.getLength()) {
+			if (index < nodeList.getLength() -1) {
 				index = index + 1;
 				Node node = nodeList.item(index);
 				if (node.getNodeType() == Element.ELEMENT_NODE) {
