@@ -1,0 +1,145 @@
+@charset "utf-8";
+/*
+ * 颜色scss变量
+ */
+/*主色调*/
+$color-main: #fd5f46;
+/*默认字体色*/
+$color-font: rgba(0,0,0,0.9);
+/*背景颜色*/
+$color-bg: #e7e9ee; 
+/*白色*/
+$color-white: #fff;
+$color-border:rgba(0,0,0,0.1);//border颜色
+
+//字体
+$color-b-d: rgba(0,0,0,0.9);
+$color-b-m: rgba(0,0,0,0.54);
+$color-b-l: rgba(0,0,0,0.28);
+$color-w-d: rgba(255,255,255,0.9);
+$color-w-m: rgba(255,255,255,0.54);
+$color-w-l: rgba(255,255,255,0.28);
+
+//icon颜色
+$color-blue: #82b1ff;
+$color-yellow: #ffbc00;
+$color-orange: #ff892d;
+$color-pink: #ff80ab;
+$color-green: #5eb950;
+$color-red: #e91920;
+
+//各种颜色
+$color-gold: #d4a46d;
+$color-diamond: #a18968;
+$color-vip2: #c3d9e3;
+$color-vip3: #f5be47;
+$color-vip4: #ffe6c4;
+$color-wechat:#22bf0b;
+$color-alipay: #00a0ea;
+$color-gray: #b2b2b2;
+$color-pink-l: #fbf4f3;
+$color-gray-d: #7c7e89;
+$color-success: #4dd054;
+$color-yellow-l: #fbf0dc;
+$color-brown: #8b6333;
+$color-brown-l: #a89175;
+
+/*通用样式*/
+//颜色
+.c-m{
+    color: $color-main;
+}
+.c-b-d{
+    color: $color-b-d;
+}
+.c-b-m{
+    color: $color-b-m;
+}
+.c-b-l{
+    color: $color-b-l;
+}
+.c-w{
+    color: $color-white;
+}
+.c-w-d{
+    color: $color-w-d;
+}
+.c-w-m{
+    color: $color-w-m;
+}
+.c-w-l{
+    color: $color-w-l;
+}
+
+  /*三级联动样式，新增商户页面*/
+.cascader-cont{
+  position: relative;
+}
+.cascader-cont .value-info{
+  position: absolute;
+  left: 7px;
+  z-index: 1;
+}
+.cascader-cont .ant-input.ant-cascader-input {
+  z-index: 2;
+}
+
+
+//穿梭框样式
+.ant-transfer-list{
+    width: 43% !important;
+}
+
+
+//详情页样式
+.info-text {
+  line-height: 25px;
+  padding: 20px 0;
+  h3{
+      padding: 5px 16px;
+      background: darken(#fff,5%);
+      border-left: 2px solid rgba(0,0,0,.1);
+      font-weight: bold;
+  }
+  div{
+      padding: 8px 32px 24px;
+      p{
+          font-size: 14px;
+          float: left;
+          width: 40%;
+          span{
+              display: inline-block;
+              width: 120px;
+              text-align: right;
+              padding-right: 10px;
+          }
+          .user-photo{
+              width: 60px;
+              height: 60px;
+              border: 1px solid $color-border;
+          }
+      }
+  }
+}
+
+//tabber组件样式
+.ant-tabs-bar{
+    border-bottom-color: $color-border;
+}
+
+//picker固定宽度
+.picker-shrink .ant-calendar-picker{
+    width: 300px !important;
+}
+
+
+//发券规则，title样式
+.rules-info{
+    h3{
+        padding: 5px 16px;
+        background: darken(#fff,5%);
+        border-left: 2px solid rgba(0,0,0,.1);
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+}
