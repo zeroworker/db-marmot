@@ -1,4 +1,4 @@
 export default {
-    FOOD: 'food',
-    GLASS: 'glass',
+  FOOD: 'food',
+  GLASS: 'glass',
 }

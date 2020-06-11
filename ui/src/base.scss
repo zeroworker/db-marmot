@@ -1,29 +1,31 @@
 @charset "utf-8";
 
-$color-font: #313131;//基本字体颜色
-$color-bg: #f2f2f2;//背景颜色
+$color-font: #313131; //基本字体颜色
+$color-bg: #f2f2f2; //背景颜色
 
 // reset
 // ==========================================================================
 
 html {
-    color: $color-font;
-    -webkit-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
+  color: $color-font;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
+
 body,
 html {
-    background: $color-bg;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  background: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
 body,
 button,
 input,
 select,
 textarea {
-    font: 12px/1.5 Microsoft Yahei, tahoma, arial, sans-serif;
+  font: 12px/1.5 Microsoft Yahei, tahoma, arial, sans-serif;
 }
 
 a,
@@ -65,10 +67,10 @@ td,
 textarea,
 th,
 ul {
-    margin: 0;
-    padding: 0;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 div,
@@ -80,8 +82,8 @@ h5,
 h6,
 p,
 textarea {
-    table-layout: fixed;
-    word-break: break-all;
+  table-layout: fixed;
+  word-break: break-all;
 }
 
 article,
@@ -95,41 +97,44 @@ hgroup,
 menu,
 nav,
 section {
-    display: block;
+  display: block;
 }
 
 audio,
 canvas,
 video {
-    display: inline-block;
-    *display: inline;
-    *zoom: 1;
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
 }
+
 audio:not([controls]) {
-    display: none;
-    height: 0;
+  display: none;
+  height: 0;
 }
 
 [hidden],
 template {
-    display: none;
+  display: none;
 }
 
 a {
-    outline: none;
-    background-color: transparent;
-    &:active,
-    &:hover {
-        outline: 0;
-    }
-    &:hover {
-        text-decoration: none;
-    }
+  outline: none;
+  background-color: transparent;
+
+  &:active,
+  &:hover {
+    outline: 0;
+  }
+
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 a,
 ins {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 button,
@@ -137,79 +142,81 @@ input,
 optgroup,
 select,
 textarea {
-    color: inherit;
-    font: inherit;
-    outline: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
 }
 
 button,
 html input[type="button"],
 input[type="reset"],
 input[type="submit"] {
-    -webkit-appearance: button;
-    -moz-appearance: button;
-    -ms-appearance: button;
-    appearance: button;
-    cursor: pointer;
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  -ms-appearance: button;
+  appearance: button;
+  cursor: pointer;
 }
 
 button[disabled],
 html input[disabled] {
-    cursor: default;
+  cursor: default;
 }
 
 input[type=checkbox],
 input[type=radio] {
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
 }
+
 input,
 select,
 textarea {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    -o-appearance: none;
-    appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  appearance: none;
 }
 
 input[type="search"] {
-    -webkit-appearance: textfield;
-    box-sizing: content-box;
+  -webkit-appearance: textfield;
+  box-sizing: content-box;
 }
 
 table {
-    border-collapse: collapse;
-    border-spacing: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 th {
-    text-align: inherit;
+  text-align: inherit;
 }
 
 h2,
 h3,
 p {
-    orphans: 3;
-    widows: 3;
+  orphans: 3;
+  widows: 3;
 }
+
 fieldset,
 img {
-    border: 0;
+  border: 0;
 }
 
 iframe {
-    display: block;
+  display: block;
 }
 
 abbr,
 acronym {
-    border: 0;
-    font-variant: normal;
+  border: 0;
+  font-variant: normal;
 }
 
 del {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 address,
@@ -220,18 +227,18 @@ dfn,
 em,
 th,
 var {
-    font-style: normal;
-    font-weight: 500;
+  font-style: normal;
+  font-weight: 500;
 }
 
 ol,
 ul {
-    list-style: none;
+  list-style: none;
 }
 
 caption,
 th {
-    text-align: left;
+  text-align: left;
 }
 
 h1,
@@ -240,602 +247,619 @@ h3,
 h4,
 h5,
 h6 {
-    font-size: 100%;
-    font-weight: normal;
+  font-size: 100%;
+  font-weight: normal;
 }
+
 q:after,
 q:before {
-    content: ".";
-    display: block;
-    clear: both;
-    visibility: hidden;
-    font-size: 0;
-    height: 0;
-    line-height: 0;
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  font-size: 0;
+  height: 0;
+  line-height: 0;
 }
+
 a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 // 浮动，显示隐藏，文本对齐方式
 // ==========================================================================
 body .fn-clear:after {
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: " ";
-    clear: both;
-    height: 0;
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
 }
 
 body .fn-hide {
-    display: none;
+  display: none;
 }
 
 body .fn-show {
-    display: block;
+  display: block;
 }
 
 body .fn-v-hide {
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.2s linear;
-    -webkit-transition: all 0.2s linear;
-    -moz-transition: all 0.2s linear;
-    -ms-transition: all 0.2s linear;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.2s linear;
+  -webkit-transition: all 0.2s linear;
+  -moz-transition: all 0.2s linear;
+  -ms-transition: all 0.2s linear;
 }
 
 body .fn-v-show {
-    visibility: visible;
-    opacity: 1;
-    transition: all 0.2s linear;
-    -webkit-transition: all 0.2s linear;
-    -moz-transition: all 0.2s linear;
-    -ms-transition: all 0.2s linear;
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.2s linear;
+  -webkit-transition: all 0.2s linear;
+  -moz-transition: all 0.2s linear;
+  -ms-transition: all 0.2s linear;
 }
 
 body .fn-left,
 body .fn-right {
-    display: inline;
+  display: inline;
 }
 
 body .fn-left {
-    float: left;
+  float: left;
 }
 
 body .fn-right {
-    float: right;
+  float: right;
 }
 
 body .text-right {
-    text-align: right;
+  text-align: right;
 }
 
 body .text-left {
-    text-align: left;
+  text-align: left;
 }
 
 body .text-center {
-    text-align: center;
+  text-align: center;
 }
 
 // 内容超过1行用...代替
 
 .text-ellipsis {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    word-break: break-all;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  word-break: break-all;
 }
 
 // 内容超过2行用...代替
 
 .text-ellipsis-2 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 // 内容超过3行用...代替
 
 .text-ellipsis-3 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 // 换行
 
 .word-space {
-    white-space: pre-wrap;
-    /* css-3 */
-    white-space: -moz-pre-wrap;
-    /* Mozilla, since 1999 */
-    white-space: -pre-wrap;
-    /* Opera 4-6 */
-    white-space: -o-pre-wrap;
-    /* Opera 7 */
-    word-wrap: break-word;
-    /* Internet Explorer 5.5+ */
+  white-space: pre-wrap;
+  /* css-3 */
+  white-space: -moz-pre-wrap;
+  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;
+  /* Opera 4-6 */
+  white-space: -o-pre-wrap;
+  /* Opera 7 */
+  word-wrap: break-word;
+  /* Internet Explorer 5.5+ */
 }
 
 // scrollbar
 // ==========================================================================
 ::-webkit-scrollbar-track-piece {
-    width: 8px;
-    background-color: #f8f8f8;
+  width: 8px;
+  background-color: #f8f8f8;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
-    background-color: #2882e8;
+  width: 8px;
+  background-color: #2882e8;
 }
 
 ::-webkit-scrollbar-thumb {
-    width: 8px;
-    background-color: #aeaeae;
+  width: 8px;
+  background-color: #aeaeae;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    width: 8px;
-    background-color: #2882e8;
+  width: 8px;
+  background-color: #2882e8;
 }
 
 // border-radius
 // ==========================================================================
 
 .b-r-3 {
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -ms-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
 }
 
 .b-r-5 {
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    -ms-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
 }
 
 .b-r-10 {
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    -ms-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
 }
 
 .b-r-50 {
-    border-radius: 50%;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    -ms-border-radius: 50%;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
 }
 
 // padding&margin
 // ==========================================================================
 
 .p-5 {
-    padding: 5px;
+  padding: 5px;
 }
 
 .p-10 {
-    padding: 10px;
+  padding: 10px;
 }
 
 .p-15 {
-    padding: 15px;
+  padding: 15px;
 }
 
 .p-20 {
-    padding: 20px;
+  padding: 20px;
 }
 
 .p-25 {
-    padding: 25px;
+  padding: 25px;
 }
 
 .p-30 {
-    padding: 30px;
+  padding: 30px;
 }
 
 .p-t-5 {
-    padding-top: 5px;
+  padding-top: 5px;
 }
 
 .p-t-10 {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .p-t-15 {
-    padding-top: 15px;
+  padding-top: 15px;
 }
 
 .p-t-20 {
-    padding-top: 20px;
+  padding-top: 20px;
 }
 
 .p-t-25 {
-    padding-top: 25px;
+  padding-top: 25px;
 }
 
 .p-t-30 {
-    padding-top: 30px;
+  padding-top: 30px;
 }
 
 .p-b-5 {
-    padding-bottom: 5px;
+  padding-bottom: 5px;
 }
 
 .p-b-10 {
-    padding-bottom: 10px;
+  padding-bottom: 10px;
 }
 
 .p-b-15 {
-    padding-bottom: 15px;
+  padding-bottom: 15px;
 }
 
 .p-b-20 {
-    padding-bottom: 20px;
+  padding-bottom: 20px;
 }
 
 .p-b-25 {
-    padding-bottom: 25px;
+  padding-bottom: 25px;
 }
 
 .p-b-30 {
-    padding-bottom: 30px;
+  padding-bottom: 30px;
 }
 
 .p-l-5 {
-    padding-left: 5px;
+  padding-left: 5px;
 }
 
 .p-l-10 {
-    padding-left: 10px;
+  padding-left: 10px;
 }
 
 .p-l-15 {
-    padding-left: 15px;
+  padding-left: 15px;
 }
 
 .p-l-20 {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
 .p-l-25 {
-    padding-left: 25px;
+  padding-left: 25px;
 }
 
 .p-l-30 {
-    padding-left: 30px;
+  padding-left: 30px;
 }
 
 .p-r-5 {
-    padding-right: 5px;
+  padding-right: 5px;
 }
-.p-r-8{
-    padding-right: 8px;
+
+.p-r-8 {
+  padding-right: 8px;
 }
+
 .p-r-10 {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 .p-r-15 {
-    padding-right: 15px;
+  padding-right: 15px;
 }
 
 .p-r-20 {
-    padding-right: 20px;
+  padding-right: 20px;
 }
 
 .p-r-25 {
-    padding-right: 25px;
+  padding-right: 25px;
 }
 
 .p-r-30 {
-    padding-right: 30px;
+  padding-right: 30px;
 }
 
 .m-5 {
-    margin: 5px;
+  margin: 5px;
 }
 
 .m-10 {
-    margin: 10px;
+  margin: 10px;
 }
 
 .m-15 {
-    margin: 15px;
+  margin: 15px;
 }
 
 .m-20 {
-    margin: 20px;
+  margin: 20px;
 }
 
 .m-25 {
-    margin: 25px;
+  margin: 25px;
 }
 
 .m-30 {
-    margin: 30px;
+  margin: 30px;
 }
 
 .m-t-5 {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 .m-t-10 {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .m-t-15 {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .m-t-20 {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .m-t-25 {
-    margin-top: 25px;
+  margin-top: 25px;
 }
 
 .m-t-30 {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .m-b-5 {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .m-b-10 {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .m-b-15 {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .m-b-20 {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .m-b-25 {
-    margin-bottom: 25px;
+  margin-bottom: 25px;
 }
 
 .m-b-30 {
-    margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 
 .m-l-5 {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 .m-l-10 {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .m-l-15 {
-    margin-left: 15px;
+  margin-left: 15px;
 }
 
 .m-l-20 {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 .m-l-25 {
-    margin-left: 25px;
+  margin-left: 25px;
 }
 
 .m-l-30 {
-    margin-left: 30px;
+  margin-left: 30px;
 }
 
 .m-r-5 {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .m-r-10 {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .m-r-15 {
-    margin-right: 15px;
+  margin-right: 15px;
 }
 
 .m-r-20 {
-    margin-right: 20px;
+  margin-right: 20px;
 }
 
 .m-r-25 {
-    margin-right: 25px;
+  margin-right: 25px;
 }
 
 .m-r-30 {
-    margin-right: 30px;
+  margin-right: 30px;
 }
 
 // box
 // ==========================================================================
 
 .box {
-    width: 100%;
-    display: box;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    box-orient: horizontal;
-    -webkit-box-orient: horizontal;
-    -moz-box-orient: horizontal;
-    -ms-flex-direction: row;
+  width: 100%;
+  display: box;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  box-orient: horizontal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -ms-flex-direction: row;
 }
 
 .box-flex {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    -moz-box-flex: 1;
-    box-flex: 1;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
 }
 
 .box-align {
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    -webkit-box-pack: center;
-    -webkit-box-align: center;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-    -ms-flex-pack: center;
-    -ms-flex-align: center;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
 }
 
 .box-center-flex {
-    width: 100%;
-    display: box;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    box-orient: horizontal;
-    -webkit-box-orient: horizontal;
-    -moz-box-orient: horizontal;
-    -ms-flex-direction: row;
-    -webkit-box-flex: 1;
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    -moz-box-flex: 1;
-    box-flex: 1;
-    -webkit-box-pack: center;
-    -webkit-box-align: center;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-    -ms-flex-pack: center;
-    -ms-flex-align: center;
+  width: 100%;
+  display: box;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  box-orient: horizontal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -ms-flex-direction: row;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
 }
 
 //flex弹性布局==========================================
 //块级元素
 .fx {
-    display: flex;
-    display: -webkit-flex;
-    display: -ms-flexbox;
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
 }
+
 //行内元素
 .fx-inline {
-    display: inline-flex;
-    display: -ms-inline-flexbox;
-    display: -webkit-inline-flex;
+  display: inline-flex;
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
 }
+
 //上下左右居中
 .fx-align {
-    display: flex;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    justify-content: center;
-    -webkit-justify-content: center;
-    align-items: center;
-    -webkit-align-items: center;
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  justify-content: center;
+  -webkit-justify-content: center;
+  align-items: center;
+  -webkit-align-items: center;
 }
+
 //可换行
 .fx-wrap {
-    flex-wrap: wrap;
-    -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
 }
+
 //占满一行
 .fx-fill {
-    flex-grow: 1;
-    -webkit-flex-grow: 1;
+  flex-grow: 1;
+  -webkit-flex-grow: 1;
 }
+
 //固定宽度
-.fx-shrink{
-    flex-shrink: 0;
-    -webkit-flex-shrink: 0;
+.fx-shrink {
+  flex-shrink: 0;
+  -webkit-flex-shrink: 0;
 }
 
 //在交叉轴（Y轴）上的对齐方式===================================
 //下对齐
 .fx-y-down {
-    align-items: flex-end;
-    -webkit-align-items: flex-end;
+  align-items: flex-end;
+  -webkit-align-items: flex-end;
 }
+
 //居中对齐
 .fx-y-center {
-    align-items: center;
-    -webkit-align-items: center;
+  align-items: center;
+  -webkit-align-items: center;
 }
+
 //拉伸对齐
 .fx-y-stretch {
-    align-items: stretch;
-    -webkit-align-items: stretch;
+  align-items: stretch;
+  -webkit-align-items: stretch;
 }
 
 //在主轴（X轴）上的对齐方式=====================================
 //居中对齐
 .fx-x-center {
-    justify-content: center;
-    -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-justify-content: center;
 }
+
 //右对齐
 .fx-x-right {
-    justify-content: flex-end;
-    -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+  -webkit-justify-content: flex-end;
 }
+
 //两端对齐
 .fx-x-between {
-    justify-content: space-between;
-    -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
 }
+
 //每个元素中间的间距相等
 .fx-x-around {
-    justify-content: space-around;
-    -webkit-justify-content: space-around;
+  justify-content: space-around;
+  -webkit-justify-content: space-around;
 }
+
 // 动画
 // ==========================================================================
 a,
 button,
 input [type='button'] {
-    transition: all 0.2s ease;
-    -webkit-transition: all 0.2s ease;
-    -moz-transition: all 0.2s ease;
-    -ms-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
 }
 
 //自动换行
 
 .auto-wrap {
-    word-wrap: break-word;
-    white-space: normal;
-    word-break: break-all;
+  word-wrap: break-word;
+  white-space: normal;
+  word-break: break-all;
 }
 
 //浏览器兼容
 @mixin add-brower($property,$value) {
-    -webkit-#{$property}: $value;
-    -moz-#{$property}: $value;
-    -ms-#{$property}: $value;
-    #{$property}: $value;
+  -webkit-#{$property}: $value;
+  -moz-#{$property}: $value;
+  -ms-#{$property}: $value;
+  #{$property}: $value;
 }
+
 @mixin keyframes($name) {
-    @keyframes #{$name} {
-        @content;
-    }
-    @-webkit-keyframes #{$name} {
-        @content;
-    }
-    @-moz-keyframes #{$name} {
-        @content;
-    }
-    @-ms-keyframes #{$name} {
-        @content;
-    }
+  @keyframes #{$name} {
+    @content;
+  }
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
 }
 
 //使用方法：

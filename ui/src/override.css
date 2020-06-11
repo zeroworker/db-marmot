@@ -1,5 +1,5 @@
 @charset "utf-8";
 .ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table-tfoot > tr > td {
-    padding: 8px;
-    vertical-align: middle;
+  padding: 8px;
+  vertical-align: middle;
 }
